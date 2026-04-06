@@ -33,10 +33,10 @@ public class Member {
     @Builder.Default
     private String role = "ROLE_USER";
 
-    /** BRONZE / SILVER / GOLD / VIP */
+    /** SAPPHIRE / RUBY / EMERALD / GOLD / DIAMOND */
     @Column(nullable = false, length = 20)
     @Builder.Default
-    private String grade = "BRONZE";
+    private String grade = "SAPPHIRE";
 
     /** ACTIVE / SUSPENDED */
     @Column(nullable = false, length = 20)

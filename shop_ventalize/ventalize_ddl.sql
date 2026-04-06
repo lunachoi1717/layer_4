@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS reviews      CASCADE;
 DROP TABLE IF EXISTS questions    CASCADE;
 DROP TABLE IF EXISTS inquiries    CASCADE;
 DROP TABLE IF EXISTS faqs         CASCADE;
+DROP TABLE IF EXISTS coupons      CASCADE;
 DROP TABLE IF EXISTS items        CASCADE;
 DROP TABLE IF EXISTS members      CASCADE;
 
@@ -28,7 +29,7 @@ CREATE TABLE members (
     phone      VARCHAR(20),
     address    VARCHAR(500),
     role       VARCHAR(20)  NOT NULL DEFAULT 'ROLE_USER',
-    grade      VARCHAR(20)  NOT NULL DEFAULT 'BRONZE',
+    grade      VARCHAR(20)  NOT NULL DEFAULT 'SAPPHIRE',
     status     VARCHAR(20)  NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMP    NOT NULL DEFAULT NOW()
 );
@@ -152,9 +153,9 @@ CREATE TABLE inquiries (
 --     실제 실행 시 AdminInitializer가 admin@ventalize.com 자동 생성
 -- ============================================================
 INSERT INTO members (login_id, login_pw, name, phone, role, grade, status) VALUES
-('user1@ventalize.com', '$2a$10$H5G.3cxVfJuT0WBSHJdRAuQb4cHuUoT9I1EK.tHJNpjVCXUyQYc5m', '김민지', '010-1111-2222', 'ROLE_USER', 'SILVER', 'ACTIVE'),
-('user2@ventalize.com', '$2a$10$H5G.3cxVfJuT0WBSHJdRAuQb4cHuUoT9I1EK.tHJNpjVCXUyQYc5m', '이서연', '010-3333-4444', 'ROLE_USER', 'GOLD',   'ACTIVE'),
-('user3@ventalize.com', '$2a$10$H5G.3cxVfJuT0WBSHJdRAuQb4cHuUoT9I1EK.tHJNpjVCXUyQYc5m', '박지훈', '010-5555-6666', 'ROLE_USER', 'BRONZE', 'ACTIVE');
+('user1@ventalize.com', '$2a$10$H5G.3cxVfJuT0WBSHJdRAuQb4cHuUoT9I1EK.tHJNpjVCXUyQYc5m', '김민지', '010-1111-2222', 'ROLE_USER', 'RUBY',     'ACTIVE'),
+('user2@ventalize.com', '$2a$10$H5G.3cxVfJuT0WBSHJdRAuQb4cHuUoT9I1EK.tHJNpjVCXUyQYc5m', '이서연', '010-3333-4444', 'ROLE_USER', 'EMERALD',  'ACTIVE'),
+('user3@ventalize.com', '$2a$10$H5G.3cxVfJuT0WBSHJdRAuQb4cHuUoT9I1EK.tHJNpjVCXUyQYc5m', '박지훈', '010-5555-6666', 'ROLE_USER', 'SAPPHIRE', 'ACTIVE');
 
 -- ============================================================
 -- 12. 상품 데이터 (카테고리별 16개 = 2페이지 분량)
@@ -275,7 +276,33 @@ INSERT INTO items (brand, name, category, img_path, description, price, discount
 ('Ventalize', '[SALE] 스웨이드 미니 버킷백',       'SALE', 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600', '시즌 오프 특가! 스웨이드 버킷백.', 365000, 45, 8);
 
 -- ============================================================
--- 13. FAQ 샘플 데이터
+-- 13. 쿠폰 테이블
+-- ============================================================
+CREATE TABLE coupons (
+    id               SERIAL PRIMARY KEY,
+    name             VARCHAR(100) NOT NULL,
+    code             VARCHAR(50)  NOT NULL UNIQUE,
+    discount_type    VARCHAR(10)  NOT NULL,   -- FIXED | PERCENT
+    discount_value   INTEGER      NOT NULL,
+    target_grade     VARCHAR(20),             -- NULL = 전체
+    min_order_amount BIGINT       NOT NULL DEFAULT 0,
+    valid_from       DATE         NOT NULL,
+    valid_to         DATE         NOT NULL,
+    is_active        BOOLEAN      NOT NULL DEFAULT TRUE,
+    created_at       TIMESTAMP    NOT NULL DEFAULT NOW()
+);
+
+-- 샘플 쿠폰 데이터
+INSERT INTO coupons (name, code, discount_type, discount_value, target_grade, min_order_amount, valid_from, valid_to) VALUES
+('신규 회원 웰컴 쿠폰',   'WELCOME10',    'PERCENT', 10, NULL,       0,       CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year'),
+('사파이어 등급 할인',    'SAPPHIRE5K',   'FIXED',   5000, 'SAPPHIRE', 50000,  CURRENT_DATE, CURRENT_DATE + INTERVAL '6 months'),
+('루비 등급 10% 할인',   'RUBY10PCT',    'PERCENT', 10, 'RUBY',     80000,  CURRENT_DATE, CURRENT_DATE + INTERVAL '6 months'),
+('에메랄드 VIP 쿠폰',    'EMERALD15K',   'FIXED',   15000, 'EMERALD', 150000, CURRENT_DATE, CURRENT_DATE + INTERVAL '6 months'),
+('골드 전용 20% 할인',   'GOLD20PCT',    'PERCENT', 20, 'GOLD',     200000, CURRENT_DATE, CURRENT_DATE + INTERVAL '6 months'),
+('다이아몬드 VIP 특별',  'DIAMOND30PCT', 'PERCENT', 30, 'DIAMOND',  300000, CURRENT_DATE, CURRENT_DATE + INTERVAL '6 months');
+
+-- ============================================================
+-- 14. FAQ 샘플 데이터
 -- ============================================================
 INSERT INTO faqs (category, question, answer) VALUES
 ('주문/배송', '주문 후 배송까지 얼마나 걸리나요?', '결제 완료 후 영업일 기준 1~3일 내에 발송됩니다. 배송 기간은 지역에 따라 1~3일 추가 소요될 수 있습니다.'),
@@ -284,7 +311,7 @@ INSERT INTO faqs (category, question, answer) VALUES
 ('환불/교환', '교환 및 환불은 어떻게 신청하나요?', '수령 후 7일 이내에 마이페이지 > 주문내역에서 신청하거나 1:1 문의를 통해 접수하실 수 있습니다.'),
 ('환불/교환', '향수 개봉 후 환불이 가능한가요?', '향수는 위생상의 이유로 개봉 후 환불이 불가합니다. 단, 제품 불량의 경우 교환 가능합니다.'),
 ('환불/교환', '스카프나 의류의 경우 착용 후 반품이 가능한가요?', '착용 흔적이 없는 경우에 한해 수령 후 7일 이내 반품 가능합니다.'),
-('회원', '회원 등급은 어떻게 분류되나요?', 'BRONZE → SILVER → GOLD → VIP 순으로 구매 금액에 따라 자동 상향됩니다.'),
+('회원', '회원 등급은 어떻게 분류되나요?', 'SAPPHIRE → RUBY → EMERALD → GOLD → DIAMOND 순으로 최근 6개월 구매 금액에 따라 자동 산정됩니다.'),
 ('회원', '비밀번호를 잊어버렸어요.', '로그인 페이지의 "비밀번호 찾기"를 이용하시거나, 1:1 문의로 연락주시면 도움드립니다.'),
 ('상품', '향수 샘플을 받아볼 수 있나요?', '일부 향수의 경우 2ml 샘플 구매가 가능합니다. 상품 상세 페이지에서 확인하실 수 있습니다.'),
 ('상품', '실크 스카프 세탁 방법이 궁금합니다.', '실크 제품은 손세탁(30°C 이하) 또는 드라이클리닝을 권장합니다. 세탁기 사용 시 손상될 수 있습니다.'),

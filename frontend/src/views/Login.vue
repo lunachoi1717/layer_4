@@ -84,7 +84,7 @@ async function handleLogin() {
     })
     if (res.ok) {
       const data = await res.json()
-      setLogin(data.loginId, data.name, data.role)
+      setLogin(data.loginId, data.name, data.role, data.grade)
       router.push(data.role === 'ROLE_ADMIN' ? '/admin/dashboard' : '/')
     } else if (res.status === 404) {
       error.value = '이메일 또는 비밀번호가 올바르지 않습니다.'

@@ -24,6 +24,7 @@ public class BaseOrderService implements OrderService{
     private final OrderItemService orderItemService;
     private final ItemService itemService;
     private final CartService cartService;
+    private final PaymentSimulator paymentSimulator;
 
     // 주문 목록 조회
     @Override
@@ -91,5 +92,8 @@ public class BaseOrderService implements OrderService{
 
         // 장바구니 데이터 삭제(특정 회원)
         cartService.removeAll(order.getMemberId());
+
+        // 결제 시뮬레이션: 10초 후 PAID로 자동 전환
+        paymentSimulator.simulatePayment(order.getId());
     }
 }

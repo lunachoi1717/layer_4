@@ -54,7 +54,7 @@ import { ref, onMounted } from 'vue'
 const members = ref([])
 const keyword = ref('')
 const toast = ref('')
-const grades = ['BRONZE', 'SILVER', 'GOLD', 'VIP']
+const grades = ['SAPPHIRE', 'RUBY', 'EMERALD', 'GOLD', 'DIAMOND']
 
 function showToast(msg) {
   toast.value = msg

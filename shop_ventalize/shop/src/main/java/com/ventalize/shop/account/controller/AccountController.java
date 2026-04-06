@@ -49,7 +49,7 @@ public class AccountController {
                 .loginId(req.getLoginId())
                 .loginPw(passwordEncoder.encode(req.getLoginPw()))
                 .role("ROLE_USER")
-                .grade("BRONZE")
+                .grade("SAPPHIRE")
                 .status("ACTIVE")
                 .build();
         memberRepository.save(member);
@@ -73,7 +73,7 @@ public class AccountController {
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
 
             Member member = memberRepository.findByLoginId(req.getLoginId()).orElseThrow();
-            return ResponseEntity.ok(new AccountCheckResponse(true, member.getLoginId(), member.getName(), member.getRole()));
+            return ResponseEntity.ok(new AccountCheckResponse(true, member.getLoginId(), member.getName(), member.getRole(), member.getGrade()));
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
@@ -84,9 +84,9 @@ public class AccountController {
     public ResponseEntity<?> check() {
         Member member = securityUtil.getCurrentMember();
         if (member == null) {
-            return ResponseEntity.ok(new AccountCheckResponse(false, null, null, null));
+            return ResponseEntity.ok(new AccountCheckResponse(false, null, null, null, null));
         }
-        return ResponseEntity.ok(new AccountCheckResponse(true, member.getLoginId(), member.getName(), member.getRole()));
+        return ResponseEntity.ok(new AccountCheckResponse(true, member.getLoginId(), member.getName(), member.getRole(), member.getGrade()));
     }
 
     /** 로그아웃 */

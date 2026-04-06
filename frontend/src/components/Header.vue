@@ -10,18 +10,8 @@
     <div class="v-header__main">
       <div class="v-header__inner">
 
-        <!-- Left: Auth links -->
-        <div class="v-header__left">
-          <template v-if="isLoggedIn">
-            <span class="v-header__username">{{ userName || loginId }}</span>
-            <RouterLink v-if="isAdmin()" to="/admin" class="v-header__link v-header__link--admin">Admin</RouterLink>
-            <button class="v-header__link" @click="handleLogout">Sign out</button>
-          </template>
-          <template v-else>
-            <RouterLink to="/login" class="v-header__link">Sign in</RouterLink>
-            <RouterLink to="/register" class="v-header__link">Join</RouterLink>
-          </template>
-        </div>
+        <!-- Left: empty placeholder for grid balance -->
+        <div class="v-header__left"></div>
 
         <!-- Center: Logo -->
         <RouterLink to="/" class="v-header__logo">
@@ -29,8 +19,24 @@
           <span class="v-header__logo-kr">벙딸리제</span>
         </RouterLink>
 
-        <!-- Right: Icons -->
+        <!-- Right: Auth + Icons -->
         <div class="v-header__right">
+          <!-- Auth links -->
+          <template v-if="isLoggedIn">
+            <div class="v-header__user-group">
+              <span class="v-grade-icon" :class="`v-grade-icon--${gradeKey}`" :title="gradeLabel">{{ gradeInitial }}</span>
+              <span class="v-header__username">{{ userName || loginId }}</span>
+            </div>
+            <RouterLink v-if="isAdmin()" to="/admin" class="v-header__link v-header__link--admin">Admin</RouterLink>
+            <button class="v-header__link" @click="handleLogout">Sign out</button>
+          </template>
+          <template v-else>
+            <RouterLink to="/login" class="v-header__link">Sign in</RouterLink>
+            <RouterLink to="/register" class="v-header__link">Join</RouterLink>
+          </template>
+
+          <div class="v-header__icon-divider"></div>
+
           <!-- Search toggle -->
           <button class="v-header__icon-btn" @click="searchOpen = !searchOpen" aria-label="Search">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -96,17 +102,34 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../composables/useAuth.js'
 
-const { isLoggedIn, loginId, userName, isAdmin, clearLogin } = useAuth()
+const { isLoggedIn, loginId, userName, grade, isAdmin, clearLogin } = useAuth()
 const router = useRouter()
 
 const searchOpen  = ref(false)
 const searchQuery = ref('')
 const searchInput = ref(null)
 const scrolled    = ref(false)
+
+// 등급 아이콘 계산
+const GRADE_MAP = {
+  SAPPHIRE: { initial: 'S', label: 'Sapphire', key: 'sapphire' },
+  RUBY:     { initial: 'R', label: 'Ruby',     key: 'ruby'     },
+  EMERALD:  { initial: 'E', label: 'Emerald',  key: 'emerald'  },
+  GOLD:     { initial: 'G', label: 'Gold',     key: 'gold'     },
+  DIAMOND:  { initial: 'D', label: 'Diamond',  key: 'diamond'  },
+  // 구 등급 fallback
+  BRONZE:   { initial: 'B', label: 'Bronze',   key: 'sapphire' },
+  SILVER:   { initial: 'S', label: 'Silver',   key: 'sapphire' },
+  VIP:      { initial: 'V', label: 'VIP',      key: 'diamond'  },
+}
+
+const gradeKey     = computed(() => GRADE_MAP[grade.value?.toUpperCase()] ? GRADE_MAP[grade.value.toUpperCase()].key : 'sapphire')
+const gradeInitial = computed(() => GRADE_MAP[grade.value?.toUpperCase()]?.initial || 'S')
+const gradeLabel   = computed(() => GRADE_MAP[grade.value?.toUpperCase()]?.label   || grade.value || 'Sapphire')
 
 watch(searchOpen, async (val) => {
   if (val) { await nextTick(); searchInput.value?.focus() }
@@ -157,9 +180,9 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   background: #1B3A2D;
   color: #F5F0E8;
   text-align: center;
-  font-size: 0.68rem;
+  font-size: 1.1rem;
   font-family: 'Inter', sans-serif;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.06em;
   padding: 8px 16px;
 }
 
@@ -179,30 +202,10 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   height: 72px;
 }
 
-/* Left */
+/* Left (empty spacer) */
 .v-header__left {
   display: flex;
   align-items: center;
-  gap: 20px;
-}
-.v-header__link {
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  color: #7A7269;
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: color 0.2s;
-  text-decoration: none;
-}
-.v-header__link:hover { color: #111; }
-.v-header__link--admin { color: #B89C6E; font-weight: 600; }
-.v-header__username {
-  font-size: 0.72rem;
-  color: #111;
-  font-weight: 500;
 }
 
 /* Logo */
@@ -222,10 +225,14 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   line-height: 1;
 }
 .v-header__logo-kr {
-  font-size: 0.6rem;
-  letter-spacing: 0.25em;
+  font-size: 1.1rem;
+  letter-spacing: 0.2em;
   color: #7A7269;
   margin-top: 3px;
+  font-family: 'Inter', sans-serif;
+  transform: scale(0.65);
+  transform-origin: center top;
+  display: block;
 }
 
 /* Right */
@@ -233,8 +240,63 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 16px;
+  gap: 14px;
 }
+.v-header__icon-divider {
+  width: 1px;
+  height: 14px;
+  background: #E8E2D9;
+  margin: 0 2px;
+}
+.v-header__link {
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: #7A7269;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.v-header__link:hover { color: #111; }
+.v-header__link--admin { color: #B89C6E; font-weight: 600; }
+
+/* User group (grade icon + name) */
+.v-header__user-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.v-header__username {
+  font-size: 1.1rem;
+  color: #111;
+  font-weight: 500;
+}
+
+/* Grade icon */
+.v-grade-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  color: #fff;
+  flex-shrink: 0;
+  cursor: default;
+}
+.v-grade-icon--sapphire { background: #1565C0; }
+.v-grade-icon--ruby     { background: #B71C1C; }
+.v-grade-icon--emerald  { background: #1B5E20; }
+.v-grade-icon--gold     { background: #B89C6E; }
+.v-grade-icon--diamond  { background: linear-gradient(135deg, #7B68EE 0%, #C0C0C0 50%, #87CEEB 100%); }
+
 .v-header__icon-btn {
   background: none;
   border: none;
@@ -276,9 +338,9 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 }
 .v-search-input::placeholder { color: #C9B89A; }
 .v-search-submit {
-  font-size: 0.7rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   background: #1B3A2D;
   color: #F5F0E8;
@@ -311,9 +373,9 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 .v-nav-link {
   display: inline-block;
   padding: 13px 22px;
-  font-size: 0.7rem;
+  font-size: 1.1rem;
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #7A7269;
   text-decoration: none;

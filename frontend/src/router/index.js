@@ -27,7 +27,7 @@ const routes = [
     children: [
       { path: '', redirect: '/board/faq' },
       { path: 'faq', component: () => import('../views/board/Faq.vue') },
-      { path: 'inquiry', component: () => import('../views/board/Inquiry.vue'), meta: { requiresAuth: true } },
+      { path: 'inquiry', component: () => import('../views/board/Inquiry.vue') },
     ]
   },
 
@@ -45,6 +45,7 @@ const routes = [
       { path: 'reviews', component: () => import('../views/admin/Reviews.vue') },
       { path: 'qna', component: () => import('../views/admin/QnA.vue') },
       { path: 'board', component: () => import('../views/admin/Board.vue') },
+      { path: 'coupons', component: () => import('../views/admin/Coupons.vue') },
     ]
   }
 ]

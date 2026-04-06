@@ -21,6 +21,38 @@ public class InquiryController {
     private final MemberRepository memberRepository;
     private final SecurityUtil securityUtil;
 
+    /** 전체 문의 목록 (공개) — 제목·카테고리·상태만 노출, 내용 숨김 */
+    @GetMapping
+    public ResponseEntity<?> list() {
+        Integer currentMemberId = securityUtil.getCurrentMemberId();
+        boolean isAdmin = isCurrentAdmin();
+        return ResponseEntity.ok(
+                inquiryRepository.findAllByOrderByCreatedAtDesc()
+                        .stream()
+                        .map(i -> {
+                            boolean isOwner = currentMemberId != null && currentMemberId.equals(i.getMemberId());
+                            return toReadPublic(i, isOwner || isAdmin);
+                        })
+                        .toList()
+        );
+    }
+
+    /** 문의 상세 (작성자 또는 관리자만) */
+    @GetMapping("/{id}")
+    public ResponseEntity<?> detail(@PathVariable Integer id) {
+        Integer currentMemberId = securityUtil.getCurrentMemberId();
+        boolean isAdmin = isCurrentAdmin();
+        return inquiryRepository.findById(id)
+                .map(i -> {
+                    boolean isOwner = currentMemberId != null && currentMemberId.equals(i.getMemberId());
+                    if (!isOwner && !isAdmin) {
+                        return ResponseEntity.status(403).<Object>build();
+                    }
+                    return ResponseEntity.ok((Object) toRead(i, isAdmin));
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     /** 내 1:1 문의 목록 */
     @GetMapping("/my")
     public ResponseEntity<?> my() {
@@ -57,6 +89,7 @@ public class InquiryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /** 권한 있는 사용자용 전체 내용 DTO */
     private InquiryRead toRead(Inquiry i, boolean isAdmin) {
         String memberName = memberRepository.findById(i.getMemberId())
                 .map(m -> m.getName()).orElse("(탈퇴회원)");
@@ -72,5 +105,36 @@ public class InquiryController {
                 .answeredAt(i.getAnsweredAt())
                 .createdAt(i.getCreatedAt())
                 .build();
+    }
+
+    /** 공개용 DTO — 내용 열람 권한이 없으면 content·answerContent 마스킹 */
+    private InquiryRead toReadPublic(Inquiry i, boolean canViewContent) {
+        String memberName = memberRepository.findById(i.getMemberId())
+                .map(m -> m.getName()).orElse("(탈퇴회원)");
+        return InquiryRead.builder()
+                .id(i.getId())
+                .memberId(i.getMemberId())
+                .memberName(memberName)
+                .category(i.getCategory())
+                .title(i.getTitle())
+                .content(canViewContent ? i.getContent() : null)
+                .answerContent(canViewContent ? i.getAnswerContent() : null)
+                .isAnswered(i.getIsAnswered())
+                .answeredAt(i.getAnsweredAt())
+                .createdAt(i.getCreatedAt())
+                .build();
+    }
+
+    private boolean isCurrentAdmin() {
+        try {
+            org.springframework.security.core.Authentication auth =
+                    org.springframework.security.core.context.SecurityContextHolder
+                            .getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated()) return false;
+            return auth.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

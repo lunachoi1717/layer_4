@@ -10,4 +10,5 @@ public class AccountCheckResponse {
     private String loginId;
     private String name;
     private String role;
+    private String grade;
 }

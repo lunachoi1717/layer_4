@@ -65,7 +65,7 @@ public class AdminMemberController {
     @PatchMapping("/{id}/grade")
     public ResponseEntity<?> changeGrade(@PathVariable Integer id, @RequestBody Map<String, String> body) {
         String grade = body.get("grade");
-        if (!List.of("BRONZE", "SILVER", "GOLD", "VIP").contains(grade)) {
+        if (!List.of("SAPPHIRE", "RUBY", "EMERALD", "GOLD", "DIAMOND").contains(grade)) {
             return ResponseEntity.badRequest().body("유효하지 않은 등급입니다.");
         }
         return memberRepository.findById(id).map(m -> {

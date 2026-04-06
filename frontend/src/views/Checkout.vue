@@ -40,6 +40,10 @@
               <span>배송비</span>
               <span>{{ item.salePrice * qty >= 50000 ? '무료' : '3,000원' }}</span>
             </div>
+            <div v-if="appliedCoupon" class="summary-row summary-row--discount">
+              <span>쿠폰 할인 ({{ appliedCoupon.code }})</span>
+              <span class="discount-amount">- {{ couponDiscount.toLocaleString() }}원</span>
+            </div>
             <div class="summary-divider"></div>
             <div class="summary-row summary-row--total">
               <span>최종 결제 금액</span>
@@ -73,6 +77,21 @@
               <label class="form-label">카드 번호</label>
               <input v-model="form.cardNumber" type="text" class="form-input" placeholder="0000-0000-0000-0000" maxlength="19" />
             </div>
+
+            <!-- 쿠폰 -->
+            <div class="form-group">
+              <label class="form-label">쿠폰 코드</label>
+              <div class="coupon-row">
+                <select v-model="selectedCouponCode" class="form-input coupon-select" @change="applyCouponFromList">
+                  <option value="">쿠폰 선택 안 함</option>
+                  <option v-for="c in myCoupons" :key="c.id" :value="c.code">
+                    {{ c.name }} ({{ c.discountType === 'FIXED' ? c.discountValue.toLocaleString() + '원' : c.discountValue + '%' }} 할인)
+                  </option>
+                </select>
+                <span v-if="appliedCoupon" class="coupon-applied">적용됨 ✓</span>
+              </div>
+            </div>
+
             <p v-if="errorMsg" class="form-error">{{ errorMsg }}</p>
             <div class="checkout-actions">
               <button type="button" class="btn-cancel" @click="$router.back()">취소</button>
@@ -98,14 +117,46 @@ const item = ref(null)
 const loading = ref(true)
 const submitting = ref(false)
 const errorMsg = ref('')
+const myCoupons = ref([])
+const appliedCoupon = ref(null)
+const selectedCouponCode = ref('')
 
 const qty = computed(() => Number(route.query.qty) || 1)
 
+const subtotal = computed(() => item.value ? item.value.salePrice * qty.value : 0)
+const shipping  = computed(() => subtotal.value >= 50000 ? 0 : 3000)
+
+const couponDiscount = computed(() => {
+  if (!appliedCoupon.value) return 0
+  const c = appliedCoupon.value
+  if (c.discountType === 'FIXED') return Math.min(c.discountValue, subtotal.value)
+  return Math.floor(subtotal.value * c.discountValue / 100)
+})
+
 const totalPrice = computed(() => {
   if (!item.value) return 0
-  const subtotal = item.value.salePrice * qty.value
-  return subtotal + (subtotal >= 50000 ? 0 : 3000)
+  return Math.max(0, subtotal.value + shipping.value - couponDiscount.value)
 })
+
+function applyCouponFromList() {
+  if (!selectedCouponCode.value) { appliedCoupon.value = null; return }
+  const found = myCoupons.value.find(c => c.code === selectedCouponCode.value)
+  if (found) {
+    if (found.minOrderAmount && subtotal.value < found.minOrderAmount) {
+      errorMsg.value = `최소 주문 금액 ${found.minOrderAmount.toLocaleString()}원 이상 주문 시 사용 가능합니다.`
+      appliedCoupon.value = null; selectedCouponCode.value = ''
+    } else {
+      appliedCoupon.value = found; errorMsg.value = ''
+    }
+  }
+}
+
+async function loadMyCoupons() {
+  try {
+    const res = await fetch('/v1/api/coupons/my', { credentials: 'include' })
+    if (res.ok) myCoupons.value = await res.json()
+  } catch {}
+}
 
 const form = ref({
   name: '',
@@ -153,7 +204,7 @@ async function submitOrder() {
   }
 }
 
-onMounted(loadItem)
+onMounted(() => { loadItem(); loadMyCoupons() })
 </script>
 
 <style scoped>
@@ -289,4 +340,9 @@ onMounted(loadItem)
   text-decoration: none;
   font-weight: 600;
 }
+.summary-row--discount { color: #c0392b; }
+.discount-amount { font-weight: 600; color: #c0392b; }
+.coupon-row { display: flex; align-items: center; gap: 8px; }
+.coupon-select { flex: 1; }
+.coupon-applied { font-size: 13px; color: #16a34a; font-weight: 600; white-space: nowrap; }
 </style>

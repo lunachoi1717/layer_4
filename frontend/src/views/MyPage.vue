@@ -19,8 +19,8 @@
             <div class="v-mypage-avatar">{{ (profile?.name || 'U')[0] }}</div>
             <div>
               <p class="v-mypage-avatar-name">{{ profile?.name || '…' }}</p>
-              <span class="v-grade-badge" :class="`v-grade--${(profile?.grade || 'BRONZE').toLowerCase()}`">
-                {{ profile?.grade || 'BRONZE' }}
+              <span class="v-grade-badge" :class="`grade-${(profile?.grade || 'SAPPHIRE').toLowerCase()}`">
+                {{ profile?.grade || 'SAPPHIRE' }}
               </span>
             </div>
           </div>
@@ -143,6 +143,29 @@
             </form>
           </section>
 
+          <!-- Coupons -->
+          <section v-if="activeTab === 'coupons'">
+            <h2 class="v-mypage-section-title">My Coupons</h2>
+            <p v-if="coupons.length === 0" class="v-mypage-empty t-caption">사용 가능한 쿠폰이 없습니다.</p>
+            <div v-else class="v-coupon-list">
+              <div v-for="c in coupons" :key="c.id" class="v-coupon-card">
+                <div class="v-coupon-card-left">
+                  <p class="v-coupon-name">{{ c.name }}</p>
+                  <code class="v-coupon-code">{{ c.code }}</code>
+                </div>
+                <div class="v-coupon-card-right">
+                  <p class="v-coupon-discount">
+                    <span v-if="c.discountType === 'FIXED'">{{ c.discountValue?.toLocaleString() }}원 할인</span>
+                    <span v-else>{{ c.discountValue }}% 할인</span>
+                  </p>
+                  <p class="v-coupon-validity t-caption">~ {{ c.validTo }}</p>
+                  <p v-if="c.minOrderAmount" class="v-coupon-min t-caption">{{ c.minOrderAmount?.toLocaleString() }}원 이상</p>
+                  <span v-if="c.targetGrade" class="grade-badge" :class="`grade-${c.targetGrade.toLowerCase()}`">{{ c.targetGrade }}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
           <!-- Withdraw -->
           <section v-if="activeTab === 'withdraw'">
             <h2 class="v-mypage-section-title">Delete Account</h2>
@@ -178,6 +201,7 @@ const tabs = [
   { key: 'orders',   label: 'Order History' },
   { key: 'reviews',  label: 'My Reviews' },
   { key: 'qna',      label: 'My Q&A' },
+  { key: 'coupons',  label: 'My Coupons' },
   { key: 'profile',  label: 'Edit Profile' },
   { key: 'withdraw', label: 'Delete Account' },
 ]
@@ -186,6 +210,7 @@ const profile      = ref(null)
 const orders       = ref([])
 const reviews      = ref([])
 const questions    = ref([])
+const coupons      = ref([])
 const ordersLoading = ref(false)
 const profileForm  = ref({ name: '', phone: '', address: '', currentPw: '', newPw: '' })
 const profileMsg   = ref('')
@@ -223,6 +248,10 @@ async function loadReviews() {
 
 async function loadQna() {
   try { const r = await fetch('/v1/api/qna/my', { credentials: 'include' }); if (r.ok) questions.value = await r.json() } catch {}
+}
+
+async function loadCoupons() {
+  try { const r = await fetch('/v1/api/coupons/my', { credentials: 'include' }); if (r.ok) coupons.value = await r.json() } catch {}
 }
 
 async function cancelOrder(id) {
@@ -294,6 +323,7 @@ onMounted(() => {
   loadOrders()
   loadReviews()
   loadQna()
+  loadCoupons()
 })
 </script>
 
@@ -523,6 +553,25 @@ onMounted(() => {
   transition: background 0.25s;
 }
 .v-btn-save:hover { background: #4A6741; }
+
+/* Coupons */
+.v-coupon-list { display: flex; flex-direction: column; gap: 12px; }
+.v-coupon-card {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  border: 1px solid #E8E2D9; padding: 20px 24px;
+  border-left: 4px solid #B89C6E;
+}
+.v-coupon-card-left { flex: 1; }
+.v-coupon-name { font-size: 0.9rem; font-weight: 600; color: #111; margin-bottom: 6px; }
+.v-coupon-code {
+  font-family: 'Courier New', monospace; font-size: 0.78rem; font-weight: 700;
+  background: #F5F0E8; color: #1B3A2D; padding: 3px 8px; border-radius: 3px;
+  letter-spacing: 0.06em;
+}
+.v-coupon-card-right { text-align: right; flex-shrink: 0; margin-left: 16px; }
+.v-coupon-discount { font-size: 1rem; font-weight: 700; color: #8B2020; margin-bottom: 4px; }
+.v-coupon-validity { color: #C9B89A; margin-bottom: 4px; }
+.v-coupon-min { color: #C9B89A; margin-bottom: 6px; }
 
 /* Withdraw */
 .v-withdraw-box { display: flex; flex-direction: column; gap: 20px; max-width: 480px; }
