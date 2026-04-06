@@ -1,0 +1,308 @@
+/* =====================================================
+   VENTALIZE (벙딸리제) — Global Design System
+   Concept: Luxury Editorial · Hermès × Kinfolk
+   ===================================================== */
+
+/* ── Google Fonts (Cormorant Garamond + Inter) ── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+img, video { display: block; max-width: 100%; }
+button { cursor: pointer; }
+a { text-decoration: none; color: inherit; }
+
+/* ── Design Tokens ── */
+:root {
+  /* Palette */
+  --c-black:   #111111;
+  --c-ink:     #1E1E1E;
+  --c-forest:  #1B3A2D;   /* Signature Deep Green */
+  --c-sage:    #4A6741;   /* Secondary Green */
+  --c-cream:   #F5F0E8;   /* Signature Cream */
+  --c-sand:    #C9B89A;   /* Warm Accent */
+  --c-gold:    #B89C6E;   /* Gold Accent */
+  --c-stone:   #E8E2D9;   /* Border / Divider */
+  --c-mist:    #F8F5F0;   /* Background Tint */
+  --c-white:   #FFFFFF;
+  --c-muted:   #7A7269;   /* Body Text Muted */
+  --c-sale:    #8B2020;   /* Sale Red */
+
+  /* Typography */
+  --font-serif: 'Cormorant Garamond', 'Georgia', serif;
+  --font-sans:  'Inter', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+
+  /* Spacing */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  32px;
+  --space-xl:  64px;
+  --space-2xl: 96px;
+
+  /* Layout */
+  --container-max: 1320px;
+  --header-h:  72px;
+
+  /* Effects */
+  --shadow-sm:  0 1px 6px rgba(0,0,0,0.07);
+  --shadow-md:  0 4px 24px rgba(0,0,0,0.10);
+  --shadow-lg:  0 16px 48px rgba(0,0,0,0.14);
+  --ease:       cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --duration:   0.35s;
+}
+
+/* ── Base ── */
+html { font-size: 15px; scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-sans);
+  color: var(--c-ink);
+  background: var(--c-white);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Typography Scale ── */
+.t-display {
+  font-family: var(--font-serif);
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.t-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 400;
+  line-height: 1.2;
+}
+.t-sub {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.t-body { font-size: 0.9rem; line-height: 1.75; }
+.t-caption { font-size: 0.75rem; color: var(--c-muted); }
+
+/* ── Layout Utilities ── */
+.v-container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--space-lg);
+}
+@media (max-width: 768px) {
+  .v-container { padding: 0 var(--space-md); }
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 32px;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: none;
+  transition: all var(--duration) var(--ease);
+  cursor: pointer;
+}
+.btn-primary {
+  background: var(--c-forest);
+  color: var(--c-cream);
+}
+.btn-primary:hover { background: var(--c-sage); }
+
+.btn-outline {
+  background: transparent;
+  color: var(--c-ink);
+  border: 1px solid var(--c-ink);
+}
+.btn-outline:hover { background: var(--c-ink); color: var(--c-white); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--c-muted);
+  border: 1px solid var(--c-stone);
+  padding: 9px 20px;
+}
+.btn-ghost:hover { border-color: var(--c-ink); color: var(--c-ink); }
+
+/* ── Product Card (Editorial Style) ── */
+.v-product-card {
+  display: block;
+  text-decoration: none;
+  color: var(--c-ink);
+}
+.v-product-card__img-wrap {
+  overflow: hidden;
+  background: var(--c-mist);
+  position: relative;
+}
+.v-product-card__img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s var(--ease);
+}
+.v-product-card:hover .v-product-card__img-wrap img {
+  transform: scale(1.04);
+}
+.v-product-card__badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  background: var(--c-forest);
+  color: var(--c-cream);
+}
+.v-product-card__badge--sale { background: var(--c-sale); color: #fff; }
+.v-product-card__info {
+  padding: 14px 0 0;
+}
+.v-product-card__brand {
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  margin-bottom: 4px;
+}
+.v-product-card__name {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+.v-product-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.v-product-card__price-sale {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--c-ink);
+}
+.v-product-card__price-original {
+  font-size: 0.8rem;
+  color: var(--c-muted);
+  text-decoration: line-through;
+}
+.v-product-card__discount {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--c-sale);
+  letter-spacing: 0.05em;
+}
+
+/* ── Divider ── */
+.v-divider {
+  border: none;
+  border-top: 1px solid var(--c-stone);
+  margin: var(--space-lg) 0;
+}
+.v-divider--heavy { border-top: 2px solid var(--c-ink); }
+
+/* ── Section Label ── */
+.v-section-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+.v-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--c-stone);
+}
+.v-section-label span {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  white-space: nowrap;
+}
+
+/* ── Form Elements ── */
+.v-input, .v-select, .v-textarea {
+  width: 100%;
+  border: 1px solid var(--c-stone);
+  border-radius: 0;
+  padding: 12px 16px;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--c-ink);
+  background: var(--c-white);
+  outline: none;
+  transition: border-color var(--duration) var(--ease);
+}
+.v-input:focus, .v-select:focus, .v-textarea:focus {
+  border-color: var(--c-ink);
+}
+
+/* ── Badge ── */
+.v-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+}
+.v-badge--forest { background: var(--c-forest); color: var(--c-cream); }
+.v-badge--cream  { background: var(--c-cream);  color: var(--c-forest); }
+.v-badge--gold   { background: var(--c-gold);   color: #fff; }
+.v-badge--sale   { background: var(--c-sale);   color: #fff; }
+.v-badge--muted  { background: var(--c-stone);  color: var(--c-muted); }
+
+/* ── Status Pills ── */
+.status-pending_payment { color: #92400e; background: #fef3c7; padding: 2px 10px; font-size: 0.72rem; }
+.status-paid            { color: #1e40af; background: #dbeafe; padding: 2px 10px; font-size: 0.72rem; }
+.status-shipping        { color: #5b21b6; background: #ede9fe; padding: 2px 10px; font-size: 0.72rem; }
+.status-delivered       { color: #166534; background: #dcfce7; padding: 2px 10px; font-size: 0.72rem; }
+.status-cancelled       { color: #991b1b; background: #fee2e2; padding: 2px 10px; font-size: 0.72rem; }
+
+/* ── Spinner ── */
+.v-spinner {
+  width: 28px; height: 28px;
+  border: 2px solid var(--c-stone);
+  border-top-color: var(--c-forest);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 48px auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Toast ── */
+.v-toast {
+  position: fixed;
+  bottom: 32px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--c-ink);
+  color: var(--c-cream);
+  padding: 12px 28px;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--c-mist); }
+::-webkit-scrollbar-thumb { background: var(--c-sand); }
