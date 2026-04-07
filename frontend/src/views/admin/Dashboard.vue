@@ -27,7 +27,7 @@
             <p class="stat-value">{{ stats.totalOrders?.toLocaleString() }}</p>
           </div>
         </div>
-        <div class="stat-card stat-card--primary">
+        <div class="stat-card">
           <div class="stat-icon">💰</div>
           <div class="stat-body">
             <p class="stat-label">총 매출</p>
@@ -55,7 +55,7 @@
             <p class="stat-value">{{ stats.shippingOrders?.toLocaleString() }}</p>
           </div>
         </div>
-        <div class="stat-card stat-card--success">
+        <div class="stat-card">
           <div class="stat-icon">📬</div>
           <div class="stat-body">
             <p class="stat-label">배송완료</p>
@@ -76,7 +76,7 @@
             <p class="stat-value">{{ stats.totalReviews?.toLocaleString() }}</p>
           </div>
         </div>
-        <div class="stat-card stat-card--warn">
+        <div class="stat-card">
           <div class="stat-icon">💬</div>
           <div class="stat-body">
             <p class="stat-label">미답변 문의</p>
@@ -102,7 +102,7 @@
 
       <!-- 최근 주문 -->
       <div class="admin-card mt-4">
-        <h2 class="admin-card-title">최근 주문 (5건)</h2>
+        <h2 class="admin-card-title">최근 주문</h2>
         <table class="admin-table">
           <thead>
             <tr>
@@ -155,8 +155,6 @@ onMounted(loadStats)
 
 <style scoped>
 .stat-value--nowrap { white-space: nowrap; font-size: clamp(0.85rem, 1.5vw, 1.1rem); }
-.stat-card--success { border-left: 4px solid #2e7d32; }
-.stat-card--warn { border-left: 4px solid #e65100; }
 .low-stock { color: #c62828; font-weight: 700; }
 .status-pending_payment { color: #e65100; }
 .status-paid { color: #1565c0; }

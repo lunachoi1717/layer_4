@@ -47,8 +47,8 @@ public class AdminDashboardController {
                 .sum();
         data.put("totalSales", totalSales);
 
-        // 재고 부족 상품 (5개 이하)
-        data.put("lowStockItems", itemRepository.findAll().stream()
+        // 재고 부족 상품 (5개 이하, id 오름차순)
+        data.put("lowStockItems", itemRepository.findAllByOrderByIdAsc().stream()
                 .filter(i -> i.getStockCount() != null && i.getStockCount() <= 5)
                 .map(i -> Map.of("id", i.getId(), "name", i.getName(), "stockCount", i.getStockCount()))
                 .toList());

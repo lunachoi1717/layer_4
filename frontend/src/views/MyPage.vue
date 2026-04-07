@@ -358,7 +358,7 @@ onMounted(() => {
 }
 .v-mypage-hero-title {
   font-family: 'Cormorant Garamond', 'Georgia', serif;
-  font-size: 2.2rem;
+  font-size: clamp(1.4rem, 3vw, 2rem);
   font-weight: 400;
   color: #111;
   margin-bottom: 8px;
@@ -368,8 +368,8 @@ onMounted(() => {
 /* Layout */
 .v-mypage-layout {
   display: grid;
-  grid-template-columns: 240px 1fr;
-  gap: 64px;
+  grid-template-columns: 220px 1fr;
+  gap: 32px;
   align-items: start;
 }
 @media (max-width: 768px) { .v-mypage-layout { grid-template-columns: 1fr; } }
@@ -419,8 +419,8 @@ onMounted(() => {
   background: none;
   border: none;
   text-align: left;
-  padding: 11px 0;
-  font-size: 0.78rem;
+  padding: 12px 0;
+  font-size: 0.88rem;
   font-weight: 400;
   letter-spacing: 0.04em;
   color: #7A7269;

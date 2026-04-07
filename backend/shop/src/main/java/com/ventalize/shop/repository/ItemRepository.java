@@ -9,15 +9,21 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
 
     List<Item> findAllByIdIn(List<Integer> ids);
 
-    List<Item> findAllByCategoryIn(List<String> cts);
+    List<Item> findAllByOrderByIdAsc();
 
-    List<Item> findTop4ByOrderByCreatedAtDesc();
+    List<Item> findAllByCategoryInOrderByIdAsc(List<String> cts);
 
-    List<Item> findTop4ByOrderByViewCountDesc();
+    List<Item> findByNameContainingOrderByIdAsc(String name);
 
-    List<Item> findTop4ByDiscountPerGreaterThanOrderByDiscountPerDesc(int discountPer);
+    List<Item> findTop5ByOrderByCreatedAtDesc();
 
-    List<Item> findByCategoryAndIdNot(String category, Integer id);
+    List<Item> findTop5ByOrderByViewCountDesc();
+
+    List<Item> findTop5ByDiscountPerGreaterThanOrderByDiscountPerDesc(int discountPer);
+
+    List<Item> findByCategoryAndIdNotOrderByIdAsc(String category, Integer id);
 
     List<Item> findByNameContaining(String name);
+
+    List<Item> findAllByCategoryIn(List<String> cts);
 }

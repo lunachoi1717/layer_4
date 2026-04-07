@@ -188,6 +188,7 @@ async function fetchItems() {
 }
 
 watch([() => route.params.name, () => route.query.keyword], fetchItems, { immediate: true })
+watch(currentPage, () => window.scrollTo({ top: 0, behavior: 'smooth' }))
 </script>
 
 <style scoped>
@@ -205,7 +206,7 @@ watch([() => route.params.name, () => route.query.keyword], fetchItems, { immedi
 .v-breadcrumb__link:hover { color: #111; }
 .v-breadcrumb__sep   { color: #C9B89A; font-size: 0.7rem; }
 .v-breadcrumb__current { font-size: 0.72rem; color: #1B3A2D; font-weight: 500; }
-.v-cat-page__title { margin-bottom: 8px; }
+.v-cat-page__title { margin-bottom: 8px; font-size: clamp(1.4rem, 3vw, 2rem); }
 .v-cat-page__count { color: #7A7269; }
 
 /* Sort bar */

@@ -77,13 +77,26 @@
             </div>
           </div>
           <div class="admin-form-group">
-            <label class="admin-form-label">이미지 선택 (public/images/)</label>
-            <select v-model="form.imgPath" class="admin-form-select">
+            <label class="admin-form-label">이미지</label>
+
+            <!-- 파일 직접 업로드 -->
+            <div class="img-upload-row">
+              <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm" @click="$refs.fileInput.click()" :disabled="uploading">
+                {{ uploading ? '업로드 중…' : '📎 사진 첨부' }}
+              </button>
+              <span class="img-upload-hint">또는 아래 목록에서 선택</span>
+            </div>
+            <input ref="fileInput" type="file" accept="image/*" style="display:none" @change="handleFileUpload" />
+
+            <!-- 기존 목록 선택 -->
+            <select v-model="form.imgPath" class="admin-form-select" style="margin-top:8px">
               <option value="">이미지를 선택하세요</option>
               <option v-for="img in imageList" :key="img" :value="'/images/' + img">{{ img }}</option>
             </select>
+
+            <!-- 미리보기 -->
             <img v-if="form.imgPath" :src="form.imgPath"
-              style="width:80px;height:80px;object-fit:cover;border-radius:6px;margin-top:8px;border:1px solid #E5E7EB" />
+              style="width:100px;height:100px;object-fit:cover;border-radius:6px;margin-top:10px;border:1px solid #E5E7EB;display:block" />
           </div>
           <div class="admin-modal-actions">
             <button type="button" class="admin-btn admin-btn--ghost" @click="showModal = false">취소</button>
@@ -100,12 +113,14 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-const products = ref([])
-const keyword = ref('')
-const loading = ref(false)
-const showModal = ref(false)
+const products   = ref([])
+const keyword    = ref('')
+const loading    = ref(false)
+const showModal  = ref(false)
 const editTarget = ref(null)
-const toast = ref('')
+const toast      = ref('')
+const uploading  = ref(false)
+const fileInput  = ref(null)
 
 const categories = ['OUTER', 'TOP', 'PANTS', 'SHOES', 'BAG', 'ACC', 'SCARVES', 'READY_TO_WEAR', 'PERFUME', 'SALE']
 const imageList = [
@@ -116,6 +131,33 @@ const imageList = [
 ]
 
 const form = ref({ name: '', category: 'TOP', description: '', price: 0, discountPer: 0, stockCount: 0, imgPath: '' })
+
+async function handleFileUpload(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  uploading.value = true
+  try {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch('/v1/api/admin/items/upload', {
+      method: 'POST',
+      credentials: 'include',
+      body: fd
+    })
+    if (res.ok) {
+      const data = await res.json()
+      form.value.imgPath = data.imgPath
+      showToast('이미지 업로드 완료')
+    } else {
+      showToast('업로드 실패')
+    }
+  } catch {
+    showToast('업로드 중 오류 발생')
+  } finally {
+    uploading.value = false
+    e.target.value = ''
+  }
+}
 
 function showToast(msg) {
   toast.value = msg
@@ -185,6 +227,16 @@ onMounted(loadProducts)
 </script>
 
 <style scoped>
+.img-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.img-upload-hint {
+  font-size: 0.75rem;
+  color: #9CA3AF;
+}
 .product-thumb {
   width: 44px; height: 44px; object-fit: cover;
   border-radius: 6px; border: 1px solid #E5E7EB;

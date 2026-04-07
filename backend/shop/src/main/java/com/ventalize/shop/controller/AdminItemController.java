@@ -4,12 +4,21 @@ import com.ventalize.shop.dto.item.ItemCreateRequest;
 import com.ventalize.shop.entity.Item;
 import com.ventalize.shop.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/v1/api/admin/items")
@@ -17,6 +26,29 @@ import java.util.Map;
 public class AdminItemController {
 
     private final ItemRepository itemRepository;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
+    /** 이미지 업로드 */
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) return ResponseEntity.badRequest().body("파일이 비어 있습니다.");
+        try {
+            Path dir = Paths.get(uploadDir).toAbsolutePath().normalize();
+            Files.createDirectories(dir);
+            String ext = "";
+            String original = file.getOriginalFilename();
+            if (original != null && original.contains(".")) {
+                ext = original.substring(original.lastIndexOf('.'));
+            }
+            String filename = UUID.randomUUID().toString().replace("-", "") + ext;
+            Files.copy(file.getInputStream(), dir.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
+            return ResponseEntity.ok(Map.of("imgPath", "/v1/images/" + filename));
+        } catch (IOException e) {
+            return ResponseEntity.internalServerError().body("업로드 실패: " + e.getMessage());
+        }
+    }
 
     /** 전체 상품 목록 */
     @GetMapping

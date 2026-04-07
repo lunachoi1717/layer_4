@@ -280,20 +280,20 @@ const fmt = (p) => p ? p.toLocaleString('ko-KR') + '원' : ''
 
 async function fetchNew() {
   try {
-    const r = await fetch('/v1/api/items?sort=NEW&size=5', { credentials: 'include' })
+    const r = await fetch('/v1/api/items?sort=new', { credentials: 'include' })
     newItems.value = (await r.json()).slice(0, 5)
   } finally { newLoading.value = false }
 }
 async function fetchBest() {
   try {
-    const r = await fetch('/v1/api/items?sort=BEST&size=5', { credentials: 'include' })
+    const r = await fetch('/v1/api/items?sort=best', { credentials: 'include' })
     bestItems.value = (await r.json()).slice(0, 5)
   } finally { bestLoading.value = false }
 }
 async function fetchRec() {
   try {
-    const r = await fetch('/v1/api/items?sort=REC&size=4', { credentials: 'include' })
-    recItems.value = (await r.json()).slice(0, 4)
+    const r = await fetch('/v1/api/items?sort=recommend', { credentials: 'include' })
+    recItems.value = (await r.json()).slice(0, 5)
   } finally { recLoading.value = false }
 }
 
@@ -435,7 +435,7 @@ onUnmounted(() => clearInterval(timer))
 .v-new__row {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 24px;
+  gap: 20px;
 }
 .v-new__card { flex: 0 0 auto; }
 .v-new__img { aspect-ratio: 3 / 4; }
@@ -471,14 +471,10 @@ onUnmounted(() => clearInterval(timer))
   padding: 80px 0 64px;
 }
 .v-best__row {
-  display: flex;
-  gap: 24px;
-  overflow-x: auto;
-  padding-bottom: 12px;
-  scrollbar-width: none;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
 }
-.v-best__row::-webkit-scrollbar { display: none; }
-.v-best__card { flex: 0 0 240px; }
 .v-best__img { aspect-ratio: 3 / 4; }
 
 /* ── Asymmetric Split ── */
@@ -535,8 +531,8 @@ onUnmounted(() => clearInterval(timer))
 }
 .v-rec__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 28px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
 }
 .v-rec__img { aspect-ratio: 3 / 4; }
 
@@ -549,16 +545,18 @@ onUnmounted(() => clearInterval(timer))
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .v-hero__content { padding: 0 48px; }
-  .v-new__row { grid-template-columns: repeat(3, 1fr); }
-  .v-rec__grid { grid-template-columns: repeat(2, 1fr); }
+  .v-new__row  { grid-template-columns: repeat(3, 1fr); }
+  .v-best__row { grid-template-columns: repeat(3, 1fr); }
+  .v-rec__grid { grid-template-columns: repeat(3, 1fr); }
   .v-split { grid-template-columns: 1fr; gap: 48px; }
 }
 @media (max-width: 768px) {
   .v-hero { height: 70vh; }
   .v-hero__content { padding: 0 24px; }
-  .v-new__row { grid-template-columns: repeat(2, 1fr); }
+  .v-new__row  { grid-template-columns: repeat(2, 1fr); }
+  .v-best__row { grid-template-columns: repeat(2, 1fr); }
   .v-promo-full__body { left: 24px; right: 24px; }
   .v-split__panel { grid-template-columns: 1fr; }
-  .v-rec__grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .v-rec__grid { grid-template-columns: repeat(2, 1fr); }
 }
 </style>

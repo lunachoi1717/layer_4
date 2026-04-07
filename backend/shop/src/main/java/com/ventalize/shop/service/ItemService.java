@@ -15,7 +15,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
 
     public List<ItemRead> findAll() {
-        return itemRepository.findAll().stream().map(Item::toRead).toList();
+        return itemRepository.findAllByOrderByIdAsc().stream().map(Item::toRead).toList();
     }
 
     public List<ItemRead> findAll(List<Integer> ids) {
@@ -23,7 +23,7 @@ public class ItemService {
     }
 
     public List<ItemRead> findByCategory(List<String> cts) {
-        return itemRepository.findAllByCategoryIn(cts).stream().map(Item::toRead).toList();
+        return itemRepository.findAllByCategoryInOrderByIdAsc(cts).stream().map(Item::toRead).toList();
     }
 
     public Optional<ItemRead> findById(Integer id) {
@@ -35,25 +35,25 @@ public class ItemService {
     }
 
     public List<ItemRead> findNew() {
-        return itemRepository.findTop4ByOrderByCreatedAtDesc().stream().map(Item::toRead).toList();
+        return itemRepository.findTop5ByOrderByCreatedAtDesc().stream().map(Item::toRead).toList();
     }
 
     public List<ItemRead> findBest() {
-        return itemRepository.findTop4ByOrderByViewCountDesc().stream().map(Item::toRead).toList();
+        return itemRepository.findTop5ByOrderByViewCountDesc().stream().map(Item::toRead).toList();
     }
 
     public List<ItemRead> findRecommend() {
-        return itemRepository.findTop4ByDiscountPerGreaterThanOrderByDiscountPerDesc(0)
+        return itemRepository.findTop5ByDiscountPerGreaterThanOrderByDiscountPerDesc(0)
                 .stream().map(Item::toRead).toList();
     }
 
     public List<ItemRead> search(String keyword) {
-        return itemRepository.findByNameContaining(keyword)
+        return itemRepository.findByNameContainingOrderByIdAsc(keyword)
                 .stream().map(Item::toRead).toList();
     }
 
     public List<ItemRead> findRelated(String category, Integer excludeId) {
-        return itemRepository.findByCategoryAndIdNot(category, excludeId)
+        return itemRepository.findByCategoryAndIdNotOrderByIdAsc(category, excludeId)
                 .stream().limit(4).map(Item::toRead).toList();
     }
 }

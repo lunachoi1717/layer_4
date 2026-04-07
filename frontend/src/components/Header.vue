@@ -34,12 +34,13 @@
             </svg>
           </RouterLink>
           <!-- Cart -->
-          <RouterLink to="/cart" class="v-header__icon-btn" aria-label="Cart">
+          <RouterLink to="/cart" class="v-header__icon-btn v-header__cart-btn" aria-label="Cart">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
               <line x1="3" y1="6" x2="21" y2="6"/>
               <path d="M16 10a4 4 0 0 1-8 0"/>
             </svg>
+            <span v-if="cartCount > 0" class="v-header__cart-dot"></span>
           </RouterLink>
 
           <div class="v-header__icon-divider"></div>
@@ -102,16 +103,34 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '../composables/useAuth.js'
 
 const { isLoggedIn, loginId, userName, grade, isAdmin, clearLogin } = useAuth()
 const router = useRouter()
+const route  = useRoute()
 
 const searchOpen  = ref(false)
 const searchQuery = ref('')
 const searchInput = ref(null)
 const scrolled    = ref(false)
+const cartCount   = ref(0)
+
+async function fetchCartCount() {
+  if (!isLoggedIn.value) { cartCount.value = 0; return }
+  try {
+    const r = await fetch('/v1/api/cart/items', { credentials: 'include' })
+    if (r.ok) {
+      const items = await r.json()
+      cartCount.value = Array.isArray(items) ? items.filter(i => i.quantity > 0).length : 0
+    } else {
+      cartCount.value = 0
+    }
+  } catch { cartCount.value = 0 }
+}
+
+watch(isLoggedIn, fetchCartCount, { immediate: true })
+watch(() => route.fullPath, fetchCartCount)
 
 // 등급 아이콘 계산
 const GRADE_MAP = {
@@ -320,6 +339,18 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   text-decoration: none;
 }
 .v-header__icon-btn:hover { opacity: 0.5; }
+.v-header__cart-btn { position: relative; }
+.v-header__cart-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #DC2626;
+  border: 1.5px solid #fff;
+  pointer-events: none;
+}
 
 /* ── Search Bar ── */
 .v-header__search-bar {
