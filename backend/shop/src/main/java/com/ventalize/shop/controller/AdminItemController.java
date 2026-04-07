@@ -1,6 +1,5 @@
 package com.ventalize.shop.controller;
 
-import com.ventalize.shop.config.FileStorageService;
 import com.ventalize.shop.dto.item.ItemCreateRequest;
 import com.ventalize.shop.entity.Item;
 import com.ventalize.shop.repository.ItemRepository;
@@ -8,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -19,7 +17,6 @@ import java.util.Map;
 public class AdminItemController {
 
     private final ItemRepository itemRepository;
-    private final FileStorageService fileStorageService;
 
     /** 전체 상품 목록 */
     @GetMapping
@@ -33,14 +30,12 @@ public class AdminItemController {
         return ResponseEntity.ok(items.stream().map(Item::toRead).toList());
     }
 
-    /** 상품 등록 (이미지 포함) */
-    @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<?> add(
-            @RequestPart("data") ItemCreateRequest req,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
-        String imgPath = (image != null && !image.isEmpty())
-                ? fileStorageService.store(image)
-                : "https://picsum.photos/seed/new/400/500";
+    /** 상품 등록 */
+    @PostMapping
+    public ResponseEntity<?> add(@RequestBody ItemCreateRequest req) {
+        String imgPath = StringUtils.hasLength(req.getImgPath())
+                ? req.getImgPath()
+                : "/images/default.png";
 
         Item item = Item.builder()
                 .name(req.getName())
@@ -57,23 +52,18 @@ public class AdminItemController {
     }
 
     /** 상품 수정 */
-    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    @PutMapping("/{id}")
     public ResponseEntity<?> update(
             @PathVariable Integer id,
-            @RequestPart("data") ItemCreateRequest req,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestBody ItemCreateRequest req) {
         return itemRepository.findById(id).map(item -> {
-            if (StringUtils.hasLength(req.getName())) item.setName(req.getName());
-            if (StringUtils.hasLength(req.getCategory())) item.setCategory(req.getCategory());
+            if (StringUtils.hasLength(req.getName()))        item.setName(req.getName());
+            if (StringUtils.hasLength(req.getCategory()))    item.setCategory(req.getCategory());
             if (StringUtils.hasLength(req.getDescription())) item.setDescription(req.getDescription());
-            if (req.getPrice() != null) item.setPrice(req.getPrice());
-            if (req.getDiscountPer() != null) item.setDiscountPer(req.getDiscountPer());
-            if (req.getStockCount() != null) item.setStockCount(req.getStockCount());
-
-            if (image != null && !image.isEmpty()) {
-                fileStorageService.delete(item.getImgPath());
-                item.setImgPath(fileStorageService.store(image));
-            }
+            if (req.getPrice() != null)                      item.setPrice(req.getPrice());
+            if (req.getDiscountPer() != null)                item.setDiscountPer(req.getDiscountPer());
+            if (req.getStockCount() != null)                 item.setStockCount(req.getStockCount());
+            if (StringUtils.hasLength(req.getImgPath()))     item.setImgPath(req.getImgPath());
             return ResponseEntity.ok(itemRepository.save(item).toRead());
         }).orElse(ResponseEntity.notFound().build());
     }
@@ -82,7 +72,6 @@ public class AdminItemController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         return itemRepository.findById(id).map(item -> {
-            fileStorageService.delete(item.getImgPath());
             itemRepository.delete(item);
             return ResponseEntity.ok().<Object>build();
         }).orElse(ResponseEntity.notFound().build());

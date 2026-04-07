@@ -31,7 +31,7 @@
           <div class="stat-icon">💰</div>
           <div class="stat-body">
             <p class="stat-label">총 매출</p>
-            <p class="stat-value">{{ stats.totalSales?.toLocaleString() }}원</p>
+            <p class="stat-value stat-value--nowrap">{{ stats.totalSales?.toLocaleString() }}원</p>
           </div>
         </div>
         <div class="stat-card">
@@ -154,6 +154,7 @@ onMounted(loadStats)
 </script>
 
 <style scoped>
+.stat-value--nowrap { white-space: nowrap; font-size: clamp(0.85rem, 1.5vw, 1.1rem); }
 .stat-card--success { border-left: 4px solid #2e7d32; }
 .stat-card--warn { border-left: 4px solid #e65100; }
 .low-stock { color: #c62828; font-weight: 700; }

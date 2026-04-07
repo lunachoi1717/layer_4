@@ -2,6 +2,9 @@ package com.ventalize.shop.config;
 
 import com.ventalize.shop.entity.Member;
 import com.ventalize.shop.repository.MemberRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -16,8 +19,20 @@ public class AdminInitializer implements CommandLineRunner {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @PersistenceContext
+    private EntityManager em;
+
     @Override
+    @Transactional
     public void run(String... args) {
+        // 0) items.brand 컬럼 제거 (단일 브랜드 운영으로 불필요)
+        try {
+            em.createNativeQuery("ALTER TABLE items DROP COLUMN IF EXISTS brand").executeUpdate();
+            log.info("✅ items.brand 컬럼 제거 완료");
+        } catch (Exception e) {
+            log.warn("items.brand 컬럼 제거 생략: {}", e.getMessage());
+        }
+
         // 1) 관리자 계정 생성
         if (!memberRepository.existsByLoginId("admin@ventalize.com")) {
             Member admin = Member.builder()
