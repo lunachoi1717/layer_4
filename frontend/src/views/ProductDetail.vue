@@ -98,9 +98,11 @@
             <img :src="item.imgPath" :alt="item.name" class="v-pd-desc-img" />
             <p class="t-body">{{ item.description || '상품 설명이 없습니다.' }}</p>
             <table class="v-pd-spec-table">
-              <tr><td>Category</td><td>{{ categoryLabel }}</td></tr>
-              <tr><td>Price</td><td>{{ fmt(item.price) }}</td></tr>
-              <tr v-if="item.discountPer > 0"><td>Discount</td><td>{{ item.discountPer }}%</td></tr>
+              <tbody>
+                <tr><td>Category</td><td>{{ categoryLabel }}</td></tr>
+                <tr><td>Price</td><td>{{ fmt(item.price) }}</td></tr>
+                <tr v-if="item.discountPer > 0"><td>Discount</td><td>{{ item.discountPer }}%</td></tr>
+              </tbody>
             </table>
           </div>
         </div>
@@ -354,7 +356,7 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 /* Media */
 .v-pd-img-wrap {
   position: relative;
-  aspect-ratio: 2 / 3;
+  aspect-ratio: 1 / 1;
   background: #F5F0E8;
   overflow: hidden;
 }

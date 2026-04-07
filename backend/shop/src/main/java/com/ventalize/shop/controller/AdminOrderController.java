@@ -35,13 +35,17 @@ public class AdminOrderController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<?> changeStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
         String newStatus = body.get("status");
+
         if (!List.of("PENDING_PAYMENT", "PAID", "SHIPPING", "DELIVERED", "CANCELLED").contains(newStatus)) {
             return ResponseEntity.badRequest().body("유효하지 않은 상태입니다.");
         }
-        return orderRepository.findById(id).map(o -> {
-            o.setStatus(newStatus);
-            return ResponseEntity.ok(toRead(orderRepository.save(o)));
-        }).orElse(ResponseEntity.notFound().build());
+
+        try {
+            OrderRead result = orderService.changeOrderStatus(id, newStatus);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     /** 판매 통계 */

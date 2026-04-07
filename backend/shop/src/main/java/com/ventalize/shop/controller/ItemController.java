@@ -37,9 +37,9 @@ public class ItemController {
         if (StringUtils.hasLength(keyword)) {
             return ResponseEntity.ok(itemService.search(keyword));
         }
-        if ("new".equals(sort)) return ResponseEntity.ok(itemService.findNew());
-        if ("best".equals(sort)) return ResponseEntity.ok(itemService.findBest());
-        if ("recommend".equals(sort)) return ResponseEntity.ok(itemService.findRecommend());
+        if ("new".equalsIgnoreCase(sort))       return ResponseEntity.ok(itemService.findNew());
+        if ("best".equalsIgnoreCase(sort))      return ResponseEntity.ok(itemService.findBest());
+        if ("recommend".equalsIgnoreCase(sort)) return ResponseEntity.ok(itemService.findRecommend());
 
         List<ItemRead> items;
         if (StringUtils.hasLength(category)) {

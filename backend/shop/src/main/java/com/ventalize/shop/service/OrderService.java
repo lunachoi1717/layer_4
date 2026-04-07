@@ -8,6 +8,7 @@ import com.ventalize.shop.entity.Item;
 import com.ventalize.shop.entity.Order;
 import com.ventalize.shop.entity.OrderItem;
 import com.ventalize.shop.repository.ItemRepository;
+import com.ventalize.shop.repository.MemberRepository;
 import com.ventalize.shop.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class OrderService {
     private final ItemRepository itemRepository;
     private final CartService cartService;
     private final PaymentSimulator paymentSimulator;
+    private final MemberRepository memberRepository;
 
     // 주문 목록 조회 (아이템 상세 포함, 회원별 순번 부여)
     public List<OrderRead> findAll(Integer memberId) {
@@ -154,5 +156,50 @@ public class OrderService {
                     .subtotal(salePrice * qty)
                     .build();
         }).toList();
+    }
+
+    private static final Map<String, List<String>> ALLOWED_TRANSITIONS = Map.of(
+            "PENDING_PAYMENT", List.of("PAID", "CANCELLED"),
+            "PAID", List.of("SHIPPING", "CANCELLED"),
+            "SHIPPING", List.of("DELIVERED"),
+            "DELIVERED", List.of(),
+            "CANCELLED", List.of()
+    );
+
+    @Transactional
+    public OrderRead changeOrderStatus(Integer orderId, String newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+
+        validateStatusChange(order.getStatus(), newStatus);
+
+        order.setStatus(newStatus);
+        Order saved = orderRepository.save(order);
+
+        String memberName = memberRepository.findById(saved.getMemberId())
+                .map(m -> m.getName()).orElse("(탈퇴회원)");
+
+        return OrderRead.builder()
+                .id(saved.getId())
+                .memberId(saved.getMemberId())
+                .memberName(memberName)
+                .name(saved.getName())
+                .address(saved.getAddress())
+                .payment(saved.getPayment())
+                .amount(saved.getAmount())
+                .status(saved.getStatus())
+                .statusLabel(saved.getStatusLabel())
+                .createdAt(saved.getCreatedAt())
+                .build();
+    }
+
+    private void validateStatusChange(String currentStatus, String newStatus) {
+        List<String> allowedNext = ALLOWED_TRANSITIONS.getOrDefault(currentStatus, List.of());
+
+        if (!allowedNext.contains(newStatus)) {
+            throw new IllegalArgumentException(
+                    "주문 상태를 " + currentStatus + "에서 " + newStatus + "로 변경할 수 없습니다."
+            );
+        }
     }
 }

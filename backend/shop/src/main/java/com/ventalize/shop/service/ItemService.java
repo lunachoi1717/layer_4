@@ -4,6 +4,7 @@ import com.ventalize.shop.dto.item.ItemRead;
 import com.ventalize.shop.entity.Item;
 import com.ventalize.shop.repository.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,17 +35,18 @@ public class ItemService {
         });
     }
 
+    private static final PageRequest TOP5 = PageRequest.of(0, 5);
+
     public List<ItemRead> findNew() {
-        return itemRepository.findTop5ByOrderByCreatedAtDesc().stream().map(Item::toRead).toList();
+        return itemRepository.findTop5NewItems(TOP5).stream().map(Item::toRead).toList();
     }
 
     public List<ItemRead> findBest() {
-        return itemRepository.findTop5ByOrderByViewCountDesc().stream().map(Item::toRead).toList();
+        return itemRepository.findTop5BestItems(TOP5).stream().map(Item::toRead).toList();
     }
 
     public List<ItemRead> findRecommend() {
-        return itemRepository.findTop5ByDiscountPerGreaterThanOrderByDiscountPerDesc(0)
-                .stream().map(Item::toRead).toList();
+        return itemRepository.findTop5RecItems(TOP5).stream().map(Item::toRead).toList();
     }
 
     public List<ItemRead> search(String keyword) {
