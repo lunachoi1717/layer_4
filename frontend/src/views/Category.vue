@@ -113,15 +113,15 @@ const categoryLabels = {
   PERFUME:       'Perfume',
   ACC:           'Accessories',
   BAG:           'Bags',
-  SALE:          'Sale',
+  SHOES:         'Shoes',
   ALL:           'All Collections',
 }
 
 const sortOptions = [
   { value: 'popular',  label: 'Popular' },
   { value: 'new',      label: 'New In' },
-  { value: 'low',      label: 'Price ↑' },
-  { value: 'high',     label: 'Price ↓' },
+  { value: 'low',      label: 'Price ↓' },
+  { value: 'high',     label: 'Price ↑' },
   { value: 'discount', label: 'Sale' },
 ]
 

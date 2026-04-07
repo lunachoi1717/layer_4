@@ -71,13 +71,22 @@
                 <option value="KAKAO">카카오페이</option>
                 <option value="NAVER">네이버페이</option>
                 <option value="TOSS">토스페이</option>
-                <option value="BANK_TRANSFER">무통장 입금</option>
-                <option value="WIRE_TRANSFER">실시간 계좌이체</option>
+                <option value="BANK">무통장 입금</option>
+                <option value="WIRE">실시간 계좌이체</option>
               </select>
             </div>
             <div v-if="form.payment === 'CARD'" class="form-group">
               <label class="form-label">카드 번호</label>
-              <input v-model="form.cardNumber" type="text" class="form-input" placeholder="0000-0000-0000-0000" maxlength="19" />
+              <input v-model="form.cardNumber" type="text" class="form-input" placeholder="0000-0000-0000-0000" maxlength="19" @input="formatCardNumber" />
+              <p v-if="cardNumberError" class="form-error" style="margin-top:4px">{{ cardNumberError }}</p>
+            </div>
+            <div v-if="form.payment === 'BANK'" class="form-group">
+              <label class="form-label">가상 계좌 안내</label>
+              <div class="virtual-account-box">
+                <p class="virtual-account-bank">국민은행</p>
+                <p class="virtual-account-number">12345-67-890123</p>
+                <p class="virtual-account-note">위 계좌로 결제 금액을 입금하시면 주문이 확정됩니다.</p>
+              </div>
             </div>
 
             <!-- 쿠폰 -->
@@ -119,6 +128,7 @@ const item = ref(null)
 const loading = ref(true)
 const submitting = ref(false)
 const errorMsg = ref('')
+const cardNumberError = ref('')
 const myCoupons = ref([])
 const appliedCoupon = ref(null)
 const selectedCouponCode = ref('')
@@ -139,6 +149,17 @@ const totalPrice = computed(() => {
   if (!item.value) return 0
   return Math.max(0, subtotal.value + shipping.value - couponDiscount.value)
 })
+
+function formatCardNumber(e) {
+  const raw = e.target.value
+  if (/[^\d\-]/.test(raw)) {
+    cardNumberError.value = '숫자를 입력해주세요.'
+  } else {
+    cardNumberError.value = ''
+  }
+  const digits = raw.replace(/\D/g, '').slice(0, 16)
+  form.value.cardNumber = digits.replace(/(.{4})/g, '$1-').replace(/-$/, '')
+}
 
 function applyCouponFromList() {
   if (!selectedCouponCode.value) { appliedCoupon.value = null; return }
@@ -179,6 +200,13 @@ async function loadItem() {
 
 async function submitOrder() {
   errorMsg.value = ''
+  if (form.value.payment === 'CARD') {
+    const digits = form.value.cardNumber.replace(/\D/g, '')
+    if (digits.length !== 16) {
+      cardNumberError.value = '카드 번호 16자리를 정확히 입력해주세요.'
+      return
+    }
+  }
   submitting.value = true
   try {
     const res = await fetch('/v1/api/orders', {
@@ -216,6 +244,11 @@ onMounted(() => { loadItem(); loadMyCoupons() })
   min-height: 60vh;
   background: #fff;
   padding: 40px 0 80px;
+}
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 .page-title {
   font-size: 24px;
@@ -349,4 +382,10 @@ onMounted(() => { loadItem(); loadMyCoupons() })
 .coupon-row { display: flex; align-items: center; gap: 8px; }
 .coupon-select { flex: 1; }
 .coupon-applied { font-size: 13px; color: #16a34a; font-weight: 600; white-space: nowrap; }
+.virtual-account-box {
+  background: #f0f8f0; border: 1px solid #c3e6cb; border-radius: 8px; padding: 14px 16px;
+}
+.virtual-account-bank { font-size: 12px; color: #555; margin-bottom: 4px; }
+.virtual-account-number { font-size: 16px; font-weight: 700; color: #1B3A2D; letter-spacing: 0.04em; margin-bottom: 6px; }
+.virtual-account-note { font-size: 12px; color: #666; }
 </style>

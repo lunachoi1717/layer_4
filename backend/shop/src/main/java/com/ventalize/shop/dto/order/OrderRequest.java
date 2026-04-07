@@ -26,7 +26,7 @@ public class OrderRequest {
                 .name(name)
                 .address(address)
                 .payment(payment)
-                .cardNumber(cardNumber)
+                .cardNumber(cardNumber != null ? cardNumber.replace("-", "") : null)
                 .amount(amount)
                 .build();
     }

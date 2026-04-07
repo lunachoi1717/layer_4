@@ -29,10 +29,10 @@ public class Order {
     @Column(nullable = false, length = 500)
     private String address;
 
-    @Column(nullable = false, length = 10)
+    @Column(nullable = false, length = 20)
     private String payment;
 
-    @Column(length = 16)
+    @Column(length = 19)
     private String cardNumber;
 
     @Column(nullable = false)

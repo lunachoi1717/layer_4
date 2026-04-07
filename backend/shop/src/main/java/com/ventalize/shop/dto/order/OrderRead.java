@@ -12,6 +12,7 @@ import java.util.List;
 @Builder
 public class OrderRead {
     private Integer id;
+    private Integer orderNumber;
     private Integer memberId;
     private String memberName;
     private String name;

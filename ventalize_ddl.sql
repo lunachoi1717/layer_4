@@ -72,7 +72,7 @@ CREATE TABLE orders (
     name        VARCHAR(50)  NOT NULL,
     address     VARCHAR(500) NOT NULL,
     payment     VARCHAR(10)  NOT NULL,
-    card_number VARCHAR(16),
+    card_number VARCHAR(19),
     amount      BIGINT       NOT NULL,
     status      VARCHAR(20)  NOT NULL DEFAULT 'PENDING_PAYMENT',
     created_at  TIMESTAMP    NOT NULL DEFAULT NOW()

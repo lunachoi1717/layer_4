@@ -47,15 +47,23 @@
             <p v-else-if="orders.length === 0" class="v-mypage-empty t-caption">No orders yet.</p>
             <div v-else class="v-order-list">
               <div v-for="order in orders" :key="order.id" class="v-order-card">
-                <div class="v-order-card-head">
-                  <span class="v-order-id t-caption"># {{ order.id }}</span>
-                  <span class="v-order-date t-caption">{{ fmtDate(order.createdAt) }}</span>
-                  <span class="v-order-status-pill" :class="`v-status--${(order.status || '').toLowerCase()}`">
-                    {{ order.statusLabel || order.status }}
-                  </span>
+                <!-- 요약 행 (항상 표시, 클릭으로 토글) -->
+                <div class="v-order-summary" @click="toggleOrder(order.id)">
+                  <div class="v-order-summary-left">
+                    <span class="v-order-num"># {{ order.orderNumber || order.id }}</span>
+                    <span class="v-order-date t-caption">{{ fmtDate(order.createdAt) }}</span>
+                    <span class="v-order-status-pill" :class="`v-status--${(order.status || '').toLowerCase()}`">
+                      {{ order.statusLabel || order.status }}
+                    </span>
+                  </div>
+                  <div class="v-order-summary-right">
+                    <span class="v-order-amount">{{ order.amount?.toLocaleString() }}원</span>
+                    <span class="v-order-toggle-icon">{{ expandedOrderId === order.id ? '▲' : '▼' }}</span>
+                  </div>
                 </div>
-                <div class="v-order-card-body">
-                  <!-- 주문 상품 상세 -->
+
+                <!-- 상세 내용 (토글) -->
+                <div v-if="expandedOrderId === order.id" class="v-order-detail">
                   <div v-if="order.items && order.items.length > 0" class="v-order-items">
                     <div v-for="oi in order.items" :key="oi.itemId" class="v-order-item-row">
                       <img v-if="oi.imgPath" :src="oi.imgPath" :alt="oi.itemName" class="v-order-item-thumb" />
@@ -66,19 +74,14 @@
                       <span class="v-order-item-subtotal">{{ (oi.subtotal || 0).toLocaleString() }}원</span>
                     </div>
                   </div>
-                  <div class="v-order-row">
-                    <span>수령인</span><span>{{ order.name }}</span>
+                  <div class="v-order-meta-rows">
+                    <div class="v-order-row"><span>수령인</span><span>{{ order.name }}</span></div>
+                    <div class="v-order-row"><span>배송지</span><span>{{ order.address }}</span></div>
+                    <div class="v-order-row"><span>결제수단</span><span>{{ order.payment }}</span></div>
                   </div>
-                  <div class="v-order-row">
-                    <span>결제금액</span>
-                    <span class="v-order-amount">{{ order.amount?.toLocaleString() }}원</span>
+                  <div v-if="['PENDING_PAYMENT','PAID'].includes(order.status)" class="v-order-card-foot">
+                    <button class="v-btn-cancel" @click.stop="cancelOrder(order.id)">Cancel Order</button>
                   </div>
-                  <div class="v-order-row">
-                    <span>결제수단</span><span>{{ order.payment }}</span>
-                  </div>
-                </div>
-                <div class="v-order-card-foot" v-if="['PENDING_PAYMENT','PAID'].includes(order.status)">
-                  <button class="v-btn-cancel" @click="cancelOrder(order.id)">Cancel Order</button>
                 </div>
               </div>
             </div>
@@ -223,6 +226,11 @@ const reviews      = ref([])
 const questions    = ref([])
 const coupons      = ref([])
 const ordersLoading = ref(false)
+const expandedOrderId = ref(null)
+
+function toggleOrder(id) {
+  expandedOrderId.value = expandedOrderId.value === id ? null : id
+}
 const profileForm  = ref({ name: '', phone: '', address: '', currentPw: '', newPw: '' })
 const profileMsg   = ref('')
 const profileMsgType = ref('success')
@@ -438,61 +446,45 @@ onMounted(() => {
 .v-mypage-empty { color: #C9B89A; padding: 40px 0; }
 
 /* Orders */
-.v-order-list { display: flex; flex-direction: column; gap: 16px; }
-.v-order-card {
-  border: 1px solid #E8E2D9;
-  padding: 24px;
+.v-order-list { display: flex; flex-direction: column; gap: 12px; }
+.v-order-card { border: 1px solid #E8E2D9; }
+.v-order-summary {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 24px; cursor: pointer; gap: 16px;
+  transition: background 0.15s;
 }
-.v-order-items { margin-bottom: 16px; border-bottom: 1px solid #E8E2D9; padding-bottom: 16px; }
-.v-order-item-row {
-  display: flex; align-items: center; gap: 12px; padding: 6px 0; font-size: 0.82rem;
-}
-.v-order-item-thumb {
-  width: 48px; height: 48px; object-fit: cover;
-  border: 1px solid #E8E2D9; flex-shrink: 0;
-}
-.v-order-item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.v-order-item-name { font-weight: 500; color: #111; }
-.v-order-item-qty { color: #7A7269; font-size: 0.75rem; }
-.v-order-item-subtotal { font-weight: 600; color: #111; white-space: nowrap; }
-.v-order-card-head {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-}
-.v-order-id   { color: #C9B89A; }
-.v-order-date { color: #C9B89A; }
+.v-order-summary:hover { background: #FAFAF8; }
+.v-order-summary-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.v-order-summary-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.v-order-num { font-size: 0.82rem; font-weight: 600; color: #111; }
+.v-order-date { color: #C9B89A; font-size: 0.78rem; }
 .v-order-status-pill {
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 4px 10px;
-  margin-left: auto;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 4px 10px;
 }
 .v-status--pending_payment { background: rgba(139,32,32,0.08);  color: #8B2020; }
 .v-status--paid            { background: rgba(27,58,45,0.1);    color: #1B3A2D; }
 .v-status--shipping        { background: rgba(74,103,65,0.1);   color: #4A6741; }
 .v-status--delivered       { background: rgba(27,58,45,0.15);   color: #1B3A2D; }
 .v-status--cancelled       { background: rgba(100,100,100,0.08);color: #888; }
+.v-order-amount { font-size: 0.9rem; font-weight: 600; color: #111; }
+.v-order-toggle-icon { font-size: 0.7rem; color: #C9B89A; }
 
-.v-order-card-body { display: flex; flex-direction: column; gap: 8px; }
+.v-order-detail { border-top: 1px solid #E8E2D9; padding: 20px 24px; }
+.v-order-items { margin-bottom: 16px; border-bottom: 1px solid #E8E2D9; padding-bottom: 16px; }
+.v-order-item-row { display: flex; align-items: center; gap: 12px; padding: 6px 0; font-size: 0.82rem; }
+.v-order-item-thumb { width: 48px; height: 48px; object-fit: cover; border: 1px solid #E8E2D9; flex-shrink: 0; }
+.v-order-item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.v-order-item-name { font-weight: 500; color: #111; }
+.v-order-item-qty { color: #7A7269; font-size: 0.75rem; }
+.v-order-item-subtotal { font-weight: 600; color: #111; white-space: nowrap; }
+.v-order-meta-rows { display: flex; flex-direction: column; gap: 8px; }
 .v-order-row { display: flex; justify-content: space-between; font-size: 0.82rem; color: #555; }
-.v-order-amount { font-weight: 600; color: #111; }
 .v-order-card-foot { margin-top: 16px; padding-top: 16px; border-top: 1px solid #E8E2D9; }
 .v-btn-cancel {
-  background: none;
-  border: 1px solid #E8E2D9;
-  padding: 8px 20px;
-  font-size: 0.7rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: #7A7269;
-  cursor: pointer;
-  transition: all 0.2s;
+  background: none; border: 1px solid #E8E2D9; padding: 8px 20px;
+  font-size: 0.7rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #7A7269; cursor: pointer; transition: all 0.2s;
 }
 .v-btn-cancel:hover { border-color: #8B2020; color: #8B2020; }
 

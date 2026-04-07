@@ -30,15 +30,19 @@ public class OrderService {
     private final CartService cartService;
     private final PaymentSimulator paymentSimulator;
 
-    // 주문 목록 조회 (아이템 상세 포함)
+    // 주문 목록 조회 (아이템 상세 포함, 회원별 순번 부여)
     public List<OrderRead> findAll(Integer memberId) {
-        return orderRepository.findAllByMemberIdOrderByIdDesc(memberId).stream()
-                .map(o -> {
-                    OrderRead read = o.toRead();
-                    read.setItems(buildDetails(o.getId()));
-                    return read;
-                })
-                .toList();
+        List<Order> orders = orderRepository.findAllByMemberIdOrderByIdDesc(memberId);
+        int total = orders.size();
+        List<OrderRead> result = new ArrayList<>();
+        for (int i = 0; i < orders.size(); i++) {
+            Order o = orders.get(i);
+            OrderRead read = o.toRead();
+            read.setOrderNumber(total - i); // 오래된 주문이 #1
+            read.setItems(buildDetails(o.getId()));
+            result.add(read);
+        }
+        return result;
     }
 
     // 주문 상세 조회 (아이템 상세 포함)
@@ -111,6 +115,19 @@ public class OrderService {
 
         // 7. 결제 시뮬레이션 (10초 후 PAID 전환)
         paymentSimulator.simulatePayment(order.getId());
+    }
+
+    /** 주문 취소 시 재고 복구 */
+    @Transactional
+    public void restoreStock(Integer orderId) {
+        List<OrderItem> orderItems = orderItemService.findAll(orderId);
+        for (OrderItem oi : orderItems) {
+            int qty = oi.getQuantity() != null ? oi.getQuantity() : 1;
+            itemRepository.findById(oi.getItemId()).ifPresent(item -> {
+                item.setStockCount(item.getStockCount() + qty);
+                itemRepository.save(item);
+            });
+        }
     }
 
     /** 주문 ID로 OrderItemDetail 목록 생성 */

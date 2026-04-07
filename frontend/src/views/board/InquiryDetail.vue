@@ -157,7 +157,13 @@ function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('ko-KR')
 }
 
-onMounted(() => loadDetail())
+onMounted(() => {
+  if (!isLoggedIn.value) {
+    router.push('/login')
+    return
+  }
+  loadDetail()
+})
 </script>
 
 <style scoped>

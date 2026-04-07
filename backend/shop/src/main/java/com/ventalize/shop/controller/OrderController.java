@@ -62,6 +62,7 @@ public class OrderController {
         if ("CANCELLED".equals(order.getStatus())) {
             return ResponseEntity.badRequest().body("이미 취소된 주문입니다.");
         }
+        orderService.restoreStock(id);
         order.setStatus("CANCELLED");
         orderRepository.save(order);
         return ResponseEntity.ok().build();
