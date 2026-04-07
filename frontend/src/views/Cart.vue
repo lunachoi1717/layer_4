@@ -58,13 +58,18 @@
               <img :src="ci.item?.imgPath" :alt="ci.item?.name" />
             </RouterLink>
             <div class="v-cart-item-info">
-              <p class="v-cart-item-brand t-caption">{{ ci.item?.brand }}</p>
               <p class="v-cart-item-name">{{ ci.item?.name }}</p>
               <div class="v-cart-item-price">
                 <span v-if="ci.item?.discountPer > 0" class="v-price-original">{{ fmtPrice(ci.item?.price) }}</span>
                 <span class="v-price-sale">{{ fmtPrice(ci.item?.salePrice) }}</span>
                 <span v-if="ci.item?.discountPer > 0" class="v-price-disc">{{ ci.item?.discountPer }}%</span>
               </div>
+              <div class="v-cart-qty-ctrl">
+                <button class="v-cart-qty-btn" @click="changeQty(ci, ci.quantity - 1)">−</button>
+                <span class="v-cart-qty-val">{{ ci.quantity }}</span>
+                <button class="v-cart-qty-btn" @click="changeQty(ci, ci.quantity + 1)">+</button>
+              </div>
+              <p class="v-cart-item-subtotal">{{ fmtPrice((ci.item?.salePrice || 0) * ci.quantity) }}</p>
             </div>
             <button class="v-cart-item-remove" @click="removeItem(ci.itemId)" aria-label="Remove">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -137,7 +142,7 @@ function toggleAll() {
 const totalPrice = computed(() =>
   cartItems.value
     .filter(c => selectedItems.value.includes(c.itemId))
-    .reduce((s, c) => s + (c.item?.salePrice || 0), 0)
+    .reduce((s, c) => s + (c.item?.salePrice || 0) * (c.quantity || 1), 0)
 )
 const finalPrice = computed(() =>
   totalPrice.value + (totalPrice.value >= 100000 ? 0 : 3000)
@@ -156,6 +161,21 @@ async function fetchCart() {
     console.error(e)
   } finally {
     loading.value = false
+  }
+}
+
+async function changeQty(ci, newQty) {
+  if (newQty < 1) return
+  try {
+    await fetch(`/v1/api/cart/item/${ci.itemId}/qty`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ quantity: newQty })
+    })
+    ci.quantity = newQty
+  } catch {
+    showToast('수량 변경에 실패했습니다.')
   }
 }
 
@@ -267,6 +287,33 @@ onMounted(fetchCart)
 .v-price-original { font-size: 0.78rem; color: #C9B89A; text-decoration: line-through; }
 .v-price-sale { font-size: 1rem; font-weight: 500; color: #111; }
 .v-price-disc { font-size: 0.68rem; font-weight: 600; color: #8B2020; }
+.v-cart-qty-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid #E8E2D9;
+  width: fit-content;
+  margin-top: 8px;
+}
+.v-cart-qty-btn {
+  background: none;
+  border: none;
+  width: 28px;
+  height: 28px;
+  font-size: 1rem;
+  color: #111;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.v-cart-qty-btn:hover { background: #F5F0E8; }
+.v-cart-qty-val { min-width: 32px; text-align: center; font-size: 0.85rem; }
+.v-cart-item-subtotal {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #111;
+  margin-top: 6px;
+}
+
 .v-cart-item-remove {
   background: none;
   border: none;

@@ -55,6 +55,17 @@
                   </span>
                 </div>
                 <div class="v-order-card-body">
+                  <!-- 주문 상품 상세 -->
+                  <div v-if="order.items && order.items.length > 0" class="v-order-items">
+                    <div v-for="oi in order.items" :key="oi.itemId" class="v-order-item-row">
+                      <img v-if="oi.imgPath" :src="oi.imgPath" :alt="oi.itemName" class="v-order-item-thumb" />
+                      <div class="v-order-item-info">
+                        <span class="v-order-item-name">{{ oi.itemName }}</span>
+                        <span class="v-order-item-qty">수량 {{ oi.quantity }}개</span>
+                      </div>
+                      <span class="v-order-item-subtotal">{{ (oi.subtotal || 0).toLocaleString() }}원</span>
+                    </div>
+                  </div>
                   <div class="v-order-row">
                     <span>수령인</span><span>{{ order.name }}</span>
                   </div>
@@ -432,6 +443,18 @@ onMounted(() => {
   border: 1px solid #E8E2D9;
   padding: 24px;
 }
+.v-order-items { margin-bottom: 16px; border-bottom: 1px solid #E8E2D9; padding-bottom: 16px; }
+.v-order-item-row {
+  display: flex; align-items: center; gap: 12px; padding: 6px 0; font-size: 0.82rem;
+}
+.v-order-item-thumb {
+  width: 48px; height: 48px; object-fit: cover;
+  border: 1px solid #E8E2D9; flex-shrink: 0;
+}
+.v-order-item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.v-order-item-name { font-weight: 500; color: #111; }
+.v-order-item-qty { color: #7A7269; font-size: 0.75rem; }
+.v-order-item-subtotal { font-weight: 600; color: #111; white-space: nowrap; }
 .v-order-card-head {
   display: flex;
   align-items: center;

@@ -25,7 +25,6 @@
 
         <!-- Info -->
         <div class="v-pd-info">
-          <p class="v-pd-brand t-caption">{{ item.brand }}</p>
           <h1 class="v-pd-name t-display">{{ item.name }}</h1>
 
           <div class="v-pd-price">
@@ -50,6 +49,12 @@
               <span class="v-pd-qty-val">{{ qty }}</span>
               <button class="v-pd-qty-btn" @click="qty = Math.min(item.stockCount || 1, qty + 1)">+</button>
             </div>
+          </div>
+
+          <!-- Qty total -->
+          <div class="v-pd-qty-total">
+            <span class="v-pd-qty-total-label">합계</span>
+            <span class="v-pd-qty-total-price">{{ fmt(qty * item.salePrice) }}</span>
           </div>
 
           <!-- Actions -->
@@ -93,7 +98,6 @@
             <img :src="item.imgPath" :alt="item.name" class="v-pd-desc-img" />
             <p class="t-body">{{ item.description || '상품 설명이 없습니다.' }}</p>
             <table class="v-pd-spec-table">
-              <tr><td>Brand</td><td>{{ item.brand }}</td></tr>
               <tr><td>Category</td><td>{{ categoryLabel }}</td></tr>
               <tr><td>Price</td><td>{{ fmt(item.price) }}</td></tr>
               <tr v-if="item.discountPer > 0"><td>Discount</td><td>{{ item.discountPer }}%</td></tr>
@@ -179,7 +183,6 @@
               <img :src="p.imgPath" :alt="p.name" loading="lazy" />
             </div>
             <div class="v-product-card__info">
-              <p class="v-product-card__brand">{{ p.brand }}</p>
               <p class="v-product-card__name">{{ p.name }}</p>
               <div class="v-product-card__price">
                 <span class="v-product-card__price-sale">{{ fmt(p.salePrice) }}</span>
@@ -230,7 +233,7 @@ const qnaForm    = ref({ title: '', content: '', isSecret: false })
 
 const categoryLabels = {
   SCARVES: 'Scarves', READY_TO_WEAR: 'Ready to Wear',
-  PERFUME: 'Perfume', ACC: 'Accessories', BAG: 'Bags', SALE: 'Sale',
+  PERFUME: 'Perfume', ACC: 'Accessories', BAG: 'Bags', SHOES: 'Shoes',
 }
 const categoryLabel = computed(() => categoryLabels[item.value?.category] || item.value?.category || '')
 
@@ -270,10 +273,9 @@ async function addToCart() {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ itemId: item.value.id })
+    body: JSON.stringify({ itemId: item.value.id, qty: qty.value })
   })
-  if (res.ok) showToast('Added to your bag.')
-  else if (res.status === 409) showToast('Already in your bag.')
+  if (res.ok) showToast(`${qty.value}개를 장바구니에 담았습니다.`)
   else showToast('An error occurred.')
 }
 
@@ -437,6 +439,19 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 }
 .v-pd-qty-btn:hover { background: #F5F0E8; }
 .v-pd-qty-val { min-width: 44px; text-align: center; font-size: 0.9rem; }
+
+/* Qty total */
+.v-pd-qty-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid #E8E2D9;
+  border-bottom: 1px solid #E8E2D9;
+  margin-bottom: 24px;
+}
+.v-pd-qty-total-label { font-size: 0.72rem; color: #7A7269; text-transform: uppercase; letter-spacing: 0.08em; }
+.v-pd-qty-total-price { font-size: 1.1rem; font-weight: 600; color: #111; }
 
 /* Action buttons */
 .v-pd-actions { display: flex; gap: 12px; margin-bottom: 32px; }

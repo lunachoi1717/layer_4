@@ -3,7 +3,7 @@
     <h1 class="admin-page-title">상품 관리</h1>
 
     <div class="admin-toolbar">
-      <input v-model="keyword" class="admin-search-input" placeholder="상품명 또는 브랜드 검색" @keyup.enter="loadProducts" />
+      <input v-model="keyword" class="admin-search-input" placeholder="상품명 검색" @keyup.enter="loadProducts" />
       <button class="admin-btn admin-btn--ghost admin-btn--sm" @click="loadProducts">검색</button>
       <button class="admin-btn admin-btn--primary" @click="openAddModal">+ 상품 등록</button>
     </div>
@@ -13,7 +13,7 @@
       <table v-else class="admin-table">
         <thead>
           <tr>
-            <th>ID</th><th>이미지</th><th>브랜드</th><th>상품명</th><th>카테고리</th>
+            <th>ID</th><th>이미지</th><th>상품명</th><th>카테고리</th>
             <th>가격</th><th>할인</th><th>재고</th><th>관리</th>
           </tr>
         </thead>
@@ -21,7 +21,6 @@
           <tr v-for="p in products" :key="p.id">
             <td>#{{ p.id }}</td>
             <td><img :src="p.imgPath" class="product-thumb" /></td>
-            <td>{{ p.brand }}</td>
             <td style="font-weight:600">{{ p.name }}</td>
             <td><span class="grade-badge grade-sapphire">{{ p.category }}</span></td>
             <td>{{ p.price?.toLocaleString() }}원</td>
@@ -38,7 +37,7 @@
             </td>
           </tr>
           <tr v-if="products.length === 0">
-            <td colspan="9" style="text-align:center;color:#9CA3AF;padding:40px">등록된 상품이 없습니다.</td>
+            <td colspan="8" style="text-align:center;color:#9CA3AF;padding:40px">등록된 상품이 없습니다.</td>
           </tr>
         </tbody>
       </table>
@@ -49,17 +48,11 @@
       <div class="admin-modal" style="max-width:600px">
         <h3 class="admin-modal-title">{{ editTarget ? '상품 수정' : '상품 등록' }}</h3>
         <form @submit.prevent="submitProduct">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="admin-form-group">
-              <label class="admin-form-label">브랜드</label>
-              <input v-model="form.brand" class="admin-form-input" required />
-            </div>
-            <div class="admin-form-group">
-              <label class="admin-form-label">카테고리</label>
-              <select v-model="form.category" class="admin-form-select" required>
-                <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
-              </select>
-            </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">카테고리</label>
+            <select v-model="form.category" class="admin-form-select" required>
+              <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+            </select>
           </div>
           <div class="admin-form-group">
             <label class="admin-form-label">상품명</label>
@@ -113,7 +106,7 @@ const imagePreview = ref(null)
 const toast = ref('')
 
 const categories = ['OUTER', 'TOP', 'PANTS', 'SHOES', 'BAG', 'ACC', 'SCARVES', 'READY_TO_WEAR', 'PERFUME', 'SALE']
-const form = ref({ brand: '', name: '', category: 'TOP', description: '', price: 0, discountPer: 0, stockCount: 0 })
+const form = ref({ name: '', category: 'TOP', description: '', price: 0, discountPer: 0, stockCount: 0 })
 
 function showToast(msg) {
   toast.value = msg
@@ -133,7 +126,7 @@ async function loadProducts() {
 
 function openAddModal() {
   editTarget.value = null
-  form.value = { brand: '', name: '', category: 'TOP', description: '', price: 0, discountPer: 0, stockCount: 0 }
+  form.value = { name: '', category: 'TOP', description: '', price: 0, discountPer: 0, stockCount: 0 }
   imageFile.value = null
   imagePreview.value = null
   showModal.value = true
@@ -141,7 +134,7 @@ function openAddModal() {
 
 function openEditModal(p) {
   editTarget.value = p
-  form.value = { brand: p.brand, name: p.name, category: p.category, description: p.description || '', price: p.price, discountPer: p.discountPer, stockCount: p.stockCount }
+  form.value = { name: p.name, category: p.category, description: p.description || '', price: p.price, discountPer: p.discountPer, stockCount: p.stockCount }
   imageFile.value = null
   imagePreview.value = p.imgPath
   showModal.value = true

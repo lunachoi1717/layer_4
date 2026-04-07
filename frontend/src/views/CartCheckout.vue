@@ -7,7 +7,7 @@
         <div class="spinner"></div>
       </div>
 
-      <div v-else-if="items.length === 0" class="empty-box">
+      <div v-else-if="cartItems.length === 0" class="empty-box">
         <p>주문할 상품 정보를 불러올 수 없습니다.</p>
         <RouterLink to="/cart" class="btn-primary">장바구니로</RouterLink>
       </div>
@@ -17,23 +17,23 @@
         <div class="checkout-item-box">
           <h2 class="section-title">주문 상품</h2>
 
-          <div v-for="it in items" :key="it.id" class="checkout-item">
-            <img :src="it.imgPath" :alt="it.name" class="checkout-item-img" />
+          <div v-for="ci in cartItems" :key="ci.itemId" class="checkout-item">
+            <img :src="ci.item?.imgPath" :alt="ci.item?.name" class="checkout-item-img" />
             <div class="checkout-item-info">
-              <p class="checkout-item-brand">{{ it.brand }}</p>
-              <p class="checkout-item-name">{{ it.name }}</p>
+              <p class="checkout-item-name">{{ ci.item?.name }}</p>
               <div class="checkout-item-price-row">
-                <span v-if="it.discountPer > 0" class="price-original">{{ it.price?.toLocaleString() }}원</span>
-                <span class="price-sale">{{ it.salePrice?.toLocaleString() }}원</span>
-                <span v-if="it.discountPer > 0" class="price-discount-badge">{{ it.discountPer }}%</span>
+                <span v-if="ci.item?.discountPer > 0" class="price-original">{{ ci.item?.price?.toLocaleString() }}원</span>
+                <span class="price-sale">{{ ci.item?.salePrice?.toLocaleString() }}원</span>
+                <span v-if="ci.item?.discountPer > 0" class="price-discount-badge">{{ ci.item?.discountPer }}%</span>
               </div>
+              <p class="checkout-item-qty">수량: {{ ci.quantity }}개</p>
             </div>
           </div>
 
           <!-- 결제 금액 요약 -->
           <div class="price-summary">
             <div class="summary-row">
-              <span>상품 금액 ({{ items.length }}개)</span>
+              <span>상품 금액 ({{ totalQty }}개)</span>
               <span>{{ subtotal.toLocaleString() }}원</span>
             </div>
             <div class="summary-row">
@@ -115,7 +115,7 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 
-const items = ref([])
+const cartItems = ref([])   // 전체 CartItemResponse (수량 포함)
 const loading = ref(true)
 const submitting = ref(false)
 const errorMsg = ref('')
@@ -125,7 +125,16 @@ const selectedCouponCode = ref('')
 
 const form = ref({ name: '', address: '', payment: 'CARD', cardNumber: '' })
 
-const subtotal = computed(() => items.value.reduce((sum, it) => sum + (it.salePrice || 0), 0))
+// 선택 상품 ItemRead 목록 (submitOrder에서 itemIds 추출용)
+const items = computed(() => cartItems.value.map(c => c.item).filter(Boolean))
+// 수량 반영 합계
+const subtotal = computed(() =>
+  cartItems.value.reduce((sum, ci) => sum + (ci.item?.salePrice || 0) * (ci.quantity || 1), 0)
+)
+// 전체 주문 수량
+const totalQty = computed(() =>
+  cartItems.value.reduce((sum, ci) => sum + (ci.quantity || 1), 0)
+)
 const shipping  = computed(() => subtotal.value >= 50000 ? 0 : 3000)
 
 const couponDiscount = computed(() => {
@@ -158,10 +167,7 @@ async function loadItems() {
     const res = await fetch('/v1/api/cart/items', { credentials: 'include' })
     if (res.ok) {
       const cartData = await res.json()
-      items.value = cartData
-        .filter(c => selectedIds.includes(c.itemId))
-        .map(c => c.item)
-        .filter(Boolean)
+      cartItems.value = cartData.filter(c => selectedIds.includes(c.itemId))
     }
   } catch {}
   finally { loading.value = false }
@@ -184,6 +190,7 @@ async function submitOrder() {
       credentials: 'include',
       body: JSON.stringify({
         itemIds: items.value.map(it => it.id),
+        quantities: Object.fromEntries(cartItems.value.map(ci => [ci.itemId, ci.quantity || 1])),
         name: form.value.name,
         address: form.value.address,
         payment: form.value.payment,
@@ -191,7 +198,10 @@ async function submitOrder() {
       })
     })
     if (res.ok) { alert('주문이 완료되었습니다!'); router.push('/mypage') }
-    else errorMsg.value = '주문 처리 중 오류가 발생했습니다.'
+    else {
+      const msg = await res.text()
+      errorMsg.value = msg || '주문 처리 중 오류가 발생했습니다.'
+    }
   } catch {
     errorMsg.value = '네트워크 오류가 발생했습니다.'
   } finally {
@@ -215,7 +225,7 @@ onMounted(() => { loadItems(); loadMyCoupons() })
 .checkout-item:last-of-type { margin-bottom: 24px; }
 .checkout-item-img { width: 90px; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; background: #fff; flex-shrink: 0; }
 .checkout-item-info { flex: 1; }
-.checkout-item-brand { font-size: 12px; color: #888; margin-bottom: 4px; }
+.checkout-item-qty { font-size: 13px; color: #666; margin-top: 6px; }
 .checkout-item-name { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
 .checkout-item-price-row { display: flex; align-items: center; gap: 8px; }
 .price-original { font-size: 13px; color: #bbb; text-decoration: line-through; }

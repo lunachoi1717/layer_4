@@ -28,6 +28,7 @@
 
     <!-- 상세 내용 화면 -->
     <template v-else-if="inquiry">
+      <div class="detail-container">
       <div class="detail-header">
         <nav class="breadcrumb">
           <RouterLink to="/board/inquiry" class="breadcrumb-link">1:1 문의</RouterLink>
@@ -67,6 +68,7 @@
           class="btn-delete"
           @click="deleteInquiry"
         >삭제</button>
+      </div>
       </div>
     </template>
 
@@ -160,6 +162,7 @@ onMounted(() => loadDetail())
 
 <style scoped>
 .inquiry-detail-page { min-height: 60vh; }
+.detail-container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
 
 /* Password gate */
 .pw-gate {

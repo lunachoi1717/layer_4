@@ -27,28 +27,51 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="o in orders" :key="o.id">
-            <td>#{{ o.id }}</td>
-            <td>{{ o.memberName }}</td>
-            <td style="font-weight:600">{{ o.name }}</td>
-            <td>{{ o.amount?.toLocaleString() }}원</td>
-            <td>{{ o.payment }}</td>
-            <td>
-              <span class="order-status-badge" :class="`order-${o.status?.toLowerCase()}`">
-                {{ statusLabel(o.status) }}
-              </span>
-            </td>
-            <td>{{ formatDate(o.createdAt) }}</td>
-            <td>
-              <select class="admin-form-select" style="font-size:0.78rem;padding:4px 8px" :value="o.status" @change="changeStatus(o.id, $event.target.value)">
-                <option value="PENDING_PAYMENT">결제대기</option>
-                <option value="PAID">결제완료</option>
-                <option value="SHIPPING">배송중</option>
-                <option value="DELIVERED">배송완료</option>
-                <option value="CANCELLED">취소됨</option>
-              </select>
-            </td>
-          </tr>
+          <template v-for="o in orders" :key="o.id">
+            <tr>
+              <td>#{{ o.id }}</td>
+              <td>{{ o.memberName }}</td>
+              <td style="font-weight:600">{{ o.name }}</td>
+              <td>{{ o.amount?.toLocaleString() }}원</td>
+              <td>{{ o.payment }}</td>
+              <td>
+                <span class="order-status-badge" :class="`order-${o.status?.toLowerCase()}`">
+                  {{ statusLabel(o.status) }}
+                </span>
+              </td>
+              <td>{{ formatDate(o.createdAt) }}</td>
+              <td>
+                <div class="td-actions" @click.stop>
+                  <button class="btn-detail" @click="toggleDetail(o.id)">
+                    {{ expandedId === o.id ? '▲ 닫기' : '▼ 상품' }}
+                  </button>
+                  <select class="admin-form-select" style="font-size:0.78rem;padding:4px 8px" :value="o.status" @change="changeStatus(o.id, $event.target.value)">
+                    <option value="PENDING_PAYMENT">결제대기</option>
+                    <option value="PAID">결제완료</option>
+                    <option value="SHIPPING">배송중</option>
+                    <option value="DELIVERED">배송완료</option>
+                    <option value="CANCELLED">취소됨</option>
+                  </select>
+                </div>
+              </td>
+            </tr>
+            <!-- 상품 상세 펼치기 행 -->
+            <tr v-if="expandedId === o.id" class="order-detail-row">
+              <td colspan="8">
+                <div class="order-items-detail">
+                  <p v-if="!o.items || o.items.length === 0" style="color:#9CA3AF;font-size:0.82rem">
+                    상품 정보 없음
+                  </p>
+                  <div v-for="oi in o.items" :key="oi.itemId" class="order-item-row">
+                    <img v-if="oi.imgPath" :src="oi.imgPath" class="order-item-thumb" />
+                    <span class="order-item-name">{{ oi.itemName }}</span>
+                    <span class="order-item-qty">× {{ oi.quantity }}개</span>
+                    <span class="order-item-price">{{ (oi.subtotal || 0).toLocaleString() }}원</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </template>
           <tr v-if="orders.length === 0">
             <td colspan="8" style="text-align:center;color:#9CA3AF;padding:40px">주문 내역이 없습니다.</td>
           </tr>
@@ -67,6 +90,11 @@ const orders = ref([])
 const statusFilter = ref('')
 const loading = ref(false)
 const toast = ref('')
+const expandedId = ref(null)
+
+function toggleDetail(id) {
+  expandedId.value = expandedId.value === id ? null : id
+}
 
 const STATUS_LABELS = {
   PENDING_PAYMENT: '결제대기',
@@ -127,4 +155,19 @@ onMounted(loadOrders)
 .order-shipping       { background: #DBEAFE; color: #1E40AF; }
 .order-delivered      { background: #F3F4F6; color: #374151; }
 .order-cancelled      { background: #FEE2E2; color: #991B1B; }
+.td-actions { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.btn-detail {
+  font-size: 0.72rem; padding: 3px 8px; border: 1px solid #D1D5DB;
+  background: #F9FAFB; border-radius: 4px; cursor: pointer; white-space: nowrap;
+}
+.btn-detail:hover { background: #E5E7EB; }
+.order-detail-row td { background: #F9FAFB; padding: 12px 16px; }
+.order-items-detail { display: flex; flex-direction: column; gap: 8px; }
+.order-item-row {
+  display: flex; align-items: center; gap: 12px; font-size: 0.82rem; color: #374151;
+}
+.order-item-thumb { width: 40px; height: 40px; object-fit: cover; border: 1px solid #E5E7EB; flex-shrink: 0; }
+.order-item-name { flex: 1; font-weight: 500; }
+.order-item-qty { color: #6B7280; }
+.order-item-price { font-weight: 600; white-space: nowrap; }
 </style>

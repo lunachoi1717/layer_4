@@ -187,6 +187,7 @@ async function submitOrder() {
       credentials: 'include',
       body: JSON.stringify({
         itemIds: [item.value.id],
+        quantities: { [item.value.id]: qty.value },
         name: form.value.name,
         address: form.value.address,
         payment: form.value.payment,
@@ -197,7 +198,8 @@ async function submitOrder() {
       alert('주문이 완료되었습니다!')
       router.push('/mypage')
     } else {
-      errorMsg.value = '주문 처리 중 오류가 발생했습니다.'
+      const msg = await res.text()
+      errorMsg.value = msg || '주문 처리 중 오류가 발생했습니다.'
     }
   } catch {
     errorMsg.value = '네트워크 오류가 발생했습니다.'
