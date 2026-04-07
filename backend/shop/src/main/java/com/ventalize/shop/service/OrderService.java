@@ -173,6 +173,11 @@ public class OrderService {
 
         validateStatusChange(order.getStatus(), newStatus);
 
+        // 취소 전환 시 재고 복구
+        if ("CANCELLED".equals(newStatus)) {
+            restoreStock(orderId);
+        }
+
         order.setStatus(newStatus);
         Order saved = orderRepository.save(order);
 

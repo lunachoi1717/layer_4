@@ -30,3 +30,4 @@ spring:
 # 업로드 이미지 저장 경로 (프로젝트 루트/uploads)
 file:
   upload-dir: uploads
+  images-dir: ../../frontend/public/images

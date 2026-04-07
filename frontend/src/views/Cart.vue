@@ -102,7 +102,7 @@
           >
             Place Order ({{ selectedItems.length }})
           </button>
-          <p class="v-summary-note t-caption">Complimentary shipping on orders over ₩100,000</p>
+          <p class="v-summary-note t-caption">Complimentary shipping on orders over ₩50,000</p>
         </div>
       </div>
     </div>

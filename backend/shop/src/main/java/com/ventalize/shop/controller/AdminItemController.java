@@ -30,6 +30,9 @@ public class AdminItemController {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
+    @Value("${file.images-dir}")
+    private String imagesDir;
+
     /** 이미지 업로드 */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
@@ -47,6 +50,24 @@ public class AdminItemController {
             return ResponseEntity.ok(Map.of("imgPath", "/v1/images/" + filename));
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body("업로드 실패: " + e.getMessage());
+        }
+    }
+
+    /** public/images 디렉토리 파일 목록 */
+    @GetMapping("/images")
+    public ResponseEntity<?> listImages() {
+        try {
+            Path dir = Paths.get(imagesDir).toAbsolutePath().normalize();
+            if (!Files.exists(dir)) return ResponseEntity.ok(List.of());
+            List<String> files = Files.list(dir)
+                    .filter(p -> !Files.isDirectory(p))
+                    .map(p -> p.getFileName().toString())
+                    .filter(name -> name.matches("(?i).*\\.(png|jpg|jpeg|gif|webp)$"))
+                    .sorted()
+                    .toList();
+            return ResponseEntity.ok(files);
+        } catch (IOException e) {
+            return ResponseEntity.ok(List.of());
         }
     }
 

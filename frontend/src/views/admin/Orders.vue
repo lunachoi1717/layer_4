@@ -3,8 +3,13 @@
     <h1 class="admin-page-title">주문 관리</h1>
 
     <div class="admin-toolbar">
-      <select v-model="statusFilter" class="admin-form-select" style="width:160px" @change="loadOrders">
-        <option value="">전체 상태</option>
+      <select
+        class="admin-form-select"
+        style="font-size:0.78rem;padding:4px 8px"
+        v-model="statusFilter"
+        @change="loadOrders"
+      >
+        <option value="">전체</option>
         <option value="PENDING_PAYMENT">결제대기</option>
         <option value="PAID">결제완료</option>
         <option value="SHIPPING">배송중</option>
@@ -45,12 +50,21 @@
                   <button class="btn-detail" @click="toggleDetail(o.id)">
                     {{ expandedId === o.id ? '▲ 닫기' : '▼ 상품' }}
                   </button>
-                  <select class="admin-form-select" style="font-size:0.78rem;padding:4px 8px" :value="o.status" @change="changeStatus(o.id, $event.target.value)">
-                    <option value="PENDING_PAYMENT">결제대기</option>
-                    <option value="PAID">결제완료</option>
-                    <option value="SHIPPING">배송중</option>
-                    <option value="DELIVERED">배송완료</option>
-                    <option value="CANCELLED">취소됨</option>
+                  <select
+                    class="admin-form-select"
+                    style="font-size:0.78rem;padding:4px 8px"
+                    :value="o.status"
+                    :disabled="statusOptions(o.status).length === 0"
+                    @change="changeStatus(o.id, o.status, $event.target.value)"
+                  >
+                    <option :value="o.status">{{ statusLabel(o.status) }}</option>
+                    <option
+                      v-for="next in statusOptions(o.status)"
+                      :key="next"
+                      :value="next"
+                    >
+                      {{ statusLabel(next) }}
+                    </option>
                   </select>
                 </div>
               </td>
@@ -105,6 +119,17 @@ const STATUS_LABELS = {
 }
 function statusLabel(s) { return STATUS_LABELS[s] || s }
 
+const ALLOWED_NEXT = {
+  PENDING_PAYMENT: ['PAID', 'CANCELLED'],
+  PAID: ['SHIPPING', 'CANCELLED'],
+  SHIPPING: ['DELIVERED'],
+  DELIVERED: [],
+  CANCELLED: [],
+}
+function statusOptions(currentStatus) {
+  return ALLOWED_NEXT[currentStatus] || []
+}
+
 const totalSales = computed(() =>
   orders.value.filter(o => ['PAID','SHIPPING','DELIVERED'].includes(o.status))
     .reduce((s, o) => s + (o.amount || 0), 0)
@@ -130,14 +155,22 @@ async function loadOrders() {
   } catch {} finally { loading.value = false }
 }
 
-async function changeStatus(id, status) {
+async function changeStatus(id, currentStatus, newStatus) {
+  if (newStatus === currentStatus) return
   const res = await fetch(`/v1/api/admin/orders/${id}/status`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify({ status })
+    body: JSON.stringify({ status: newStatus })
   })
-  if (res.ok) { loadOrders(); showToast('상태가 변경되었습니다.') }
+  if (res.ok) {
+    loadOrders()
+    showToast('상태가 변경되었습니다.')
+  } else {
+    const msg = await res.text()
+    showToast(msg || '상태 변경에 실패했습니다.')
+    loadOrders() // 드롭다운 원복
+  }
 }
 
 onMounted(loadOrders)

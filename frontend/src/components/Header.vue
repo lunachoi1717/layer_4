@@ -3,7 +3,7 @@
 
     <!-- ── Announcement Bar ── -->
     <div class="v-header__announce">
-      <span>₩100,000 이상 구매 시 무료 배송 &nbsp;·&nbsp; 신규 회원 첫 구매 15% 할인</span>
+      <span>₩50,000 이상 구매 시 무료 배송 &nbsp;·&nbsp; 신규 회원 첫 구매 15% 할인</span>
     </div>
 
     <!-- ── Main Header ── -->
@@ -106,7 +106,7 @@ import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '../composables/useAuth.js'
 
-const { isLoggedIn, loginId, userName, grade, isAdmin, clearLogin } = useAuth()
+const { isLoggedIn, loginId, userName, grade, isAdmin, clearLogin, checkLoginStatus } = useAuth()
 const router = useRouter()
 const route  = useRoute()
 
@@ -124,12 +124,13 @@ async function fetchCartCount() {
       const items = await r.json()
       cartCount.value = Array.isArray(items) ? items.filter(i => i.quantity > 0).length : 0
     } else {
+      if (r.status === 401) clearLogin()
       cartCount.value = 0
     }
   } catch { cartCount.value = 0 }
 }
 
-watch(isLoggedIn, fetchCartCount, { immediate: true })
+watch(isLoggedIn, fetchCartCount)
 watch(() => route.fullPath, fetchCartCount)
 
 // 등급 아이콘 계산
@@ -191,7 +192,11 @@ const categories = [
 ]
 
 function onScroll() { scrolled.value = window.scrollY > 40 }
-onMounted(() => window.addEventListener('scroll', onScroll, { passive: true }))
+onMounted(async () => {
+  window.addEventListener('scroll', onScroll, { passive: true })
+  await checkLoginStatus()
+  fetchCartCount()
+})
 onUnmounted(() => window.removeEventListener('scroll', onScroll))
 </script>
 

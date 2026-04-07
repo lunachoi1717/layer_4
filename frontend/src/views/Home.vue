@@ -268,6 +268,16 @@ const banners = [
 function nextSlide() { slide.value = (slide.value + 1) % banners.length }
 function prevSlide() { slide.value = (slide.value - 1 + banners.length) % banners.length }
 
+/* ── Category strip ── */
+const quickCats = [
+  { name: 'SCARVES',       label: 'Scarves'       },
+  { name: 'READY_TO_WEAR', label: 'Ready to Wear' },
+  { name: 'PERFUME',       label: 'Perfume'       },
+  { name: 'ACC',           label: 'Accessories'   },
+  { name: 'BAG',           label: 'Bags'          },
+  { name: 'SALE',          label: 'Sale'          },
+]
+
 /* ── Product data ── */
 const newLoading  = ref(true)
 const bestLoading = ref(true)
