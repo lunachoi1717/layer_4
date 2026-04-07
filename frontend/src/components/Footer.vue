@@ -51,7 +51,6 @@ const year = new Date().getFullYear()
 .v-footer {
   background: #111;
   color: #F5F0E8;
-  margin-top: 80px;
 }
 .v-footer__top {
   display: grid;

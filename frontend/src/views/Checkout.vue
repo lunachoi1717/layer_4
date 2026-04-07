@@ -71,6 +71,8 @@
                 <option value="KAKAO">카카오페이</option>
                 <option value="NAVER">네이버페이</option>
                 <option value="TOSS">토스페이</option>
+                <option value="BANK_TRANSFER">무통장 입금</option>
+                <option value="WIRE_TRANSFER">실시간 계좌이체</option>
               </select>
             </div>
             <div v-if="form.payment === 'CARD'" class="form-group">

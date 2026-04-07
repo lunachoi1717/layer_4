@@ -37,15 +37,18 @@ public class InquiryController {
         );
     }
 
-    /** 문의 상세 (작성자 또는 관리자만) */
+    /** 문의 상세 (작성자, 관리자, 또는 비밀번호 일치 시 열람 가능) */
     @GetMapping("/{id}")
-    public ResponseEntity<?> detail(@PathVariable Integer id) {
+    public ResponseEntity<?> detail(@PathVariable Integer id,
+                                    @RequestParam(required = false) String pw) {
         Integer currentMemberId = securityUtil.getCurrentMemberId();
         boolean isAdmin = isCurrentAdmin();
         return inquiryRepository.findById(id)
                 .map(i -> {
                     boolean isOwner = currentMemberId != null && currentMemberId.equals(i.getMemberId());
-                    if (!isOwner && !isAdmin) {
+                    boolean pwMatch = pw != null && !pw.isBlank()
+                            && i.getInquiryPw() != null && pw.equals(i.getInquiryPw());
+                    if (!isOwner && !isAdmin && !pwMatch) {
                         return ResponseEntity.status(403).<Object>build();
                     }
                     return ResponseEntity.ok((Object) toRead(i, isAdmin));
@@ -72,6 +75,7 @@ public class InquiryController {
                 .category(req.getCategory() != null ? req.getCategory() : "기타")
                 .title(req.getTitle())
                 .content(req.getContent())
+                .inquiryPw(req.getInquiryPw())
                 .build();
         return ResponseEntity.ok(toRead(inquiryRepository.save(inquiry), false));
     }

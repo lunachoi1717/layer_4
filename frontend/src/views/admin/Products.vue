@@ -3,13 +3,14 @@
     <h1 class="admin-page-title">상품 관리</h1>
 
     <div class="admin-toolbar">
-      <input v-model="keyword" class="admin-search" placeholder="상품명 또는 브랜드 검색" @keyup.enter="loadProducts" />
-      <button class="btn-admin-search" @click="loadProducts">검색</button>
-      <button class="btn-admin-primary" @click="openAddModal">+ 상품 등록</button>
+      <input v-model="keyword" class="admin-search-input" placeholder="상품명 또는 브랜드 검색" @keyup.enter="loadProducts" />
+      <button class="admin-btn admin-btn--ghost admin-btn--sm" @click="loadProducts">검색</button>
+      <button class="admin-btn admin-btn--primary" @click="openAddModal">+ 상품 등록</button>
     </div>
 
     <div class="admin-card">
-      <table class="admin-table">
+      <div v-if="loading" class="loading-box"><div class="spinner"></div></div>
+      <table v-else class="admin-table">
         <thead>
           <tr>
             <th>ID</th><th>이미지</th><th>브랜드</th><th>상품명</th><th>카테고리</th>
@@ -18,81 +19,84 @@
         </thead>
         <tbody>
           <tr v-for="p in products" :key="p.id">
-            <td>{{ p.id }}</td>
-            <td><img :src="p.imgPath" class="admin-thumb" /></td>
+            <td>#{{ p.id }}</td>
+            <td><img :src="p.imgPath" class="product-thumb" /></td>
             <td>{{ p.brand }}</td>
-            <td>{{ p.name }}</td>
-            <td>{{ p.category }}</td>
+            <td style="font-weight:600">{{ p.name }}</td>
+            <td><span class="grade-badge grade-sapphire">{{ p.category }}</span></td>
             <td>{{ p.price?.toLocaleString() }}원</td>
             <td>{{ p.discountPer }}%</td>
             <td>
               <input type="number" class="stock-input" :value="p.stockCount" min="0"
                 @change="updateStock(p.id, $event.target.value)" />
             </td>
-            <td class="action-cell">
-              <button class="btn-admin-primary" @click="openEditModal(p)">수정</button>
-              <button class="btn-admin-danger" @click="deleteProduct(p.id)">삭제</button>
+            <td>
+              <div class="admin-btn-group">
+                <button class="admin-btn admin-btn--warning admin-btn--sm" @click="openEditModal(p)">수정</button>
+                <button class="admin-btn admin-btn--danger admin-btn--sm" @click="deleteProduct(p.id)">삭제</button>
+              </div>
             </td>
+          </tr>
+          <tr v-if="products.length === 0">
+            <td colspan="9" style="text-align:center;color:#9CA3AF;padding:40px">등록된 상품이 없습니다.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <!-- 상품 등록/수정 모달 -->
-    <div v-if="showModal" class="modal-overlay" @click.self="showModal = false">
-      <div class="modal modal-lg">
-        <h3>{{ editTarget ? '상품 수정' : '상품 등록' }}</h3>
+    <div v-if="showModal" class="admin-modal-overlay" @click.self="showModal = false">
+      <div class="admin-modal" style="max-width:600px">
+        <h3 class="admin-modal-title">{{ editTarget ? '상품 수정' : '상품 등록' }}</h3>
         <form @submit.prevent="submitProduct">
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">브랜드</label>
-              <input v-model="form.brand" class="form-input" required />
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="admin-form-group">
+              <label class="admin-form-label">브랜드</label>
+              <input v-model="form.brand" class="admin-form-input" required />
             </div>
-            <div class="form-group">
-              <label class="form-label">카테고리</label>
-              <select v-model="form.category" class="form-input" required>
+            <div class="admin-form-group">
+              <label class="admin-form-label">카테고리</label>
+              <select v-model="form.category" class="admin-form-select" required>
                 <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
               </select>
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">상품명</label>
-            <input v-model="form.name" class="form-input" required />
+          <div class="admin-form-group">
+            <label class="admin-form-label">상품명</label>
+            <input v-model="form.name" class="admin-form-input" required />
           </div>
-          <div class="form-group">
-            <label class="form-label">상품 설명</label>
-            <textarea v-model="form.description" class="form-input" rows="3" />
+          <div class="admin-form-group">
+            <label class="admin-form-label">상품 설명</label>
+            <textarea v-model="form.description" class="admin-form-textarea" rows="3" />
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">가격</label>
-              <input v-model.number="form.price" class="form-input" type="number" min="0" required />
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div class="admin-form-group">
+              <label class="admin-form-label">가격</label>
+              <input v-model.number="form.price" class="admin-form-input" type="number" min="0" required />
             </div>
-            <div class="form-group">
-              <label class="form-label">할인율(%)</label>
-              <input v-model.number="form.discountPer" class="form-input" type="number" min="0" max="100" />
+            <div class="admin-form-group">
+              <label class="admin-form-label">할인율(%)</label>
+              <input v-model.number="form.discountPer" class="admin-form-input" type="number" min="0" max="100" />
             </div>
-            <div class="form-group">
-              <label class="form-label">재고</label>
-              <input v-model.number="form.stockCount" class="form-input" type="number" min="0" />
+            <div class="admin-form-group">
+              <label class="admin-form-label">재고</label>
+              <input v-model.number="form.stockCount" class="admin-form-input" type="number" min="0" />
             </div>
           </div>
-          <div class="form-group">
-            <label class="form-label">이미지</label>
-            <input type="file" accept="image/*" @change="onImageChange" class="form-input" />
-            <img v-if="imagePreview" :src="imagePreview" class="image-preview" />
+          <div class="admin-form-group">
+            <label class="admin-form-label">이미지</label>
+            <input type="file" accept="image/*" @change="onImageChange" class="admin-form-input" />
+            <img v-if="imagePreview" :src="imagePreview" style="width:80px;height:80px;object-fit:cover;border-radius:6px;margin-top:8px;border:1px solid #E5E7EB" />
           </div>
-          <div class="modal-actions">
-            <button type="button" class="btn-cancel" @click="showModal = false">취소</button>
-            <button type="submit" class="btn-confirm">{{ editTarget ? '수정' : '등록' }}</button>
+          <div class="admin-modal-actions">
+            <button type="button" class="admin-btn admin-btn--ghost" @click="showModal = false">취소</button>
+            <button type="submit" class="admin-btn admin-btn--primary">{{ editTarget ? '수정' : '등록' }}</button>
           </div>
         </form>
       </div>
     </div>
 
-    <Transition name="toast">
-      <div v-if="toast" class="toast">{{ toast }}</div>
-    </Transition>
+    <div v-if="toast" class="v-toast">{{ toast }}</div>
   </div>
 </template>
 
@@ -101,13 +105,14 @@ import { ref, onMounted } from 'vue'
 
 const products = ref([])
 const keyword = ref('')
+const loading = ref(false)
 const showModal = ref(false)
 const editTarget = ref(null)
 const imageFile = ref(null)
 const imagePreview = ref(null)
 const toast = ref('')
 
-const categories = ['OUTER', 'TOP', 'PANTS', 'SHOES', 'BAG', 'ACC', 'OUTLET']
+const categories = ['OUTER', 'TOP', 'PANTS', 'SHOES', 'BAG', 'ACC', 'SCARVES', 'READY_TO_WEAR', 'PERFUME', 'SALE']
 const form = ref({ brand: '', name: '', category: 'TOP', description: '', price: 0, discountPer: 0, stockCount: 0 })
 
 function showToast(msg) {
@@ -116,13 +121,14 @@ function showToast(msg) {
 }
 
 async function loadProducts() {
+  loading.value = true
   try {
     const url = keyword.value
       ? `/v1/api/admin/items?keyword=${encodeURIComponent(keyword.value)}`
       : '/v1/api/admin/items'
     const res = await fetch(url, { credentials: 'include' })
     if (res.ok) products.value = await res.json()
-  } catch {}
+  } catch {} finally { loading.value = false }
 }
 
 function openAddModal() {
@@ -143,24 +149,18 @@ function openEditModal(p) {
 
 function onImageChange(e) {
   imageFile.value = e.target.files[0]
-  if (imageFile.value) {
-    imagePreview.value = URL.createObjectURL(imageFile.value)
-  }
+  if (imageFile.value) imagePreview.value = URL.createObjectURL(imageFile.value)
 }
 
 async function submitProduct() {
   const fd = new FormData()
   fd.append('data', new Blob([JSON.stringify(form.value)], { type: 'application/json' }))
   if (imageFile.value) fd.append('image', imageFile.value)
-
   const url = editTarget.value ? `/v1/api/admin/items/${editTarget.value.id}` : '/v1/api/admin/items'
   const method = editTarget.value ? 'PUT' : 'POST'
   const res = await fetch(url, { method, body: fd, credentials: 'include' })
-  if (res.ok) {
-    showModal.value = false
-    loadProducts()
-    showToast(editTarget.value ? '수정되었습니다.' : '등록되었습니다.')
-  } else showToast('처리 중 오류가 발생했습니다.')
+  if (res.ok) { showModal.value = false; loadProducts(); showToast(editTarget.value ? '수정되었습니다.' : '등록되었습니다.') }
+  else showToast('처리 중 오류가 발생했습니다.')
 }
 
 async function deleteProduct(id) {
@@ -180,3 +180,14 @@ async function updateStock(id, stockCount) {
 
 onMounted(loadProducts)
 </script>
+
+<style scoped>
+.product-thumb {
+  width: 44px; height: 44px; object-fit: cover;
+  border-radius: 6px; border: 1px solid #E5E7EB;
+}
+.stock-input {
+  width: 64px; border: 1px solid #E5E7EB; border-radius: 4px;
+  padding: 4px 6px; font-size: 0.8rem; text-align: center;
+}
+</style>

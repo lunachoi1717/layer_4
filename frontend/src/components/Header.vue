@@ -3,7 +3,7 @@
 
     <!-- ── Announcement Bar ── -->
     <div class="v-header__announce">
-      <span>Complimentary shipping on orders over ₩100,000 &nbsp;·&nbsp; 신규 회원 첫 구매 15% 할인</span>
+      <span>₩100,000 이상 구매 시 무료 배송 &nbsp;·&nbsp; 신규 회원 첫 구매 15% 할인</span>
     </div>
 
     <!-- ── Main Header ── -->
@@ -16,27 +16,10 @@
         <!-- Center: Logo -->
         <RouterLink to="/" class="v-header__logo">
           <span class="v-header__logo-en">VENTALIZE</span>
-          <span class="v-header__logo-kr">벙딸리제</span>
         </RouterLink>
 
-        <!-- Right: Auth + Icons -->
+        <!-- Right: Icons + Auth -->
         <div class="v-header__right">
-          <!-- Auth links -->
-          <template v-if="isLoggedIn">
-            <div class="v-header__user-group">
-              <span class="v-grade-icon" :class="`v-grade-icon--${gradeKey}`" :title="gradeLabel">{{ gradeInitial }}</span>
-              <span class="v-header__username">{{ userName || loginId }}</span>
-            </div>
-            <RouterLink v-if="isAdmin()" to="/admin" class="v-header__link v-header__link--admin">Admin</RouterLink>
-            <button class="v-header__link" @click="handleLogout">Sign out</button>
-          </template>
-          <template v-else>
-            <RouterLink to="/login" class="v-header__link">Sign in</RouterLink>
-            <RouterLink to="/register" class="v-header__link">Join</RouterLink>
-          </template>
-
-          <div class="v-header__icon-divider"></div>
-
           <!-- Search toggle -->
           <button class="v-header__icon-btn" @click="searchOpen = !searchOpen" aria-label="Search">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -58,6 +41,22 @@
               <path d="M16 10a4 4 0 0 1-8 0"/>
             </svg>
           </RouterLink>
+
+          <div class="v-header__icon-divider"></div>
+
+          <!-- Auth links -->
+          <template v-if="isLoggedIn">
+            <div v-if="!isAdmin()" class="v-header__user-group">
+              <span class="v-grade-icon" :class="`v-grade-icon--${gradeKey}`" :title="gradeLabel" v-html="gradeIconSvg"></span>
+              <span class="v-header__username">{{ userName || loginId }}</span>
+            </div>
+            <RouterLink v-if="isAdmin()" to="/admin" class="v-header__link v-header__link--admin">관리자</RouterLink>
+            <button class="v-header__link" @click="handleLogout">Log out</button>
+          </template>
+          <template v-else>
+            <RouterLink to="/login" class="v-header__link">Log in</RouterLink>
+            <RouterLink to="/register" class="v-header__link">Join</RouterLink>
+          </template>
         </div>
       </div>
     </div>
@@ -70,7 +69,7 @@
             ref="searchInput"
             v-model="searchQuery"
             type="search"
-            placeholder="스카프, 향수, 가방을 검색하세요…"
+            placeholder="Search"
             class="v-search-input"
           />
           <button type="submit" class="v-search-submit">Search</button>
@@ -128,8 +127,21 @@ const GRADE_MAP = {
 }
 
 const gradeKey     = computed(() => GRADE_MAP[grade.value?.toUpperCase()] ? GRADE_MAP[grade.value.toUpperCase()].key : 'sapphire')
-const gradeInitial = computed(() => GRADE_MAP[grade.value?.toUpperCase()]?.initial || 'S')
 const gradeLabel   = computed(() => GRADE_MAP[grade.value?.toUpperCase()]?.label   || grade.value || 'Sapphire')
+
+const GRADE_ICONS = {
+  // Sapphire: 보석 컷 (gem facet) 형태
+  sapphire: `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h12l5 8-11 13L1 10z"/><path d="M1 10h22" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`,
+  // Ruby: 하트 (열정의 붉은 루비)
+  ruby:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
+  // Emerald: 물방울/잎 (자연의 에메랄드)
+  emerald:  `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C10 5 4 10 4 15a8 8 0 0 0 16 0C20 10 14 5 12 2z"/></svg>`,
+  // Gold: 5각별 (황금의 별)
+  gold:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
+  // Diamond: 4각 스파클 (다이아몬드 빛나는 형태)
+  diamond:  `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2z"/></svg>`,
+}
+const gradeIconSvg = computed(() => GRADE_ICONS[gradeKey.value] || GRADE_ICONS.sapphire)
 
 watch(searchOpen, async (val) => {
   if (val) { await nextTick(); searchInput.value?.focus() }
@@ -180,10 +192,10 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   background: #1B3A2D;
   color: #F5F0E8;
   text-align: center;
-  font-size: 1.1rem;
+  font-size: 0.7rem;
   font-family: 'Inter', sans-serif;
   letter-spacing: 0.06em;
-  padding: 8px 16px;
+  padding: 5px 16px;
 }
 
 /* ── Main Header ── */
@@ -218,7 +230,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 }
 .v-header__logo-en {
   font-family: 'Cormorant Garamond', 'Georgia', serif;
-  font-size: 1.35rem;
+  font-size: 1.75rem;
   font-weight: 400;
   letter-spacing: 0.35em;
   color: #111;
@@ -249,7 +261,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   margin: 0 2px;
 }
 .v-header__link {
-  font-size: 1.1rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.05em;
   color: #7A7269;
@@ -271,7 +283,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   gap: 6px;
 }
 .v-header__username {
-  font-size: 1.1rem;
+  font-size: 0.75rem;
   color: #111;
   font-weight: 500;
 }

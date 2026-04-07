@@ -100,7 +100,7 @@ import { useAuth } from '../composables/useAuth.js'
 const route = useRoute()
 const { isLoggedIn } = useAuth()
 
-const ITEMS_PER_PAGE = 9
+const ITEMS_PER_PAGE = 12
 const loading     = ref(false)
 const items       = ref([])
 const currentPage = ref(1)
@@ -234,11 +234,11 @@ watch([() => route.params.name, () => route.query.keyword], fetchItems, { immedi
 .v-sort-btn:hover { color: #111; }
 .v-sort-btn--active { color: #1B3A2D; border-bottom-color: #1B3A2D; }
 
-/* Product grid — 3 columns */
+/* Product grid — 4 columns */
 .v-cat-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 40px 28px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px 20px;
 }
 .v-cat-grid__img {
   aspect-ratio: 2 / 3;
@@ -287,6 +287,7 @@ watch([() => route.params.name, () => route.query.keyword], fetchItems, { immedi
 .v-pagination__btn--active { color: #1B3A2D; border-color: #1B3A2D; font-weight: 600; }
 .v-pagination__btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
-@media (max-width: 900px) { .v-cat-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .v-cat-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1100px) { .v-cat-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .v-cat-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px)  { .v-cat-grid { grid-template-columns: 1fr; } }
 </style>

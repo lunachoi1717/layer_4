@@ -50,51 +50,32 @@
     </section>
 
     <!-- ══════════════════════════════════════
-         EDITORIAL BLOCK — New Arrivals
+         NEW ARRIVALS — 5 items/row uniform grid
     ══════════════════════════════════════ -->
-    <section class="v-editorial v-container">
+    <section class="v-new v-container">
       <div class="v-section-label"><span>New Arrivals</span></div>
-      <div class="v-editorial__grid">
-        <!-- 큰 피처 카드 -->
-        <RouterLink v-if="newItems[0]" :to="`/product/${newItems[0].id}`" class="v-product-card v-editorial__feature">
-          <div class="v-product-card__img-wrap v-editorial__feature-img">
-            <img :src="newItems[0].imgPath" :alt="newItems[0].name" />
+      <div v-if="newLoading" class="v-spinner"></div>
+      <div v-else class="v-new__row">
+        <RouterLink
+          v-for="item in newItems"
+          :key="item.id"
+          :to="`/product/${item.id}`"
+          class="v-product-card v-new__card"
+        >
+          <div class="v-product-card__img-wrap v-new__img">
+            <img :src="item.imgPath" :alt="item.name" loading="lazy" />
             <span class="v-product-card__badge">New</span>
           </div>
           <div class="v-product-card__info">
-            <p class="v-product-card__brand">{{ newItems[0].brand }}</p>
-            <p class="v-product-card__name">{{ newItems[0].name }}</p>
+            <p class="v-product-card__brand">{{ item.brand }}</p>
+            <p class="v-product-card__name">{{ item.name }}</p>
             <div class="v-product-card__price">
-              <span v-if="newItems[0].discountPer > 0" class="v-product-card__price-original">{{ fmt(newItems[0].price) }}</span>
-              <span class="v-product-card__price-sale">{{ fmt(newItems[0].salePrice) }}</span>
-              <span v-if="newItems[0].discountPer > 0" class="v-product-card__discount">-{{ newItems[0].discountPer }}%</span>
+              <span v-if="item.discountPer > 0" class="v-product-card__price-original">{{ fmt(item.price) }}</span>
+              <span class="v-product-card__price-sale">{{ fmt(item.salePrice) }}</span>
+              <span v-if="item.discountPer > 0" class="v-product-card__discount">-{{ item.discountPer }}%</span>
             </div>
           </div>
         </RouterLink>
-
-        <!-- 사이드 3개 -->
-        <div class="v-editorial__side">
-          <div v-if="newLoading" class="v-spinner"></div>
-          <RouterLink
-            v-else
-            v-for="item in newItems.slice(1, 4)"
-            :key="item.id"
-            :to="`/product/${item.id}`"
-            class="v-product-card v-editorial__side-card"
-          >
-            <div class="v-product-card__img-wrap v-editorial__side-img">
-              <img :src="item.imgPath" :alt="item.name" loading="lazy" />
-            </div>
-            <div class="v-product-card__info">
-              <p class="v-product-card__brand">{{ item.brand }}</p>
-              <p class="v-product-card__name">{{ item.name }}</p>
-              <div class="v-product-card__price">
-                <span v-if="item.discountPer > 0" class="v-product-card__price-original">{{ fmt(item.price) }}</span>
-                <span class="v-product-card__price-sale">{{ fmt(item.salePrice) }}</span>
-              </div>
-            </div>
-          </RouterLink>
-        </div>
       </div>
       <div class="v-editorial__more">
         <RouterLink to="/category/SCARVES" class="btn btn-outline">View All New Arrivals</RouterLink>
@@ -299,8 +280,8 @@ const fmt = (p) => p ? p.toLocaleString('ko-KR') + '원' : ''
 
 async function fetchNew() {
   try {
-    const r = await fetch('/v1/api/items?sort=NEW&size=4', { credentials: 'include' })
-    newItems.value = (await r.json()).slice(0, 4)
+    const r = await fetch('/v1/api/items?sort=NEW&size=5', { credentials: 'include' })
+    newItems.value = (await r.json()).slice(0, 5)
   } finally { newLoading.value = false }
 }
 async function fetchBest() {
@@ -447,27 +428,17 @@ onUnmounted(() => clearInterval(timer))
 .v-cat-strip__item:hover { color: #111; border-bottom-color: #1B3A2D; }
 .v-cat-strip__label { letter-spacing: 0.14em; }
 
-/* ── Editorial Grid ── */
-.v-editorial {
+/* ── New Arrivals ── */
+.v-new {
   padding: 80px 0 64px;
 }
-.v-editorial__grid {
+.v-new__row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  align-items: start;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 24px;
 }
-.v-editorial__feature-img {
-  aspect-ratio: 3 / 4;
-}
-.v-editorial__side {
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-.v-editorial__side-img {
-  aspect-ratio: 3 / 2;
-}
+.v-new__card { flex: 0 0 auto; }
+.v-new__img { aspect-ratio: 3 / 4; }
 .v-editorial__more {
   text-align: center;
   margin-top: 48px;
@@ -578,13 +549,14 @@ onUnmounted(() => clearInterval(timer))
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .v-hero__content { padding: 0 48px; }
+  .v-new__row { grid-template-columns: repeat(3, 1fr); }
   .v-rec__grid { grid-template-columns: repeat(2, 1fr); }
   .v-split { grid-template-columns: 1fr; gap: 48px; }
 }
 @media (max-width: 768px) {
   .v-hero { height: 70vh; }
   .v-hero__content { padding: 0 24px; }
-  .v-editorial__grid { grid-template-columns: 1fr; }
+  .v-new__row { grid-template-columns: repeat(2, 1fr); }
   .v-promo-full__body { left: 24px; right: 24px; }
   .v-split__panel { grid-template-columns: 1fr; }
   .v-rec__grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }

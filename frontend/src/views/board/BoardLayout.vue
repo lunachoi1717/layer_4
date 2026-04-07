@@ -11,6 +11,9 @@
           <RouterLink to="/board/inquiry" class="board-nav-link" active-class="board-nav-link--active">
             1:1 문의
           </RouterLink>
+          <RouterLink to="/board/reviews" class="board-nav-link" active-class="board-nav-link--active">
+            리뷰
+          </RouterLink>
         </nav>
       </div>
     </div>

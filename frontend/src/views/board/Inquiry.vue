@@ -24,6 +24,10 @@
         <label>내용</label>
         <textarea v-model="form.content" class="form-textarea" placeholder="문의 내용을 입력하세요" rows="5" required></textarea>
       </div>
+      <div class="form-row">
+        <label>비밀번호 <span class="form-hint">(선택 — 비로그인 열람 시 사용)</span></label>
+        <input v-model="form.inquiryPw" type="password" class="form-input" placeholder="비밀번호를 설정하면 비밀번호로도 열람 가능합니다" maxlength="100" />
+      </div>
       <div class="form-actions">
         <button type="submit" class="btn-submit" :disabled="submitting">
           {{ submitting ? '제출 중...' : '문의 제출' }}
@@ -35,7 +39,7 @@
     <div v-else-if="inquiries.length === 0" class="empty">등록된 문의가 없습니다.</div>
     <div v-else class="inquiry-list">
       <div v-for="item in inquiries" :key="item.id" class="inquiry-item">
-        <div class="inquiry-header" @click="toggleDetail(item)">
+        <RouterLink :to="`/board/inquiry/${item.id}`" class="inquiry-row">
           <span class="inquiry-cat">{{ item.category }}</span>
           <span class="inquiry-title">{{ item.title }}</span>
           <span class="inquiry-author">{{ item.memberName }}</span>
@@ -43,31 +47,8 @@
             {{ item.isAnswered ? '답변완료' : '답변대기' }}
           </span>
           <span class="inquiry-date">{{ formatDate(item.createdAt) }}</span>
-          <span class="inquiry-toggle-icon">{{ expandedId === item.id ? '▲' : '▼' }}</span>
-        </div>
-
-        <!-- 상세 내용 (작성자 or 관리자만 content 존재) -->
-        <transition name="slide">
-          <div v-if="expandedId === item.id" class="inquiry-detail">
-            <template v-if="item.content !== null && item.content !== undefined">
-              <div class="inquiry-content">{{ item.content }}</div>
-              <div v-if="item.isAnswered && item.answerContent" class="inquiry-answer">
-                <span class="answer-label">관리자 답변</span>
-                <p>{{ item.answerContent }}</p>
-                <span class="answer-date">{{ formatDate(item.answeredAt) }}</span>
-              </div>
-              <div v-if="isOwner(item) && !item.isAnswered" class="inquiry-delete">
-                <button class="btn-delete" @click.stop="deleteInquiry(item.id)">삭제</button>
-              </div>
-            </template>
-            <template v-else>
-              <div class="inquiry-private-notice">
-                <span>🔒 본인과 관리자만 내용을 확인할 수 있습니다.</span>
-                <RouterLink v-if="!isLoggedIn" to="/login" class="btn-login-hint">로그인하기</RouterLink>
-              </div>
-            </template>
-          </div>
-        </transition>
+          <span class="inquiry-arrow">›</span>
+        </RouterLink>
       </div>
     </div>
   </div>
@@ -77,24 +58,14 @@
 import { ref, onMounted } from 'vue'
 import { useAuth } from '../../composables/useAuth.js'
 
-const { isLoggedIn, loginId } = useAuth()
+const { isLoggedIn } = useAuth()
 
 const categories = ['주문/배송', '환불/교환', '회원', '상품', '기타']
 const inquiries = ref([])
 const loading = ref(false)
 const showForm = ref(false)
 const submitting = ref(false)
-const expandedId = ref(null)
-const form = ref({ category: '기타', title: '', content: '' })
-
-function isOwner(item) {
-  return isLoggedIn.value && item.memberName !== undefined && item.memberId !== undefined
-    && loginId.value === item.memberLoginId
-}
-
-function toggleDetail(item) {
-  expandedId.value = expandedId.value === item.id ? null : item.id
-}
+const form = ref({ category: '기타', title: '', content: '', inquiryPw: '' })
 
 async function fetchInquiries() {
   loading.value = true
@@ -118,7 +89,7 @@ async function submitInquiry() {
       body: JSON.stringify(form.value)
     })
     if (res.ok) {
-      form.value = { category: '기타', title: '', content: '' }
+      form.value = { category: '기타', title: '', content: '', inquiryPw: '' }
       showForm.value = false
       await fetchInquiries()
     } else {
@@ -128,17 +99,6 @@ async function submitInquiry() {
     console.error(e)
   } finally {
     submitting.value = false
-  }
-}
-
-async function deleteInquiry(id) {
-  if (!confirm('문의를 삭제하시겠습니까?')) return
-  try {
-    const res = await fetch(`/v1/api/board/inquiry/${id}`, { method: 'DELETE', credentials: 'include' })
-    if (res.ok) { expandedId.value = null; await fetchInquiries() }
-    else alert('삭제에 실패했습니다.')
-  } catch (e) {
-    console.error(e)
   }
 }
 
@@ -165,6 +125,7 @@ onMounted(fetchInquiries)
 }
 .form-row { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
 .form-row label { font-size: 13px; font-weight: 600; color: #444; }
+.form-hint { font-size: 11px; font-weight: 400; color: #999; }
 .form-select, .form-input, .form-textarea {
   border: 1.5px solid #ddd; border-radius: 6px; padding: 9px 12px;
   font-size: 14px; outline: none; transition: border-color .2s;
@@ -180,11 +141,12 @@ onMounted(fetchInquiries)
 .loading, .empty { text-align: center; padding: 60px; color: #888; }
 .inquiry-list { border-top: 2px solid #1a1a1a; }
 .inquiry-item { border-bottom: 1px solid #eee; }
-.inquiry-header {
+.inquiry-row {
   display: flex; align-items: center; gap: 10px; padding: 16px 4px;
-  cursor: pointer; flex-wrap: wrap; transition: background .15s;
+  text-decoration: none; flex-wrap: wrap; transition: background .15s;
+  color: inherit;
 }
-.inquiry-header:hover { background: #fafafa; }
+.inquiry-row:hover { background: #fafafa; }
 .inquiry-cat {
   background: #f0ebe8; color: #8b6914; font-size: 11px; font-weight: 600;
   padding: 3px 8px; border-radius: 10px; white-space: nowrap;
@@ -194,39 +156,6 @@ onMounted(fetchInquiries)
 .inquiry-status { font-size: 12px; padding: 3px 10px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
 .answered { background: #e8f5e9; color: #2e7d32; }
 .pending  { background: #fff3e0; color: #e65100; }
-.inquiry-date  { font-size: 12px; color: #999; white-space: nowrap; }
-.inquiry-toggle-icon { font-size: 10px; color: #bbb; margin-left: auto; }
-
-/* Detail panel */
-.inquiry-detail { padding: 16px 4px 20px; }
-.inquiry-content { font-size: 14px; color: #555; line-height: 1.7; white-space: pre-wrap; }
-.inquiry-answer {
-  background: #f8f9fa; border-left: 3px solid #1B3A2D; padding: 14px 16px;
-  margin-top: 12px; border-radius: 0 6px 6px 0;
-}
-.answer-label { font-size: 12px; font-weight: 700; color: #1B3A2D; display: block; margin-bottom: 8px; }
-.inquiry-answer p { font-size: 14px; color: #444; margin: 0 0 6px; line-height: 1.7; }
-.answer-date { font-size: 12px; color: #999; }
-.inquiry-delete { text-align: right; margin-top: 10px; }
-.btn-delete {
-  background: none; border: 1px solid #ddd; color: #999; padding: 5px 12px;
-  border-radius: 4px; cursor: pointer; font-size: 12px;
-}
-.btn-delete:hover { color: #c0392b; border-color: #c0392b; }
-
-/* Private notice */
-.inquiry-private-notice {
-  display: flex; align-items: center; gap: 14px;
-  padding: 14px 16px; background: #F5F0E8; border-radius: 6px;
-  font-size: 13px; color: #7A7269;
-}
-.btn-login-hint {
-  padding: 6px 14px; background: #1B3A2D; color: #F5F0E8;
-  border-radius: 4px; font-size: 12px; font-weight: 600; text-decoration: none;
-}
-
-/* Transition */
-.slide-enter-active, .slide-leave-active { transition: max-height 0.25s ease, opacity 0.2s; overflow: hidden; }
-.slide-enter-from, .slide-leave-to { max-height: 0; opacity: 0; }
-.slide-enter-to, .slide-leave-from { max-height: 500px; opacity: 1; }
+.inquiry-date { font-size: 12px; color: #999; white-space: nowrap; }
+.inquiry-arrow { font-size: 16px; color: #bbb; margin-left: auto; }
 </style>

@@ -18,6 +18,12 @@ public class ReviewController {
     private final ReviewService reviewService;
     private final SecurityUtil securityUtil;
 
+    /** 전체 리뷰 목록 (공개) */
+    @GetMapping
+    public ResponseEntity<?> all() {
+        return ResponseEntity.ok(reviewService.findAll());
+    }
+
     /** 상품별 리뷰 목록 */
     @GetMapping("/item/{itemId}")
     public ResponseEntity<?> byItem(@PathVariable Integer itemId) {

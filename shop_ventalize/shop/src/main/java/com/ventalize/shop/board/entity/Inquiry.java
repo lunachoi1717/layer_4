@@ -37,6 +37,9 @@ public class Inquiry {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Column(length = 100)
+    private String inquiryPw;
+
     @Column(columnDefinition = "TEXT")
     private String answerContent;
 

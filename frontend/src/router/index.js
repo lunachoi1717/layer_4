@@ -20,6 +20,12 @@ const routes = [
   { path: '/checkout', component: Checkout, meta: { requiresAuth: true } },
   { path: '/cart-checkout', component: CartCheckout, meta: { requiresAuth: true } },
 
+  // Inquiry detail (must be before /board layout to avoid child route conflicts)
+  {
+    path: '/board/inquiry/:id',
+    component: () => import('../views/board/InquiryDetail.vue'),
+  },
+
   // Board routes
   {
     path: '/board',
@@ -28,6 +34,7 @@ const routes = [
       { path: '', redirect: '/board/faq' },
       { path: 'faq', component: () => import('../views/board/Faq.vue') },
       { path: 'inquiry', component: () => import('../views/board/Inquiry.vue') },
+      { path: 'reviews', component: () => import('../views/board/BoardReviews.vue') },
     ]
   },
 

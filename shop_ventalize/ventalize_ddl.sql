@@ -139,6 +139,7 @@ CREATE TABLE inquiries (
     category         VARCHAR(30)  NOT NULL DEFAULT '기타',
     title            VARCHAR(200) NOT NULL,
     content          TEXT         NOT NULL,
+    inquiry_pw       VARCHAR(100),
     answer_content   TEXT,
     answer_member_id INTEGER,
     answered_at      TIMESTAMP,
