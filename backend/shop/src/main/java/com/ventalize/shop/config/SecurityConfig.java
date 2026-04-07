@@ -68,6 +68,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/v1/api/qna/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/v1/api/board/faq/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/v1/api/board/inquiry").permitAll()
+                .requestMatchers("/images/**").permitAll()
                 .requestMatchers("/v1/images/**").permitAll()
                 // Admin only
                 .requestMatchers("/v1/api/admin/**").hasAuthority("ROLE_ADMIN")

@@ -57,7 +57,7 @@ public class Item {
                 .id(id)
                 .name(name)
                 .category(category)
-                .imgPath(imgPath)
+                .imgPath(normalizeImgPath(imgPath))
                 .description(description)
                 .price(price)
                 .discountPer(discountPer)
@@ -67,5 +67,22 @@ public class Item {
                 .isSoldOut(stockCount != null && stockCount <= 0)
                 .createdAt(createdAt)
                 .build();
+    }
+
+    private String normalizeImgPath(String path) {
+        if (path == null || path.isBlank()) {
+            return "/images/default.png";
+        }
+        path = path.trim();
+        if (path.startsWith("http://") || path.startsWith("https://")) {
+            return path;
+        }
+        if (path.startsWith("/images/")) {
+            return path;
+        }
+        if (path.startsWith("images/")) {
+            return "/" + path;
+        }
+        return "/images/" + path;
     }
 }
