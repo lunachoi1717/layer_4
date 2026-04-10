@@ -1,0 +1,161 @@
+<template>
+  <div class="inquiry-page">
+    <div class="inquiry-toolbar">
+      <h2 class="inquiry-page-title">1:1 문의</h2>
+      <button v-if="isLoggedIn" class="btn-write" @click="showForm = !showForm">
+        {{ showForm ? '취소' : '문의 작성' }}
+      </button>
+      <RouterLink v-else to="/login" class="btn-write">로그인 후 문의 작성</RouterLink>
+    </div>
+
+    <!-- 문의 작성 폼 (로그인 사용자만) -->
+    <form v-if="showForm && isLoggedIn" class="inquiry-form" @submit.prevent="submitInquiry">
+      <div class="form-row">
+        <label>카테고리</label>
+        <select v-model="form.category" class="form-select">
+          <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>제목</label>
+        <input v-model="form.title" type="text" class="form-input" placeholder="문의 제목을 입력하세요" required />
+      </div>
+      <div class="form-row">
+        <label>내용</label>
+        <textarea v-model="form.content" class="form-textarea" placeholder="문의 내용을 입력하세요" rows="5" required></textarea>
+      </div>
+      <div class="form-row">
+        <label>비밀번호 <span class="form-hint">(선택 — 비로그인 열람 시 사용)</span></label>
+        <input v-model="form.inquiryPw" type="password" class="form-input" placeholder="비밀번호를 설정하면 비밀번호로도 열람 가능합니다" maxlength="100" />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-submit" :disabled="submitting">
+          {{ submitting ? '제출 중...' : '문의 제출' }}
+        </button>
+      </div>
+    </form>
+
+    <div v-if="loading" class="loading">로딩 중...</div>
+    <div v-else-if="inquiries.length === 0" class="empty">등록된 문의가 없습니다.</div>
+    <div v-else class="inquiry-list">
+      <div v-for="item in inquiries" :key="item.id" class="inquiry-item">
+        <RouterLink :to="`/board/inquiry/${item.id}`" class="inquiry-row">
+          <span class="inquiry-cat">{{ item.category }}</span>
+          <span class="inquiry-title">{{ item.title }}</span>
+          <span class="inquiry-author">{{ item.memberName }}</span>
+          <span class="inquiry-status" :class="item.isAnswered ? 'answered' : 'pending'">
+            {{ item.isAnswered ? '답변완료' : '답변대기' }}
+          </span>
+          <span class="inquiry-date">{{ formatDate(item.createdAt) }}</span>
+          <span class="inquiry-arrow">›</span>
+        </RouterLink>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue'
+import { useAuth } from '../../composables/useAuth.js'
+
+const { isLoggedIn } = useAuth()
+
+const categories = ['주문/배송', '환불/교환', '회원', '상품', '기타']
+const inquiries = ref([])
+const loading = ref(false)
+const showForm = ref(false)
+const submitting = ref(false)
+const form = ref({ category: '기타', title: '', content: '', inquiryPw: '' })
+
+async function fetchInquiries() {
+  loading.value = true
+  try {
+    const res = await fetch('/v1/api/board/inquiry', { credentials: 'include' })
+    if (res.ok) inquiries.value = await res.json()
+  } catch (e) {
+    console.error(e)
+  } finally {
+    loading.value = false
+  }
+}
+
+async function submitInquiry() {
+  submitting.value = true
+  try {
+    const res = await fetch('/v1/api/board/inquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify(form.value)
+    })
+    if (res.ok) {
+      form.value = { category: '기타', title: '', content: '', inquiryPw: '' }
+      showForm.value = false
+      await fetchInquiries()
+    } else {
+      alert('문의 등록에 실패했습니다.')
+    }
+  } catch (e) {
+    console.error(e)
+  } finally {
+    submitting.value = false
+  }
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString('ko-KR')
+}
+
+onMounted(fetchInquiries)
+</script>
+
+<style scoped>
+.inquiry-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.inquiry-page-title { font-size: 18px; font-weight: 700; margin: 0; }
+.btn-write {
+  padding: 9px 20px; background: #1a1a1a; color: #fff; border: none;
+  border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 600;
+  transition: background .2s; text-decoration: none; display: inline-block;
+}
+.btn-write:hover { background: #333; }
+.inquiry-form {
+  background: #fafafa; border: 1px solid #eee; border-radius: 10px;
+  padding: 24px; margin-bottom: 32px;
+}
+.form-row { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+.form-row label { font-size: 13px; font-weight: 600; color: #444; }
+.form-hint { font-size: 11px; font-weight: 400; color: #999; }
+.form-select, .form-input, .form-textarea {
+  border: 1.5px solid #ddd; border-radius: 6px; padding: 9px 12px;
+  font-size: 14px; outline: none; transition: border-color .2s;
+}
+.form-select:focus, .form-input:focus, .form-textarea:focus { border-color: #1a1a1a; }
+.form-textarea { resize: vertical; }
+.form-actions { text-align: right; }
+.btn-submit {
+  padding: 10px 24px; background: #1B3A2D; color: #F5F0E8; border: none;
+  border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px;
+}
+.btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+.loading, .empty { text-align: center; padding: 60px; color: #888; }
+.inquiry-list { border-top: 2px solid #1a1a1a; }
+.inquiry-item { border-bottom: 1px solid #eee; }
+.inquiry-row {
+  display: flex; align-items: center; gap: 10px; padding: 16px 4px;
+  text-decoration: none; flex-wrap: wrap; transition: background .15s;
+  color: inherit;
+}
+.inquiry-row:hover { background: #fafafa; }
+.inquiry-cat {
+  background: #f0ebe8; color: #8b6914; font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 10px; white-space: nowrap;
+}
+.inquiry-title { flex: 1; font-weight: 600; font-size: 14px; color: #1a1a1a; min-width: 100px; }
+.inquiry-author { font-size: 12px; color: #999; white-space: nowrap; }
+.inquiry-status { font-size: 12px; padding: 3px 10px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
+.answered { background: #e8f5e9; color: #2e7d32; }
+.pending  { background: #fff3e0; color: #e65100; }
+.inquiry-date { font-size: 12px; color: #999; white-space: nowrap; }
+.inquiry-arrow { font-size: 16px; color: #bbb; margin-left: auto; }
+</style>
