@@ -78,26 +78,29 @@ public class InquiryController {
         return ResponseEntity.ok(toRead(inquiryRepository.save(inquiry), false));
     }
 
-    /** 1:1 문의 삭제 (본인만) */
+    /** 1:1 문의 삭제 (작성자 또는 관리자) */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         Integer memberId = securityUtil.getCurrentMemberId();
+        boolean isAdmin = isCurrentAdmin();
         return inquiryRepository.findById(id)
-                .filter(i -> i.getMemberId().equals(memberId) && !i.getIsAnswered())
+                .filter(i -> isAdmin || i.getMemberId().equals(memberId))
                 .map(i -> {
                     inquiryRepository.delete(i);
                     return ResponseEntity.ok().build();
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(ResponseEntity.status(403).build());
     }
 
     /** 권한 있는 사용자용 전체 내용 DTO */
     private InquiryRead toRead(Inquiry i, boolean isAdmin) {
-        String memberName = memberRepository.findById(i.getMemberId())
-                .map(m -> m.getName()).orElse("(탈퇴회원)");
+        var member = memberRepository.findById(i.getMemberId());
+        String memberName    = member.map(m -> m.getName()).orElse("(탈퇴회원)");
+        String memberLoginId = member.map(m -> m.getLoginId()).orElse(null);
         return InquiryRead.builder()
                 .id(i.getId())
                 .memberId(i.getMemberId())
+                .memberLoginId(memberLoginId)
                 .memberName(memberName)
                 .category(i.getCategory())
                 .title(i.getTitle())
@@ -111,11 +114,13 @@ public class InquiryController {
 
     /** 공개용 DTO — 내용 열람 권한이 없으면 content·answerContent 마스킹 */
     private InquiryRead toReadPublic(Inquiry i, boolean canViewContent) {
-        String memberName = memberRepository.findById(i.getMemberId())
-                .map(m -> m.getName()).orElse("(탈퇴회원)");
+        var member = memberRepository.findById(i.getMemberId());
+        String memberName    = member.map(m -> m.getName()).orElse("(탈퇴회원)");
+        String memberLoginId = member.map(m -> m.getLoginId()).orElse(null);
         return InquiryRead.builder()
                 .id(i.getId())
                 .memberId(i.getMemberId())
+                .memberLoginId(memberLoginId)
                 .memberName(memberName)
                 .category(i.getCategory())
                 .title(i.getTitle())

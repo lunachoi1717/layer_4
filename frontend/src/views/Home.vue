@@ -78,7 +78,7 @@
         </RouterLink>
       </div>
       <div class="v-editorial__more">
-        <RouterLink to="/category/SCARVES" class="btn btn-outline">View All New Arrivals</RouterLink>
+        <RouterLink to="/category/ALL" class="btn btn-outline">View All New Arrivals</RouterLink>
       </div>
     </section>
 

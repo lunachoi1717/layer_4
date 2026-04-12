@@ -84,7 +84,7 @@ const year = new Date().getFullYear()
   border-bottom: 1px solid rgba(245,240,232,0.1);
 }
 .v-footer__logo-en {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: var(--font-serif);
   font-size: 1.4rem;
   font-weight: 400;
   letter-spacing: 0.3em;

@@ -35,17 +35,17 @@
         </RouterLink>
 
         <p class="vad-nav-section">COMMUNITY</p>
+        <RouterLink to="/admin/faq" class="vad-nav-item" active-class="vad-nav-item--active">
+          <svg class="vad-nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z" clip-rule="evenodd"/><path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V7z"/></svg>
+          FAQ 관리
+        </RouterLink>
+        <RouterLink to="/admin/inquiry" class="vad-nav-item" active-class="vad-nav-item--active">
+          <svg class="vad-nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/></svg>
+          1:1 문의 관리
+        </RouterLink>
         <RouterLink to="/admin/reviews" class="vad-nav-item" active-class="vad-nav-item--active">
           <svg class="vad-nav-icon" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
           리뷰 관리
-        </RouterLink>
-        <RouterLink to="/admin/qna" class="vad-nav-item" active-class="vad-nav-item--active">
-          <svg class="vad-nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/></svg>
-          Q&A 관리
-        </RouterLink>
-        <RouterLink to="/admin/board" class="vad-nav-item" active-class="vad-nav-item--active">
-          <svg class="vad-nav-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z" clip-rule="evenodd"/><path d="M15 7h1a2 2 0 012 2v5.5a1.5 1.5 0 01-3 0V7z"/></svg>
-          게시판 관리
         </RouterLink>
       </nav>
 
@@ -120,7 +120,7 @@
   gap: 2px;
 }
 .vad-brand-name {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-serif);
   font-size: 1.05rem;
   font-weight: 400;
   letter-spacing: 0.28em;

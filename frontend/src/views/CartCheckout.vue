@@ -222,7 +222,8 @@ async function submitOrder() {
         name: form.value.name,
         address: form.value.address,
         payment: form.value.payment,
-        cardNumber: form.value.cardNumber
+        cardNumber: form.value.cardNumber,
+        couponCode: appliedCoupon.value?.code ?? null
       })
     })
     if (res.ok) { alert('주문이 완료되었습니다!'); router.push('/mypage') }

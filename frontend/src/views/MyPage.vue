@@ -357,7 +357,7 @@ onMounted(() => {
   border-bottom: 1px solid #E8E2D9;
 }
 .v-mypage-hero-title {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: var(--font-serif);
   font-size: clamp(1.4rem, 3vw, 2rem);
   font-weight: 400;
   color: #111;
@@ -394,7 +394,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-serif);
   font-size: 1.3rem;
   flex-shrink: 0;
 }
@@ -435,7 +435,7 @@ onMounted(() => {
 
 /* Main section */
 .v-mypage-section-title {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: var(--font-serif);
   font-size: 1.6rem;
   font-weight: 400;
   color: #111;

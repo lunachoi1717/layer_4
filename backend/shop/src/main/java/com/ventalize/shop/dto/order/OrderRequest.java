@@ -19,6 +19,8 @@ public class OrderRequest {
     private List<Integer> itemIds;
     /** itemId → 주문 수량 (미전송 시 각 1개로 처리) */
     private Map<Integer, Integer> quantities;
+    /** 적용 쿠폰 코드 (없으면 null) */
+    private String couponCode;
 
     public Order toEntity(Integer memberId) {
         return Order.builder()

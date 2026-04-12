@@ -50,8 +50,8 @@ const routes = [
       { path: 'products', component: () => import('../views/admin/Products.vue') },
       { path: 'orders', component: () => import('../views/admin/Orders.vue') },
       { path: 'reviews', component: () => import('../views/admin/Reviews.vue') },
-      { path: 'qna', component: () => import('../views/admin/QnA.vue') },
-      { path: 'board', component: () => import('../views/admin/Board.vue') },
+      { path: 'faq', component: () => import('../views/admin/AdminFaq.vue') },
+      { path: 'inquiry', component: () => import('../views/admin/AdminInquiry.vue') },
       { path: 'coupons', component: () => import('../views/admin/Coupons.vue') },
     ]
   }

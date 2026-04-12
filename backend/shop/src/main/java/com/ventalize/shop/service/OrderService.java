@@ -7,6 +7,8 @@ import com.ventalize.shop.dto.order.OrderRequest;
 import com.ventalize.shop.entity.Item;
 import com.ventalize.shop.entity.Order;
 import com.ventalize.shop.entity.OrderItem;
+import com.ventalize.shop.entity.Coupon;
+import com.ventalize.shop.repository.CouponRepository;
 import com.ventalize.shop.repository.ItemRepository;
 import com.ventalize.shop.repository.MemberRepository;
 import com.ventalize.shop.repository.OrderRepository;
@@ -31,6 +33,7 @@ public class OrderService {
     private final CartService cartService;
     private final PaymentSimulator paymentSimulator;
     private final MemberRepository memberRepository;
+    private final CouponRepository couponRepository;
 
     // 주문 목록 조회 (아이템 상세 포함, 회원별 순번 부여)
     public List<OrderRead> findAll(Integer memberId) {
@@ -89,6 +92,20 @@ public class OrderService {
                 amount += (long) ir.getSalePrice() * qty;
             }
         }
+
+        // 쿠폰 할인 적용
+        if (orderReq.getCouponCode() != null && !orderReq.getCouponCode().isBlank()) {
+            Coupon coupon = couponRepository.findByCode(orderReq.getCouponCode()).orElse(null);
+            if (coupon != null && Boolean.TRUE.equals(coupon.getIsActive())) {
+                long discount = 0L;
+                if ("FIXED".equals(coupon.getDiscountType())) {
+                    discount = coupon.getDiscountValue();
+                } else if ("PERCENT".equals(coupon.getDiscountType())) {
+                    discount = amount * coupon.getDiscountValue() / 100;
+                }
+                amount = Math.max(0L, amount - discount);
+            }
+        }
         orderReq.setAmount(amount);
 
         // 3. 주문 저장
@@ -112,8 +129,10 @@ public class OrderService {
             });
         }
 
-        // 6. 장바구니 비우기
-        cartService.removeAll(order.getMemberId());
+        // 6. 주문한 상품만 장바구니에서 삭제
+        for (Integer itemId : itemIds.stream().distinct().toList()) {
+            cartService.remove(order.getMemberId(), itemId);
+        }
 
         // 7. 결제 시뮬레이션 (10초 후 PAID 전환)
         paymentSimulator.simulatePayment(order.getId());

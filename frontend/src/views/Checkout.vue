@@ -219,7 +219,8 @@ async function submitOrder() {
         name: form.value.name,
         address: form.value.address,
         payment: form.value.payment,
-        cardNumber: form.value.cardNumber
+        cardNumber: form.value.cardNumber,
+        couponCode: appliedCoupon.value?.code ?? null
       })
     })
     if (res.ok) {

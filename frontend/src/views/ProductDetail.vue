@@ -386,7 +386,7 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
   letter-spacing: 0.1em;
 }
 .v-pd-name {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: var(--font-serif);
   font-size: 2rem;
   font-weight: 400;
   color: #111;

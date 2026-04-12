@@ -129,7 +129,7 @@ async function handleRegister() {
   margin-bottom: 48px;
 }
 .v-auth-logo-en {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: var(--font-serif);
   font-size: 1.5rem;
   font-weight: 400;
   letter-spacing: 0.35em;
@@ -143,7 +143,7 @@ async function handleRegister() {
 }
 
 .v-auth-title {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: var(--font-serif);
   font-size: 2.2rem;
   font-weight: 400;
   color: #111;
@@ -228,7 +228,7 @@ async function handleRegister() {
 /* Right aside */
 .v-auth-aside {
   position: relative;
-  background: url("/images/perfume_banner.png") center/cover no-repeat;
+  background: url('/images/bags2_banner.png') center/cover no-repeat;
   overflow: hidden;
 }
 .v-auth-aside-overlay {
@@ -243,7 +243,7 @@ async function handleRegister() {
   right: 56px;
 }
 .v-auth-aside-quote {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: var(--font-serif);
   font-size: 1.6rem;
   font-weight: 400;
   color: #F5F0E8;

@@ -122,7 +122,7 @@ async function handleLogin() {
   margin-bottom: 56px;
 }
 .v-auth-logo-en {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: var(--font-serif);
   font-size: 1.5rem;
   font-weight: 400;
   letter-spacing: 0.35em;
@@ -136,7 +136,7 @@ async function handleLogin() {
 }
 
 .v-auth-title {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: var(--font-serif);
   font-size: 2.2rem;
   font-weight: 400;
   color: #111;
@@ -204,7 +204,7 @@ async function handleLogin() {
 /* Right aside */
 .v-auth-aside {
   position: relative;
-  background: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&auto=format&fit=crop') center/cover no-repeat;
+  background: url('/images/bags2_banner.png') center/cover no-repeat;
   overflow: hidden;
 }
 .v-auth-aside-overlay {
@@ -219,7 +219,7 @@ async function handleLogin() {
   right: 56px;
 }
 .v-auth-aside-quote {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: var(--font-serif);
   font-size: 1.6rem;
   font-weight: 400;
   color: #F5F0E8;

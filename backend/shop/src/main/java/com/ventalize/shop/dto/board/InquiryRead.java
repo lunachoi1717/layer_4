@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class InquiryRead {
     private Integer id;
     private Integer memberId;
+    private String memberLoginId;
     private String memberName;
     private String category;
     private String title;

@@ -253,7 +253,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   justify-self: center;
 }
 .v-header__logo-en {
-  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  font-family: var(--font-serif);
   font-size: 1.75rem;
   font-weight: 400;
   letter-spacing: 0.35em;
@@ -379,7 +379,7 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   flex: 1;
   border: none;
   outline: none;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--font-serif);
   font-size: 1.1rem;
   color: #111;
   background: transparent;

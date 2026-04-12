@@ -3,8 +3,8 @@
    Concept: Luxury Editorial · Hermès × Kinfolk
    ===================================================== */
 
-/* ── Google Fonts (Cormorant Garamond + Inter) ── */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap');
+/* ── Google Fonts (EB Garamond + Inter) ── */
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap');
 
 /* ── Reset ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -29,7 +29,7 @@ a { text-decoration: none; color: inherit; }
   --c-sale:    #8B2020;   /* Sale Red */
 
   /* Typography */
-  --font-serif: 'Cormorant Garamond', 'Georgia', serif;
+  --font-serif: 'EB Garamond', serif;
   --font-sans:  'Inter', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
 
   /* Spacing */

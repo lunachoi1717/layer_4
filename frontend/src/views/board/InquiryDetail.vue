@@ -84,7 +84,7 @@ import { useAuth } from '../../composables/useAuth.js'
 
 const route = useRoute()
 const router = useRouter()
-const { isLoggedIn, loginId } = useAuth()
+const { isLoggedIn, loginId, isAdmin } = useAuth()
 
 const inquiry = ref(null)
 const loading = ref(true)
@@ -96,7 +96,7 @@ const verifiedPw = ref('')
 
 const canDelete = computed(() => {
   if (!inquiry.value || !isLoggedIn.value) return false
-  return inquiry.value.memberLoginId === loginId.value && !inquiry.value.isAnswered
+  return inquiry.value.memberLoginId === loginId.value || isAdmin()
 })
 
 async function loadDetail(pw) {
