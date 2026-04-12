@@ -45,14 +45,13 @@ public class OrderController {
             orderService.order(orderReq, memberId);
             return ResponseEntity.ok().build();
         } catch (IllegalStateException e) {
-            // 재고 부족
+
             return ResponseEntity.status(409).body(e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    /** 주문 취소 */
     @PatchMapping("/{id}/cancel")
     public ResponseEntity<?> cancel(@PathVariable Integer id) {
         Integer memberId = securityUtil.getCurrentMemberId();

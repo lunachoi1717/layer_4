@@ -19,7 +19,6 @@ public class InquiryController {
     private final MemberRepository memberRepository;
     private final SecurityUtil securityUtil;
 
-    /** 전체 문의 목록 (공개) — 제목·카테고리·상태만 노출, 내용 숨김 */
     @GetMapping
     public ResponseEntity<?> list() {
         Integer currentMemberId = securityUtil.getCurrentMemberId();
@@ -35,7 +34,6 @@ public class InquiryController {
         );
     }
 
-    /** 문의 상세 (작성자, 관리자, 또는 비밀번호 일치 시 열람 가능) */
     @GetMapping("/{id}")
     public ResponseEntity<?> detail(@PathVariable Integer id,
                                     @RequestParam(required = false) String pw) {
@@ -54,7 +52,6 @@ public class InquiryController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /** 내 1:1 문의 목록 */
     @GetMapping("/my")
     public ResponseEntity<?> my() {
         Integer memberId = securityUtil.getCurrentMemberId();
@@ -63,7 +60,6 @@ public class InquiryController {
                 .stream().map(i -> toRead(i, false)).toList());
     }
 
-    /** 1:1 문의 등록 */
     @PostMapping
     public ResponseEntity<?> create(@RequestBody InquiryRequest req) {
         Integer memberId = securityUtil.getCurrentMemberId();
@@ -78,7 +74,6 @@ public class InquiryController {
         return ResponseEntity.ok(toRead(inquiryRepository.save(inquiry), false));
     }
 
-    /** 1:1 문의 삭제 (작성자 또는 관리자) */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         Integer memberId = securityUtil.getCurrentMemberId();
@@ -92,7 +87,6 @@ public class InquiryController {
                 .orElse(ResponseEntity.status(403).build());
     }
 
-    /** 권한 있는 사용자용 전체 내용 DTO */
     private InquiryRead toRead(Inquiry i, boolean isAdmin) {
         var member = memberRepository.findById(i.getMemberId());
         String memberName    = member.map(m -> m.getName()).orElse("(탈퇴회원)");
@@ -112,7 +106,6 @@ public class InquiryController {
                 .build();
     }
 
-    /** 공개용 DTO — 내용 열람 권한이 없으면 content·answerContent 마스킹 */
     private InquiryRead toReadPublic(Inquiry i, boolean canViewContent) {
         var member = memberRepository.findById(i.getMemberId());
         String memberName    = member.map(m -> m.getName()).orElse("(탈퇴회원)");

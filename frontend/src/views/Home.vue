@@ -1,9 +1,6 @@
 <template>
   <main class="v-home">
 
-    <!-- ══════════════════════════════════════
-         HERO — Full-bleed editorial banner
-    ══════════════════════════════════════ -->
     <section class="v-hero">
       <div class="v-hero__track" :style="{ transform: `translateX(-${slide * 100}%)` }">
         <div v-for="(b, i) in banners" :key="i" class="v-hero__slide">
@@ -23,14 +20,12 @@
         </div>
       </div>
 
-      <!-- Controls -->
       <button class="v-hero__arrow v-hero__arrow--l" @click="prevSlide" aria-label="Previous">‹</button>
       <button class="v-hero__arrow v-hero__arrow--r" @click="nextSlide" aria-label="Next">›</button>
       <div class="v-hero__dots">
         <button v-for="(_, i) in banners" :key="i" class="v-hero__dot" :class="{ 'v-hero__dot--on': i === slide }" @click="slide = i" />
       </div>
 
-      <!-- Slide counter -->
       <div class="v-hero__counter">
         <span class="v-hero__counter-num">{{ String(slide + 1).padStart(2, '0') }}</span>
         <span class="v-hero__counter-sep"></span>
@@ -38,9 +33,6 @@
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════
-         CATEGORY STRIP
-    ══════════════════════════════════════ -->
     <section class="v-cat-strip">
       <div class="v-container">
         <RouterLink v-for="cat in quickCats" :key="cat.name" :to="`/category/${cat.name}`" class="v-cat-strip__item">
@@ -49,9 +41,6 @@
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════
-         NEW ARRIVALS — 5 items/row uniform grid
-    ══════════════════════════════════════ -->
     <section class="v-new v-container">
       <div class="v-section-label"><span>New Arrivals</span></div>
       <div v-if="newLoading" class="v-spinner"></div>
@@ -82,9 +71,6 @@
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════
-         FULL-BLEED PROMO — Perfume
-    ══════════════════════════════════════ -->
     <section class="v-promo-full">
       <div class="v-promo-full__img-wrap">
         <img src="/images/perfume_banner.png" alt="Perfume Collection" />
@@ -103,9 +89,6 @@
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════
-         BEST SELLERS — Horizontal scroll
-    ══════════════════════════════════════ -->
     <section class="v-best v-container">
       <div class="v-section-label"><span>Best Sellers</span></div>
       <div v-if="bestLoading" class="v-spinner"></div>
@@ -132,11 +115,8 @@
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════
-         ASYMMETRIC SPLIT — Scarves & Bags
-    ══════════════════════════════════════ -->
     <section class="v-split v-container">
-      <!-- Scarves -->
+
       <div class="v-split__panel">
         <div class="v-split__img-wrap">
           <img src="/images/scarves3_banner.png" alt="Scarves" />
@@ -148,7 +128,7 @@
           <RouterLink to="/category/SCARVES" class="btn btn-primary">Shop Scarves</RouterLink>
         </div>
       </div>
-      <!-- Bags -->
+
       <div class="v-split__panel v-split__panel--reverse">
         <div class="v-split__img-wrap">
           <img src= "/images/bags2_banner.png" alt="Bags" />
@@ -162,9 +142,6 @@
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════
-         SALE BANNER — Full-width minimal
-    ══════════════════════════════════════ -->
     <section class="v-sale-banner">
       <div class="v-container">
         <RouterLink to="/category/SALE" class="v-sale-banner__inner">
@@ -179,9 +156,6 @@
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════
-         RECOMMENDATIONS
-    ══════════════════════════════════════ -->
     <section class="v-rec v-container">
       <div class="v-section-label"><span>Curated for You</span></div>
       <div v-if="recLoading" class="v-spinner"></div>
@@ -207,9 +181,6 @@
       </div>
     </section>
 
-    <!-- ══════════════════════════════════════
-         NEWSLETTER / BRAND STORY
-    ══════════════════════════════════════ -->
     <section class="v-story">
       <div class="v-container">
         <p class="t-sub" style="color:#C9B89A; margin-bottom:16px; text-align:center">The House of Ventalize</p>
@@ -228,7 +199,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 
-/* ── Slider ── */
 const slide = ref(0)
 let timer   = null
 
@@ -268,7 +238,6 @@ const banners = [
 function nextSlide() { slide.value = (slide.value + 1) % banners.length }
 function prevSlide() { slide.value = (slide.value - 1 + banners.length) % banners.length }
 
-/* ── Category strip ── */
 const quickCats = [
   { name: 'SCARVES',       label: 'Scarves'       },
   { name: 'READY_TO_WEAR', label: 'Ready to Wear' },
@@ -278,7 +247,6 @@ const quickCats = [
   { name: 'SALE',          label: 'Sale'          },
 ]
 
-/* ── Product data ── */
 const newLoading  = ref(true)
 const bestLoading = ref(true)
 const recLoading  = ref(true)
@@ -315,7 +283,6 @@ onUnmounted(() => clearInterval(timer))
 </script>
 
 <style scoped>
-/* ── Hero ── */
 .v-hero {
   position: relative;
   overflow: hidden;
@@ -362,7 +329,6 @@ onUnmounted(() => clearInterval(timer))
 }
 .v-hero__cta:hover { background: rgba(245,240,232,0.12); }
 
-/* Hero arrows */
 .v-hero__arrow {
   position: absolute;
   top: 50%;
@@ -381,7 +347,6 @@ onUnmounted(() => clearInterval(timer))
 .v-hero__arrow--l { left: 24px; }
 .v-hero__arrow--r { right: 24px; }
 
-/* Dots */
 .v-hero__dots {
   position: absolute;
   bottom: 28px;
@@ -400,7 +365,6 @@ onUnmounted(() => clearInterval(timer))
 }
 .v-hero__dot--on { background: #F5F0E8; width: 40px; }
 
-/* Counter */
 .v-hero__counter {
   position: absolute;
   right: 32px;
@@ -414,7 +378,6 @@ onUnmounted(() => clearInterval(timer))
 .v-hero__counter-sep { width: 28px; height: 1px; background: rgba(245,240,232,0.4); }
 .v-hero__counter-total { color: rgba(245,240,232,0.45); font-size: 0.8rem; }
 
-/* ── Category Strip ── */
 .v-cat-strip {
   border-bottom: 1px solid #E8E2D9;
 }
@@ -438,7 +401,6 @@ onUnmounted(() => clearInterval(timer))
 .v-cat-strip__item:hover { color: #111; border-bottom-color: #1B3A2D; }
 .v-cat-strip__label { letter-spacing: 0.14em; }
 
-/* ── New Arrivals ── */
 .v-new {
   padding: 80px 0 64px;
 }
@@ -454,7 +416,6 @@ onUnmounted(() => clearInterval(timer))
   margin-top: 48px;
 }
 
-/* ── Full-bleed Promo ── */
 .v-promo-full {
   position: relative;
   height: min(70vh, 640px);
@@ -476,7 +437,6 @@ onUnmounted(() => clearInterval(timer))
   max-width: 520px;
 }
 
-/* ── Best Sellers ── */
 .v-best {
   padding: 80px 0 64px;
 }
@@ -487,7 +447,6 @@ onUnmounted(() => clearInterval(timer))
 }
 .v-best__img { aspect-ratio: 3 / 4; }
 
-/* ── Asymmetric Split ── */
 .v-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -515,7 +474,6 @@ onUnmounted(() => clearInterval(timer))
 }
 .v-split__panel:hover .v-split__img-wrap img { transform: scale(1.04); }
 
-/* ── Sale Banner ── */
 .v-sale-banner {
   background: #1B3A2D;
   padding: 48px 0;
@@ -535,7 +493,6 @@ onUnmounted(() => clearInterval(timer))
 }
 .v-sale-banner__inner:hover .v-sale-banner__arrow { letter-spacing: 0.2em; }
 
-/* ── Recommendations ── */
 .v-rec {
   padding: 80px 0 64px;
 }
@@ -546,13 +503,11 @@ onUnmounted(() => clearInterval(timer))
 }
 .v-rec__img { aspect-ratio: 3 / 4; }
 
-/* ── Brand Story ── */
 .v-story {
   background: #F5F0E8;
   padding: 100px 0;
 }
 
-/* ── Responsive ── */
 @media (max-width: 1024px) {
   .v-hero__content { padding: 0 48px; }
   .v-new__row  { grid-template-columns: repeat(3, 1fr); }

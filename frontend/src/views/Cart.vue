@@ -1,7 +1,6 @@
 <template>
   <div class="v-cart-page">
 
-    <!-- Page header -->
     <div class="v-cart-hero">
       <div class="v-container">
         <nav class="v-breadcrumb">
@@ -15,18 +14,15 @@
 
     <div class="v-container">
 
-      <!-- Not logged in -->
       <div v-if="!isLoggedIn" class="v-cart-empty">
         <p class="t-heading" style="color:#C9B89A;font-weight:300">Please sign in to view your bag.</p>
         <RouterLink to="/login" class="v-btn-primary" style="margin-top:24px;display:inline-block">Sign In</RouterLink>
       </div>
 
-      <!-- Loading -->
       <div v-else-if="loading" class="v-cart-loading">
         <div class="v-spinner"></div>
       </div>
 
-      <!-- Empty cart -->
       <div v-else-if="cartItems.length === 0" class="v-cart-empty">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C9B89A" stroke-width="1">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -37,10 +33,8 @@
         <RouterLink to="/category/ALL" class="v-btn-primary" style="margin-top:24px;display:inline-block">Explore Collections</RouterLink>
       </div>
 
-      <!-- Cart layout -->
       <div v-else class="v-cart-layout">
 
-        <!-- Items -->
         <div class="v-cart-items">
           <div class="v-cart-items-header">
             <label class="v-cart-check-all">
@@ -79,7 +73,6 @@
           </div>
         </div>
 
-        <!-- Summary -->
         <div class="v-cart-summary">
           <p class="v-summary-title t-caption">Order Summary</p>
           <div class="v-summary-row">
@@ -207,7 +200,6 @@ onMounted(fetchCart)
 <style scoped>
 .v-cart-page { min-height: 70vh; padding-bottom: 80px; }
 
-/* Hero */
 .v-cart-hero {
   background: #F5F0E8;
   padding: 56px 0 40px;
@@ -226,11 +218,9 @@ onMounted(fetchCart)
   color: #111;
 }
 
-/* Empty / loading */
 .v-cart-empty { text-align: center; padding: 100px 0; }
 .v-cart-loading { text-align: center; padding: 80px 0; }
 
-/* Layout */
 .v-cart-layout {
   display: grid;
   grid-template-columns: 1fr 360px;
@@ -239,7 +229,6 @@ onMounted(fetchCart)
 }
 @media (max-width: 900px) { .v-cart-layout { grid-template-columns: 1fr; } }
 
-/* Items header */
 .v-cart-items-header {
   display: flex;
   align-items: center;
@@ -263,7 +252,6 @@ onMounted(fetchCart)
 }
 .v-cart-del-sel:hover { color: #8B2020; }
 
-/* Cart item */
 .v-cart-item {
   display: grid;
   grid-template-columns: 24px 100px 1fr 28px;
@@ -327,7 +315,6 @@ onMounted(fetchCart)
 }
 .v-cart-item-remove:hover { color: #8B2020; }
 
-/* Summary */
 .v-cart-summary {
   border: 1px solid #E8E2D9;
   padding: 32px;
@@ -372,7 +359,6 @@ onMounted(fetchCart)
 .v-summary-order-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .v-summary-note { color: #C9B89A; text-align: center; }
 
-/* Primary link button */
 .v-btn-primary {
   background: #1B3A2D;
   color: #F5F0E8;

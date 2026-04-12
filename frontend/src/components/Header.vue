@@ -1,39 +1,34 @@
 <template>
   <header class="v-header" :class="{ 'v-header--scrolled': scrolled }">
 
-    <!-- ── Announcement Bar ── -->
     <div class="v-header__announce">
       <span>₩50,000 이상 구매 시 무료 배송 &nbsp;·&nbsp; 신규 회원 첫 구매 15% 할인</span>
     </div>
 
-    <!-- ── Main Header ── -->
     <div class="v-header__main">
       <div class="v-header__inner">
 
-        <!-- Left: empty placeholder for grid balance -->
         <div class="v-header__left"></div>
 
-        <!-- Center: Logo -->
         <RouterLink to="/" class="v-header__logo">
           <span class="v-header__logo-en">VENTALIZE</span>
         </RouterLink>
 
-        <!-- Right: Icons + Auth -->
         <div class="v-header__right">
-          <!-- Search toggle -->
+
           <button class="v-header__icon-btn" @click="searchOpen = !searchOpen" aria-label="Search">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
             </svg>
           </button>
-          <!-- MyPage -->
+
           <RouterLink to="/mypage" class="v-header__icon-btn" aria-label="My page">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
               <circle cx="12" cy="7" r="4"/>
             </svg>
           </RouterLink>
-          <!-- Cart -->
+
           <RouterLink to="/cart" class="v-header__icon-btn v-header__cart-btn" aria-label="Cart">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
@@ -45,7 +40,6 @@
 
           <div class="v-header__icon-divider"></div>
 
-          <!-- Auth links -->
           <template v-if="isLoggedIn">
             <div v-if="!isAdmin()" class="v-header__user-group">
               <span class="v-grade-icon" :class="`v-grade-icon--${gradeKey}`" :title="gradeLabel" v-html="gradeIconSvg"></span>
@@ -62,7 +56,6 @@
       </div>
     </div>
 
-    <!-- ── Search Bar (slide down) ── -->
     <div class="v-header__search-bar" :class="{ 'v-header__search-bar--open': searchOpen }">
       <div class="v-header__inner">
         <form class="v-search-form" @submit.prevent="handleSearch">
@@ -79,7 +72,6 @@
       </div>
     </div>
 
-    <!-- ── Navigation ── -->
     <nav class="v-header__nav">
       <div class="v-header__inner v-header__nav-inner">
         <RouterLink
@@ -133,14 +125,13 @@ async function fetchCartCount() {
 watch(isLoggedIn, fetchCartCount)
 watch(() => route.fullPath, fetchCartCount)
 
-// 등급 아이콘 계산
 const GRADE_MAP = {
   SAPPHIRE: { initial: 'S', label: 'Sapphire', key: 'sapphire' },
   RUBY:     { initial: 'R', label: 'Ruby',     key: 'ruby'     },
   EMERALD:  { initial: 'E', label: 'Emerald',  key: 'emerald'  },
   GOLD:     { initial: 'G', label: 'Gold',     key: 'gold'     },
   DIAMOND:  { initial: 'D', label: 'Diamond',  key: 'diamond'  },
-  // 구 등급 fallback
+
   BRONZE:   { initial: 'B', label: 'Bronze',   key: 'sapphire' },
   SILVER:   { initial: 'S', label: 'Silver',   key: 'sapphire' },
   VIP:      { initial: 'V', label: 'VIP',      key: 'diamond'  },
@@ -150,15 +141,15 @@ const gradeKey     = computed(() => GRADE_MAP[grade.value?.toUpperCase()] ? GRAD
 const gradeLabel   = computed(() => GRADE_MAP[grade.value?.toUpperCase()]?.label   || grade.value || 'Sapphire')
 
 const GRADE_ICONS = {
-  // Sapphire: 보석 컷 (gem facet) 형태
+
   sapphire: `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h12l5 8-11 13L1 10z"/><path d="M1 10h22" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`,
-  // Ruby: 하트 (열정의 붉은 루비)
+
   ruby:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
-  // Emerald: 물방울/잎 (자연의 에메랄드)
+
   emerald:  `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C10 5 4 10 4 15a8 8 0 0 0 16 0C20 10 14 5 12 2z"/></svg>`,
-  // Gold: 5각별 (황금의 별)
+
   gold:     `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`,
-  // Diamond: 4각 스파클 (다이아몬드 빛나는 형태)
+
   diamond:  `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5L12 2z"/></svg>`,
 }
 const gradeIconSvg = computed(() => GRADE_ICONS[gradeKey.value] || GRADE_ICONS.sapphire)
@@ -201,7 +192,6 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 </script>
 
 <style scoped>
-/* ── Header Shell ── */
 .v-header {
   position: sticky;
   top: 0;
@@ -211,7 +201,6 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 }
 .v-header--scrolled { box-shadow: 0 2px 24px rgba(0,0,0,0.07); }
 
-/* ── Announce Bar ── */
 .v-header__announce {
   background: #1B3A2D;
   color: #F5F0E8;
@@ -222,7 +211,6 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   padding: 5px 16px;
 }
 
-/* ── Main Header ── */
 .v-header__main {
   border-bottom: 1px solid #E8E2D9;
 }
@@ -238,13 +226,11 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   height: 72px;
 }
 
-/* Left (empty spacer) */
 .v-header__left {
   display: flex;
   align-items: center;
 }
 
-/* Logo */
 .v-header__logo {
   display: flex;
   flex-direction: column;
@@ -271,7 +257,6 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   display: block;
 }
 
-/* Right */
 .v-header__right {
   display: flex;
   align-items: center;
@@ -300,7 +285,6 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 .v-header__link:hover { color: #111; }
 .v-header__link--admin { color: #B89C6E; font-weight: 600; }
 
-/* User group (grade icon + name) */
 .v-header__user-group {
   display: flex;
   align-items: center;
@@ -312,7 +296,6 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   font-weight: 500;
 }
 
-/* Grade icon */
 .v-grade-icon {
   display: inline-flex;
   align-items: center;
@@ -357,7 +340,6 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
   pointer-events: none;
 }
 
-/* ── Search Bar ── */
 .v-header__search-bar {
   overflow: hidden;
   max-height: 0;
@@ -409,7 +391,6 @@ onUnmounted(() => window.removeEventListener('scroll', onScroll))
 }
 .v-search-close:hover { color: #111; }
 
-/* ── Nav ── */
 .v-header__nav {
   border-bottom: 1px solid #E8E2D9;
 }

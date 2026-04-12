@@ -4,7 +4,7 @@
 
     <div v-if="loading" class="loading-box"><div class="spinner"></div></div>
     <template v-else>
-      <!-- 통계 카드 - 상단 6개 -->
+
       <div class="stats-grid stats-grid--6">
         <div class="stat-card">
           <div class="stat-icon">👥</div>
@@ -49,7 +49,7 @@
           </div>
         </div>
       </div>
-      <!-- 통계 카드 - 하단 5개 -->
+
       <div class="stats-grid stats-grid--5">
         <div class="stat-card">
           <div class="stat-icon">🚚</div>
@@ -88,7 +88,6 @@
         </div>
       </div>
 
-      <!-- 재고 부족 상품 -->
       <div v-if="stats.lowStockItems?.length" class="admin-card mt-4">
         <h2 class="admin-card-title">⚠️ 재고 부족 상품 (5개 이하)</h2>
         <table class="admin-table">
@@ -103,7 +102,6 @@
         </table>
       </div>
 
-      <!-- 최근 주문 -->
       <div class="admin-card mt-4">
         <h2 class="admin-card-title">최근 주문</h2>
         <table class="admin-table">

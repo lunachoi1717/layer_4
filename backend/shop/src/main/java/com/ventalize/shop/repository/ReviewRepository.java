@@ -17,4 +17,6 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
     Optional<Review> findByIdAndMemberId(Integer id, Integer memberId);
 
     boolean existsByMemberIdAndItemId(Integer memberId, Integer itemId);
+
+    boolean existsByMemberIdAndOrderIdAndItemId(Integer memberId, Integer orderId, Integer itemId);
 }

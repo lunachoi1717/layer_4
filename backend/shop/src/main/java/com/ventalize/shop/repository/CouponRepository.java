@@ -15,7 +15,6 @@ public interface CouponRepository extends JpaRepository<Coupon, Integer> {
 
     Optional<Coupon> findByCode(String code);
 
-    /** 특정 회원 등급에서 사용 가능한 쿠폰 (등급 전용 or 전체 대상 + 유효 기간 내 + 활성) */
     @Query("SELECT c FROM Coupon c WHERE c.isActive = true " +
            "AND c.validFrom <= :today AND c.validTo >= :today " +
            "AND (c.targetGrade IS NULL OR c.targetGrade = :grade)")

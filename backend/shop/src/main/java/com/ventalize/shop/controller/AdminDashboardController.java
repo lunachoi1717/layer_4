@@ -40,20 +40,17 @@ public class AdminDashboardController {
         data.put("totalReviews", reviewRepository.count());
         data.put("unansweredInquiries", inquiryRepository.countByIsAnsweredFalse());
 
-        // 총 매출 계산 (결제완료 + 배송중 + 배송완료 기준)
         long totalSales = orderRepository.findAll().stream()
                 .filter(o -> List.of("PAID","SHIPPING","DELIVERED").contains(o.getStatus()))
                 .mapToLong(o -> o.getAmount() != null ? o.getAmount() : 0L)
                 .sum();
         data.put("totalSales", totalSales);
 
-        // 재고 부족 상품 (5개 이하, id 오름차순)
         data.put("lowStockItems", itemRepository.findAllByOrderByIdAsc().stream()
                 .filter(i -> i.getStockCount() != null && i.getStockCount() <= 5)
                 .map(i -> Map.of("id", i.getId(), "name", i.getName(), "stockCount", i.getStockCount()))
                 .toList());
 
-        // 최근 주문 5건
         data.put("recentOrders", orderRepository.findAllByOrderByCreatedAtDesc()
                 .stream().limit(5).map(o -> {
                     Map<String, Object> m = new HashMap<>();

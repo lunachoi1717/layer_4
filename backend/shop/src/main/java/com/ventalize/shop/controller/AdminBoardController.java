@@ -27,8 +27,6 @@ public class AdminBoardController {
     private final MemberRepository memberRepository;
     private final SecurityUtil securityUtil;
 
-    /* ============= FAQ 관리 ============= */
-
     @GetMapping("/faq")
     public ResponseEntity<?> faqList() {
         return ResponseEntity.ok(faqRepository.findAllByOrderByCreatedAtDesc().stream()
@@ -67,8 +65,6 @@ public class AdminBoardController {
         faqRepository.deleteById(id);
         return ResponseEntity.ok().build();
     }
-
-    /* ============= 1:1 문의 관리 ============= */
 
     @GetMapping("/inquiry")
     public ResponseEntity<?> inquiryList(@RequestParam(required = false) Boolean unanswered) {

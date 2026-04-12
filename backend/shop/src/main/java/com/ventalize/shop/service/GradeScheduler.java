@@ -12,18 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * 회원 등급 자동 산정 배치
- * - 매일 새벽 2시 실행
- * - 최근 6개월 누적 구매 금액 기준으로 등급 결정
- *
- * 등급 기준 (6개월 누적):
- *   SAPPHIRE : 0원 이상 (신규 / 기본)
- *   RUBY     : 30만원 이상
- *   EMERALD  : 80만원 이상
- *   GOLD     : 200만원 이상
- *   DIAMOND  : 500만원 이상
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -32,7 +20,7 @@ public class GradeScheduler {
     private final MemberRepository memberRepository;
     private final OrderRepository orderRepository;
 
-    @Scheduled(cron = "0 0 2 * * *")   // 매일 새벽 2:00
+    @Scheduled(cron = "0 0 2 * * *")
     @Transactional
     public void updateGrades() {
         LocalDateTime since = LocalDateTime.now().minusMonths(6);

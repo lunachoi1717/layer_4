@@ -23,8 +23,7 @@
   </div>
 </template>
 
-<script setup>
-</script>
+<script setup></script>
 
 <style scoped>
 .board-layout { min-height: 70vh; }

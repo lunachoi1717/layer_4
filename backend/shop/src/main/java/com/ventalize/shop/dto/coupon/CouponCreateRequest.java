@@ -10,9 +10,9 @@ import java.time.LocalDate;
 public class CouponCreateRequest {
     private String name;
     private String code;
-    private String discountType;  // FIXED | PERCENT
+    private String discountType;
     private Integer discountValue;
-    private String targetGrade;   // null = 전체
+    private String targetGrade;
     private Long minOrderAmount;
     private LocalDate validFrom;
     private LocalDate validTo;

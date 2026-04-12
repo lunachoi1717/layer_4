@@ -21,7 +21,6 @@ public class AdminOrderController {
     private final MemberRepository memberRepository;
     private final OrderService orderService;
 
-    /** 전체 주문 목록 (아이템 상세 포함) */
     @GetMapping
     public ResponseEntity<?> list(@RequestParam(required = false) String status) {
         List<Order> orders = orderRepository.findAllByOrderByCreatedAtDesc();
@@ -31,7 +30,6 @@ public class AdminOrderController {
         return ResponseEntity.ok(orders.stream().map(this::toRead).toList());
     }
 
-    /** 주문 상태 변경 */
     @PatchMapping("/{id}/status")
     public ResponseEntity<?> changeStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
         String newStatus = body.get("status");
@@ -48,7 +46,6 @@ public class AdminOrderController {
         }
     }
 
-    /** 판매 통계 */
     @GetMapping("/stats")
     public ResponseEntity<?> stats() {
         List<Order> paid = orderRepository.findAllByOrderByCreatedAtDesc()

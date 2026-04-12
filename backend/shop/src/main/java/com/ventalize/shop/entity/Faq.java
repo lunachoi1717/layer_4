@@ -20,7 +20,6 @@ public class Faq {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    /** 카테고리: 주문/배송, 환불/교환, 회원, 상품, 기타 */
     @Column(nullable = false, length = 30)
     @Builder.Default
     private String category = "기타";

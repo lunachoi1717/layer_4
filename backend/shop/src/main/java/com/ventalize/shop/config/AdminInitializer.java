@@ -25,7 +25,7 @@ public class AdminInitializer implements CommandLineRunner {
     @Override
     @Transactional
     public void run(String... args) {
-        // 0) items.brand 컬럼 제거 (단일 브랜드 운영으로 불필요)
+
         try {
             em.createNativeQuery("ALTER TABLE items DROP COLUMN IF EXISTS brand").executeUpdate();
             log.info("✅ items.brand 컬럼 제거 완료");
@@ -33,7 +33,6 @@ public class AdminInitializer implements CommandLineRunner {
             log.warn("items.brand 컬럼 제거 생략: {}", e.getMessage());
         }
 
-        // 1) 관리자 계정 생성
         if (!memberRepository.existsByLoginId("admin@ventalize.com")) {
             Member admin = Member.builder()
                     .name("관리자")
@@ -47,7 +46,6 @@ public class AdminInitializer implements CommandLineRunner {
             log.info("✅ 관리자 계정 생성 완료: admin@ventalize.com / admin1234");
         }
 
-        // 2) 기존 평문 패스워드 BCrypt 마이그레이션
         memberRepository.findAll().forEach(member -> {
             String pw = member.getLoginPw();
             if (pw != null && !pw.startsWith("$2a$") && !pw.startsWith("$2b$")) {

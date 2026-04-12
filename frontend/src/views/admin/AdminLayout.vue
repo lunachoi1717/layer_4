@@ -1,6 +1,6 @@
 <template>
   <div class="vad-layout">
-    <!-- Sidebar -->
+
     <aside class="vad-sidebar">
       <div class="vad-brand">
         <RouterLink to="/admin/dashboard" class="vad-brand-link">
@@ -57,18 +57,15 @@
       </div>
     </aside>
 
-    <!-- Main content -->
     <div class="vad-main">
       <RouterView />
     </div>
   </div>
 </template>
 
-<script setup>
-</script>
+<script setup></script>
 
 <style>
-/* Global admin styles (not scoped — shared across admin views) */
 :root {
   --vad-sidebar-w: 224px;
   --vad-bg: #F7F8FA;
@@ -96,7 +93,6 @@
   font-family: 'Inter', sans-serif;
 }
 
-/* ── Sidebar ── */
 .vad-sidebar {
   width: var(--vad-sidebar-w);
   flex-shrink: 0;
@@ -135,7 +131,6 @@
   display: block;
 }
 
-/* Nav */
 .vad-nav {
   flex: 1;
   padding: 16px 0;
@@ -179,7 +174,6 @@
   opacity: 0.8;
 }
 
-/* Sidebar footer */
 .vad-sidebar-foot {
   padding: 16px 20px;
   border-top: 1px solid rgba(255,255,255,0.1);
@@ -195,7 +189,6 @@
 }
 .vad-back-link:hover { color: #F5F0E8; }
 
-/* Main */
 .vad-main {
   flex: 1;
   overflow: auto;

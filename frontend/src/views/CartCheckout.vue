@@ -13,7 +13,7 @@
       </div>
 
       <div v-else class="checkout-layout">
-        <!-- 주문 상품 목록 -->
+
         <div class="checkout-item-box">
           <h2 class="section-title">주문 상품</h2>
 
@@ -30,7 +30,6 @@
             </div>
           </div>
 
-          <!-- 결제 금액 요약 -->
           <div class="price-summary">
             <div class="summary-row">
               <span>상품 금액 ({{ totalQty }}개)</span>
@@ -52,7 +51,6 @@
           </div>
         </div>
 
-        <!-- 주문 정보 입력 -->
         <div class="checkout-form-box">
           <h2 class="section-title">배송 / 결제 정보</h2>
           <form @submit.prevent="submitOrder">
@@ -89,7 +87,6 @@
               </div>
             </div>
 
-            <!-- 쿠폰 -->
             <div class="form-group">
               <label class="form-label">쿠폰 코드</label>
               <div class="coupon-row">
@@ -124,7 +121,7 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 
-const cartItems = ref([])   // 전체 CartItemResponse (수량 포함)
+const cartItems = ref([])
 const loading = ref(true)
 const submitting = ref(false)
 const errorMsg = ref('')
@@ -135,13 +132,12 @@ const selectedCouponCode = ref('')
 
 const form = ref({ name: '', address: '', payment: 'CARD', cardNumber: '' })
 
-// 선택 상품 ItemRead 목록 (submitOrder에서 itemIds 추출용)
 const items = computed(() => cartItems.value.map(c => c.item).filter(Boolean))
-// 수량 반영 합계
+
 const subtotal = computed(() =>
   cartItems.value.reduce((sum, ci) => sum + (ci.item?.salePrice || 0) * (ci.quantity || 1), 0)
 )
-// 전체 주문 수량
+
 const totalQty = computed(() =>
   cartItems.value.reduce((sum, ci) => sum + (ci.quantity || 1), 0)
 )

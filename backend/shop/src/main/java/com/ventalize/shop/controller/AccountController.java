@@ -34,7 +34,6 @@ public class AccountController {
     private final PasswordEncoder passwordEncoder;
     private final SecurityUtil securityUtil;
 
-    /** 회원가입 */
     @PostMapping("/join")
     public ResponseEntity<?> join(@RequestBody AccountJoinRequest req) {
         if (!StringUtils.hasLength(req.getName()) || !StringUtils.hasLength(req.getLoginId())
@@ -56,7 +55,6 @@ public class AccountController {
         return ResponseEntity.ok().build();
     }
 
-    /** 로그인 */
     @PostMapping("/login")
     public ResponseEntity<?> login(HttpServletRequest request,
                                    @RequestBody AccountLoginRequest req) {
@@ -79,7 +77,6 @@ public class AccountController {
         }
     }
 
-    /** 로그인 상태 확인 */
     @GetMapping("/check")
     public ResponseEntity<?> check() {
         Member member = securityUtil.getCurrentMember();
@@ -89,7 +86,6 @@ public class AccountController {
         return ResponseEntity.ok(new AccountCheckResponse(true, member.getLoginId(), member.getName(), member.getRole(), member.getGrade()));
     }
 
-    /** 로그아웃 */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -98,7 +94,6 @@ public class AccountController {
         return ResponseEntity.ok().build();
     }
 
-    /** 내 정보 조회 */
     @GetMapping("/profile")
     public ResponseEntity<?> getProfile() {
         Member member = securityUtil.getCurrentMember();
@@ -106,7 +101,6 @@ public class AccountController {
         return ResponseEntity.ok(MemberRead.from(member));
     }
 
-    /** 내 정보 수정 */
     @PutMapping("/profile")
     public ResponseEntity<?> updateProfile(@RequestBody MemberUpdateRequest req) {
         Member member = securityUtil.getCurrentMember();
@@ -126,7 +120,6 @@ public class AccountController {
         return ResponseEntity.ok(MemberRead.from(member));
     }
 
-    /** 회원 탈퇴 */
     @DeleteMapping("/withdraw")
     public ResponseEntity<?> withdraw(@RequestParam String password, HttpServletRequest request) {
         Member member = securityUtil.getCurrentMember();

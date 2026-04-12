@@ -16,7 +16,6 @@ public class FaqController {
 
     private final FaqRepository faqRepository;
 
-    /** 공개 FAQ 목록 조회 */
     @GetMapping
     public ResponseEntity<?> list(@RequestParam(required = false) String category) {
         List<Faq> faqs = (category != null && !category.isBlank())
@@ -25,7 +24,6 @@ public class FaqController {
         return ResponseEntity.ok(faqs.stream().map(this::toRead).toList());
     }
 
-    /** FAQ 단건 조회 */
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable Integer id) {
         return faqRepository.findById(id)

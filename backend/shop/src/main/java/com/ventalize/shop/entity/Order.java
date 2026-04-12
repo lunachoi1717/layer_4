@@ -38,14 +38,6 @@ public class Order {
     @Column(nullable = false)
     private Long amount;
 
-    /**
-     * 배송 현황 상태값
-     * PENDING_PAYMENT : 결제대기
-     * PAID            : 결제완료
-     * SHIPPING        : 배송중
-     * DELIVERED       : 배송완료
-     * CANCELLED       : 취소
-     */
     @Column(nullable = false, length = 20)
     @Builder.Default
     private String status = "PENDING_PAYMENT";

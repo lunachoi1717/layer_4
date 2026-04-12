@@ -18,7 +18,6 @@ public class AdminMemberController {
 
     private final MemberRepository memberRepository;
 
-    /** 전체 회원 목록 */
     @GetMapping
     public ResponseEntity<?> list(@RequestParam(required = false) String keyword) {
         List<Member> members;
@@ -30,7 +29,6 @@ public class AdminMemberController {
         return ResponseEntity.ok(members.stream().map(MemberRead::from).toList());
     }
 
-    /** 회원 상세 */
     @GetMapping("/{id}")
     public ResponseEntity<?> get(@PathVariable Integer id) {
         return memberRepository.findById(id)
@@ -38,7 +36,6 @@ public class AdminMemberController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /** 회원 강퇴(정지) */
     @PatchMapping("/{id}/suspend")
     public ResponseEntity<?> suspend(@PathVariable Integer id) {
         return memberRepository.findById(id).map(m -> {
@@ -51,7 +48,6 @@ public class AdminMemberController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    /** 회원 활성화 */
     @PatchMapping("/{id}/activate")
     public ResponseEntity<?> activate(@PathVariable Integer id) {
         return memberRepository.findById(id).map(m -> {
@@ -61,7 +57,6 @@ public class AdminMemberController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    /** 회원 등급 변경 */
     @PatchMapping("/{id}/grade")
     public ResponseEntity<?> changeGrade(@PathVariable Integer id, @RequestBody Map<String, String> body) {
         String grade = body.get("grade");
@@ -75,7 +70,6 @@ public class AdminMemberController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    /** 회원 역할 변경 (관리자 권한 부여/해제) */
     @PatchMapping("/{id}/role")
     public ResponseEntity<?> changeRole(@PathVariable Integer id, @RequestBody Map<String, String> body) {
         String role = body.get("role");

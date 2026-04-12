@@ -11,9 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
-/**
- * 사용자용 쿠폰 API
- */
 @RestController
 @RequestMapping("/v1/api/coupons")
 @RequiredArgsConstructor
@@ -22,7 +19,6 @@ public class CouponController {
     private final CouponRepository couponRepository;
     private final SecurityUtil securityUtil;
 
-    /** 내 등급에서 사용 가능한 쿠폰 목록 */
     @GetMapping("/my")
     public ResponseEntity<?> myCoupons() {
         Member member = securityUtil.getCurrentMember();
@@ -37,7 +33,6 @@ public class CouponController {
         return ResponseEntity.ok(coupons);
     }
 
-    /** 쿠폰 코드로 단건 조회 (결제 시 적용 가능 여부 확인) */
     @GetMapping("/check")
     public ResponseEntity<?> checkCoupon(@RequestParam String code) {
         Member member = securityUtil.getCurrentMember();

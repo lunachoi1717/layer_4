@@ -63,7 +63,6 @@
       </table>
     </div>
 
-    <!-- 회원 상세 모달 -->
     <div v-if="detailTarget" class="admin-modal-overlay" @click.self="detailTarget = null">
       <div class="admin-modal" style="max-width:480px">
         <h3 class="admin-modal-title">회원 상세 정보</h3>
@@ -99,7 +98,7 @@ const detailTarget = ref(null)
 const grades = ['SAPPHIRE', 'RUBY', 'EMERALD', 'GOLD', 'DIAMOND']
 
 const sortField = ref('id')
-const sortAsc   = ref(false)  // 기본 내림차순
+const sortAsc   = ref(false)
 
 function toggleSort(field) {
   if (sortField.value === field) {

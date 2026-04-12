@@ -12,6 +12,8 @@ public class ReviewRead {
     private Integer memberId;
     private String memberName;
     private Integer itemId;
+    private String itemName;
+    private String imgPath;
     private Integer orderId;
     private Integer rating;
     private String content;

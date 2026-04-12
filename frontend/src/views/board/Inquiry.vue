@@ -8,7 +8,6 @@
       <RouterLink v-else to="/login" class="btn-write">로그인 후 문의 작성</RouterLink>
     </div>
 
-    <!-- 문의 작성 폼 (로그인 사용자만) -->
     <form v-if="showForm && isLoggedIn" class="inquiry-form" @submit.prevent="submitInquiry">
       <div class="form-row">
         <label>카테고리</label>

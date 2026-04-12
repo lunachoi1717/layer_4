@@ -7,9 +7,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * 결제 시뮬레이터 — 주문 생성 10초 후 상태를 PAID로 자동 전환
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor

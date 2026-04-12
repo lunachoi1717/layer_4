@@ -17,18 +17,15 @@ public class SessionAccountHelper implements AccountHelper{
 
     private final MemberService memberService;
 
-    // 회원가입
     @Override
     public void join(AccountJoinRequest joinReq) {
         memberService.save(joinReq.getName(), joinReq.getLoginId(), joinReq.getLoginPw());
     }
 
-    // 로그인
     @Override
     public String login(AccountLoginRequest loginReq, HttpServletRequest req, HttpServletResponse res) {
         Member member = memberService.find(loginReq.getLoginId(), loginReq.getLoginPw());
 
-        // 회원 데이터가 없으면
         if (member == null) {
             return null;
         }
@@ -37,7 +34,6 @@ public class SessionAccountHelper implements AccountHelper{
         return member.getLoginId();
     }
 
-    // 회원 아이디 조회
     @Override
     public Integer getMemberId(HttpServletRequest req) {
         Object memberId = HttpUtils.getSessionValue(req, AccountConstants.MEMBER_ID_NAME);
@@ -47,13 +43,11 @@ public class SessionAccountHelper implements AccountHelper{
         return null;
     }
 
-    // 로그인 여부 확인
     @Override
     public boolean isLoggedId(HttpServletRequest req) {
         return getMemberId(req) != null;
     }
 
-    // 로그아웃
     @Override
     public void logout(HttpServletRequest req, HttpServletResponse res) {
         HttpUtils.removeSession(req, AccountConstants.MEMBER_ID_NAME);

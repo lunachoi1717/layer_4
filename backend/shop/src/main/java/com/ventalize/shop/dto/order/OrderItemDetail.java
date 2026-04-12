@@ -10,7 +10,7 @@ public class OrderItemDetail {
     private String  itemName;
     private String  imgPath;
     private Integer quantity;
-    private Integer unitPrice;   // 원가
-    private Integer salePrice;   // 할인가
-    private Integer subtotal;    // salePrice * quantity
+    private Integer unitPrice;
+    private Integer salePrice;
+    private Integer subtotal;
 }

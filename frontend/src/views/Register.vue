@@ -2,7 +2,6 @@
   <div class="v-auth-page">
     <div class="v-auth-panel">
 
-      <!-- Logo -->
       <RouterLink to="/" class="v-auth-logo">
         <span class="v-auth-logo-en">VENTALIZE</span>
         <span class="v-auth-logo-kr">벙딸리제</span>
@@ -48,7 +47,6 @@
       </p>
     </div>
 
-    <!-- Editorial aside -->
     <div class="v-auth-aside">
       <div class="v-auth-aside-overlay"></div>
       <div class="v-auth-aside-text">
@@ -225,7 +223,6 @@ async function handleRegister() {
 }
 .v-auth-switch-link:hover { opacity: 0.7; }
 
-/* Right aside */
 .v-auth-aside {
   position: relative;
   background: url('/images/bags2_banner.png') center/cover no-repeat;

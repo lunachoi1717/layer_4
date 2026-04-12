@@ -1,7 +1,6 @@
 <template>
   <div v-if="item" class="v-pd-page">
 
-    <!-- Breadcrumb -->
     <div class="v-pd-crumb v-container">
       <RouterLink to="/" class="v-crumb-link">Home</RouterLink>
       <span class="v-crumb-sep">—</span>
@@ -10,11 +9,9 @@
       <span class="v-crumb-current">{{ item.name }}</span>
     </div>
 
-    <!-- Main layout: image | info -->
     <div class="v-container">
       <div class="v-pd-layout">
 
-        <!-- Image -->
         <div class="v-pd-media">
           <div class="v-pd-img-wrap">
             <img :src="item.imgPath" :alt="item.name" class="v-pd-img" />
@@ -23,7 +20,6 @@
           </div>
         </div>
 
-        <!-- Info -->
         <div class="v-pd-info">
           <h1 class="v-pd-name t-display">{{ item.name }}</h1>
 
@@ -41,7 +37,6 @@
 
           <div class="v-pd-divider"></div>
 
-          <!-- Quantity -->
           <div class="v-pd-qty">
             <span class="v-pd-qty-label t-caption">Quantity</span>
             <div class="v-pd-qty-ctrl">
@@ -51,13 +46,11 @@
             </div>
           </div>
 
-          <!-- Qty total -->
           <div class="v-pd-qty-total">
             <span class="v-pd-qty-total-label">합계</span>
             <span class="v-pd-qty-total-price">{{ fmt(qty * item.salePrice) }}</span>
           </div>
 
-          <!-- Actions -->
           <div class="v-pd-actions">
             <button class="v-btn-bag" @click="addToCart" :disabled="item.isSoldOut">
               {{ item.isSoldOut ? 'Sold Out' : 'Add to Bag' }}
@@ -67,7 +60,6 @@
             </button>
           </div>
 
-          <!-- Description snippet -->
           <div v-if="item.description" class="v-pd-desc-snippet t-body">
             {{ item.description }}
           </div>
@@ -75,7 +67,6 @@
       </div>
     </div>
 
-    <!-- Tabs -->
     <div class="v-pd-tabs-section">
       <div class="v-container">
         <div class="v-pd-tab-header">
@@ -92,7 +83,6 @@
           </button>
         </div>
 
-        <!-- Description tab -->
         <div v-if="activeTab === 'desc'" class="v-pd-tab-body">
           <div class="v-pd-desc-full">
             <img :src="item.imgPath" :alt="item.name" class="v-pd-desc-img" />
@@ -107,22 +97,8 @@
           </div>
         </div>
 
-        <!-- Reviews tab -->
         <div v-if="activeTab === 'review'" class="v-pd-tab-body">
-          <div v-if="isLoggedIn" class="v-review-write">
-            <p class="v-review-write-label t-caption">Write a Review</p>
-            <div class="v-star-row">
-              <button
-                v-for="n in 5"
-                :key="n"
-                class="v-star-btn"
-                :class="{ 'v-star-btn--on': n <= reviewForm.rating }"
-                @click="reviewForm.rating = n"
-              >★</button>
-            </div>
-            <textarea v-model="reviewForm.content" class="v-textarea" placeholder="Share your experience…" rows="3" />
-            <button class="v-btn-submit" @click="submitReview">Submit</button>
-          </div>
+          <p class="v-review-notice t-caption">리뷰는 상품 구매 후 마이페이지 &gt; 주문 내역에서 작성하실 수 있습니다.</p>
 
           <p v-if="reviews.length === 0" class="v-empty t-caption">No reviews yet.</p>
           <div v-for="r in reviews" :key="r.id" class="v-review-item">
@@ -130,13 +106,11 @@
               <span class="v-review-author">{{ r.memberName }}</span>
               <span class="v-review-stars">{{ '★'.repeat(r.rating) }}{{ '☆'.repeat(5 - r.rating) }}</span>
               <span class="v-review-date">{{ fmtDate(r.createdAt) }}</span>
-              <button v-if="r.memberId === currentMemberId" class="v-btn-del" @click="deleteReview(r.id)">Delete</button>
             </div>
             <p class="v-review-body t-body">{{ r.content }}</p>
           </div>
         </div>
 
-        <!-- Q&A tab -->
         <div v-if="activeTab === 'qna'" class="v-pd-tab-body">
           <div v-if="isLoggedIn" class="v-review-write">
             <p class="v-review-write-label t-caption">Ask a Question</p>
@@ -170,7 +144,6 @@
       </div>
     </div>
 
-    <!-- Related -->
     <div v-if="related.length > 0" class="v-pd-related">
       <div class="v-container">
         <p class="v-section-label">You May Also Like</p>
@@ -222,7 +195,6 @@ const activeTab = ref('desc')
 const qty = ref(1)
 const notFound = ref(false)
 const toast = ref('')
-const currentMemberId = ref(null)
 
 const tabs = [
   { key: 'desc',   label: 'Details' },
@@ -230,8 +202,7 @@ const tabs = [
   { key: 'qna',    label: 'Q&A' },
 ]
 
-const reviewForm = ref({ rating: 5, content: '' })
-const qnaForm    = ref({ title: '', content: '', isSecret: false })
+const qnaForm = ref({ title: '', content: '', isSecret: false })
 
 const categoryLabels = {
   SCARVES: 'Scarves', READY_TO_WEAR: 'Ready to Wear',
@@ -265,10 +236,6 @@ async function loadReviews(id) {
 async function loadQna(id) {
   try { const r = await fetch(`/v1/api/qna/item/${id}`, { credentials: 'include' }); if (r.ok) questions.value = await r.json() } catch {}
 }
-async function loadCurrentMember() {
-  try { const r = await fetch('/v1/api/account/profile', { credentials: 'include' }); if (r.ok) { const d = await r.json(); currentMemberId.value = d.id } } catch {}
-}
-
 async function addToCart() {
   if (!isLoggedIn.value) { showToast('로그인이 필요합니다.'); return }
   const res = await fetch('/v1/api/carts', {
@@ -284,24 +251,6 @@ async function addToCart() {
 function openOrder() {
   if (!isLoggedIn.value) { showToast('로그인이 필요합니다.'); return }
   router.push({ path: '/checkout', query: { itemId: item.value.id, qty: qty.value } })
-}
-
-async function submitReview() {
-  if (!reviewForm.value.content) { showToast('리뷰 내용을 입력해주세요.'); return }
-  const res = await fetch('/v1/api/reviews', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify({ itemId: item.value.id, ...reviewForm.value })
-  })
-  if (res.ok) { reviewForm.value = { rating: 5, content: '' }; loadReviews(route.params.id); showToast('Review submitted!') }
-  else showToast('Failed to submit review.')
-}
-
-async function deleteReview(id) {
-  if (!confirm('Delete this review?')) return
-  const res = await fetch(`/v1/api/reviews/${id}`, { method: 'DELETE', credentials: 'include' })
-  if (res.ok) { loadReviews(route.params.id); showToast('Deleted.') }
 }
 
 async function submitQna() {
@@ -324,14 +273,12 @@ async function deleteQna(id) {
 
 onMounted(() => {
   loadItem(route.params.id)
-  if (isLoggedIn.value) loadCurrentMember()
 })
 
 watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id) } })
 </script>
 
 <style scoped>
-/* Breadcrumb */
 .v-pd-crumb {
   display: flex;
   align-items: center;
@@ -344,7 +291,6 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 .v-crumb-sep { color: #C9B89A; font-size: 0.7rem; }
 .v-crumb-current { font-size: 0.72rem; color: #1B3A2D; font-weight: 500; }
 
-/* Main layout */
 .v-pd-layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -353,7 +299,6 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 }
 @media (max-width: 768px) { .v-pd-layout { grid-template-columns: 1fr; gap: 40px; } }
 
-/* Media */
 .v-pd-img-wrap {
   position: relative;
   aspect-ratio: 1 / 1;
@@ -378,7 +323,6 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 .v-pd-badge--soldout { background: #555; color: #fff; }
 .v-pd-badge--sale    { background: #8B2020; color: #fff; }
 
-/* Info panel */
 .v-pd-brand {
   color: #7A7269;
   margin-bottom: 10px;
@@ -425,7 +369,6 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 
 .v-pd-divider { border: none; border-top: 1px solid #E8E2D9; margin: 24px 0; }
 
-/* Qty */
 .v-pd-qty { display: flex; align-items: center; gap: 20px; margin-bottom: 28px; }
 .v-pd-qty-label { color: #7A7269; text-transform: uppercase; letter-spacing: 0.08em; }
 .v-pd-qty-ctrl { display: flex; align-items: center; gap: 0; border: 1px solid #E8E2D9; }
@@ -442,7 +385,6 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 .v-pd-qty-btn:hover { background: #F5F0E8; }
 .v-pd-qty-val { min-width: 44px; text-align: center; font-size: 0.9rem; }
 
-/* Qty total */
 .v-pd-qty-total {
   display: flex;
   justify-content: space-between;
@@ -455,7 +397,6 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 .v-pd-qty-total-label { font-size: 0.72rem; color: #7A7269; text-transform: uppercase; letter-spacing: 0.08em; }
 .v-pd-qty-total-price { font-size: 1.1rem; font-weight: 600; color: #111; }
 
-/* Action buttons */
 .v-pd-actions { display: flex; gap: 12px; margin-bottom: 32px; }
 .v-btn-bag, .v-btn-buy {
   flex: 1;
@@ -488,7 +429,6 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
   padding-top: 24px;
 }
 
-/* Tabs */
 .v-pd-tabs-section {
   background: #F5F0E8;
   padding: 56px 0;
@@ -520,14 +460,12 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 
 .v-pd-tab-body { min-height: 200px; }
 
-/* Description tab */
 .v-pd-desc-full { display: flex; flex-direction: column; align-items: center; gap: 32px; }
 .v-pd-desc-img { max-width: 480px; width: 100%; }
 .v-pd-spec-table { width: 100%; max-width: 480px; border-collapse: collapse; }
 .v-pd-spec-table td { padding: 10px 16px; font-size: 0.8rem; border-bottom: 1px solid #E8E2D9; }
 .v-pd-spec-table td:first-child { color: #7A7269; font-weight: 500; letter-spacing: 0.06em; width: 40%; }
 
-/* Review / QnA write */
 .v-review-write {
   background: #fff;
   border: 1px solid #E8E2D9;
@@ -579,7 +517,16 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 }
 .v-btn-submit:hover { background: #4A6741; }
 
-/* Reviews */
+.v-review-notice {
+  color: #7A7269;
+  background: #FAF7F3;
+  border: 1px solid #E8E2D9;
+  padding: 14px 20px;
+  margin-bottom: 32px;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+}
+
 .v-review-item {
   padding: 24px 0;
   border-bottom: 1px solid #E8E2D9;
@@ -590,7 +537,6 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 .v-review-date { font-size: 0.72rem; color: #C9B89A; }
 .v-review-body { color: #555; line-height: 1.7; font-size: 0.9rem; }
 
-/* QnA */
 .v-qna-item {
   padding: 24px 0;
   border-bottom: 1px solid #E8E2D9;
@@ -631,7 +577,6 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 
 .v-empty { text-align: center; padding: 48px 0; color: #C9B89A; }
 
-/* Related */
 .v-pd-related {
   padding: 72px 0 80px;
   border-top: 1px solid #E8E2D9;
@@ -644,6 +589,5 @@ watch(() => route.params.id, (id) => { if (id) { item.value = null; loadItem(id)
 }
 @media (max-width: 900px) { .v-related-grid { grid-template-columns: repeat(2, 1fr); } }
 
-/* Loading */
 .v-pd-loading { padding: 120px 0; text-align: center; }
 </style>

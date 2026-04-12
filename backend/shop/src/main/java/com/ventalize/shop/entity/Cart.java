@@ -55,7 +55,6 @@ public class Cart {
         this.quantity = Math.max(1, quantity);
     }
 
-    // 장바구니 조회 DTO로 변환
     public CartRead toRead() {
         return CartRead.builder()
                 .id(id)

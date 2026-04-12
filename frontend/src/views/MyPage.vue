@@ -1,7 +1,6 @@
 <template>
   <div class="v-mypage">
 
-    <!-- Page header -->
     <div class="v-mypage-hero">
       <div class="v-container">
         <h1 class="v-mypage-hero-title t-display">My Account</h1>
@@ -12,9 +11,8 @@
     <div class="v-container">
       <div class="v-mypage-layout">
 
-        <!-- Sidebar -->
         <aside class="v-mypage-sidebar">
-          <!-- Avatar -->
+
           <div class="v-mypage-avatar-wrap">
             <div class="v-mypage-avatar">{{ (profile?.name || 'U')[0] }}</div>
             <div>
@@ -37,17 +35,16 @@
           </nav>
         </aside>
 
-        <!-- Main -->
         <main class="v-mypage-main">
 
-          <!-- Orders -->
+          <!-- 주문 내역 -->
           <section v-if="activeTab === 'orders'">
             <h2 class="v-mypage-section-title">Order History</h2>
             <div v-if="ordersLoading" class="v-spinner" style="margin:40px auto"></div>
             <p v-else-if="orders.length === 0" class="v-mypage-empty t-caption">No orders yet.</p>
             <div v-else class="v-order-list">
               <div v-for="order in orders" :key="order.id" class="v-order-card">
-                <!-- 요약 행 (항상 표시, 클릭으로 토글) -->
+
                 <div class="v-order-summary" @click="toggleOrder(order.id)">
                   <div class="v-order-summary-left">
                     <span class="v-order-num"># {{ order.orderNumber || order.id }}</span>
@@ -62,7 +59,6 @@
                   </div>
                 </div>
 
-                <!-- 상세 내용 (토글) -->
                 <div v-if="expandedOrderId === order.id" class="v-order-detail">
                   <div v-if="order.items && order.items.length > 0" class="v-order-items">
                     <div v-for="oi in order.items" :key="oi.itemId" class="v-order-item-row">
@@ -72,6 +68,16 @@
                         <span class="v-order-item-qty">수량 {{ oi.quantity }}개</span>
                       </div>
                       <span class="v-order-item-subtotal">{{ (oi.subtotal || 0).toLocaleString() }}원</span>
+                      <!-- 배송완료된 주문의 상품에만 리뷰 남기기 버튼 표시 -->
+                      <button
+                        v-if="order.status === 'DELIVERED' && !hasReview(order.id, oi.itemId)"
+                        class="v-btn-review"
+                        @click.stop="openReviewModal(order.id, oi.itemId, oi.itemName)"
+                      >리뷰 남기기</button>
+                      <span
+                        v-else-if="order.status === 'DELIVERED' && hasReview(order.id, oi.itemId)"
+                        class="v-review-done-badge"
+                      >리뷰 작성완료</span>
                     </div>
                   </div>
                   <div class="v-order-meta-rows">
@@ -87,12 +93,16 @@
             </div>
           </section>
 
-          <!-- Reviews -->
+          <!-- 내 리뷰 목록 -->
           <section v-if="activeTab === 'reviews'">
             <h2 class="v-mypage-section-title">My Reviews</h2>
             <p v-if="reviews.length === 0" class="v-mypage-empty t-caption">No reviews written yet.</p>
             <div v-else class="v-review-list">
               <div v-for="r in reviews" :key="r.id" class="v-review-item">
+                <div class="v-review-item-product">
+                  <img v-if="r.imgPath" :src="r.imgPath" :alt="r.itemName" class="v-review-item-thumb" />
+                  <span class="v-review-item-name">{{ r.itemName || '(삭제된 상품)' }}</span>
+                </div>
                 <div class="v-review-meta">
                   <span class="v-review-stars">{{ '★'.repeat(r.rating) }}{{ '☆'.repeat(5 - r.rating) }}</span>
                   <span class="v-review-date t-caption">{{ fmtDate(r.createdAt) }}</span>
@@ -103,7 +113,6 @@
             </div>
           </section>
 
-          <!-- Q&A -->
           <section v-if="activeTab === 'qna'">
             <h2 class="v-mypage-section-title">My Q&A</h2>
             <p v-if="questions.length === 0" class="v-mypage-empty t-caption">No questions written yet.</p>
@@ -126,7 +135,6 @@
             </div>
           </section>
 
-          <!-- Profile -->
           <section v-if="activeTab === 'profile'">
             <h2 class="v-mypage-section-title">Edit Profile</h2>
             <form class="v-profile-form" @submit.prevent="updateProfile">
@@ -157,7 +165,6 @@
             </form>
           </section>
 
-          <!-- Coupons -->
           <section v-if="activeTab === 'coupons'">
             <h2 class="v-mypage-section-title">My Coupons</h2>
             <p v-if="coupons.length === 0" class="v-mypage-empty t-caption">사용 가능한 쿠폰이 없습니다.</p>
@@ -180,7 +187,6 @@
             </div>
           </section>
 
-          <!-- Withdraw -->
           <section v-if="activeTab === 'withdraw'">
             <h2 class="v-mypage-section-title">Delete Account</h2>
             <div class="v-withdraw-box">
@@ -195,6 +201,34 @@
           </section>
 
         </main>
+      </div>
+    </div>
+
+    <!-- 리뷰 작성 모달 -->
+    <div v-if="reviewModal.show" class="v-modal-overlay" @click.self="closeReviewModal">
+      <div class="v-modal">
+        <p class="v-modal-title">리뷰 남기기</p>
+        <p class="v-modal-item-name">{{ reviewModal.itemName }}</p>
+        <div class="v-star-row">
+          <button
+            v-for="n in 5"
+            :key="n"
+            class="v-star-btn"
+            :class="{ 'v-star-btn--on': n <= reviewModal.rating }"
+            @click="reviewModal.rating = n"
+          >★</button>
+        </div>
+        <textarea
+          v-model="reviewModal.content"
+          class="v-modal-textarea"
+          placeholder="구매하신 상품은 어떠셨나요?"
+          rows="4"
+        />
+        <p v-if="reviewModal.error" class="v-modal-error">{{ reviewModal.error }}</p>
+        <div class="v-modal-actions">
+          <button class="v-btn-modal-cancel" @click="closeReviewModal">취소</button>
+          <button class="v-btn-modal-submit" @click="submitReview">등록</button>
+        </div>
       </div>
     </div>
 
@@ -238,8 +272,66 @@ const withdrawPw   = ref('')
 const withdrawMsg  = ref('')
 const toast        = ref('')
 
+// 리뷰 작성 모달 상태
+const reviewModal = ref({
+  show: false,
+  orderId: null,
+  itemId: null,
+  itemName: '',
+  rating: 5,
+  content: '',
+  error: '',
+})
+
 function showToast(msg) { toast.value = msg; setTimeout(() => { toast.value = '' }, 2500) }
 function fmtDate(dt) { return dt ? new Date(dt).toLocaleDateString('ko-KR') : '' }
+
+// 특정 주문+상품에 대해 이미 리뷰를 작성했는지 확인
+function hasReview(orderId, itemId) {
+  return reviews.value.some(r => r.orderId === orderId && r.itemId === itemId)
+}
+
+function openReviewModal(orderId, itemId, itemName) {
+  reviewModal.value = {
+    show: true,
+    orderId,
+    itemId,
+    itemName,
+    rating: 5,
+    content: '',
+    error: '',
+  }
+}
+
+function closeReviewModal() {
+  reviewModal.value.show = false
+}
+
+async function submitReview() {
+  if (!reviewModal.value.content.trim()) {
+    reviewModal.value.error = '리뷰 내용을 입력해주세요.'
+    return
+  }
+  const res = await fetch('/v1/api/reviews', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({
+      orderId: reviewModal.value.orderId,
+      itemId:  reviewModal.value.itemId,
+      rating:  reviewModal.value.rating,
+      content: reviewModal.value.content,
+    }),
+  })
+  if (res.ok) {
+    closeReviewModal()
+    loadReviews()
+    showToast('리뷰가 등록되었습니다.')
+  } else {
+    const msg = await res.text()
+    reviewModal.value.error = msg || '리뷰 등록에 실패했습니다.'
+  }
+}
 
 async function loadProfile() {
   try {
@@ -349,7 +441,6 @@ onMounted(() => {
 <style scoped>
 .v-mypage { min-height: 80vh; padding-bottom: 80px; }
 
-/* Hero */
 .v-mypage-hero {
   background: #F5F0E8;
   padding: 56px 0 40px;
@@ -365,7 +456,6 @@ onMounted(() => {
 }
 .v-mypage-hero-sub { color: #7A7269; }
 
-/* Layout */
 .v-mypage-layout {
   display: grid;
   grid-template-columns: 220px 1fr;
@@ -374,7 +464,6 @@ onMounted(() => {
 }
 @media (max-width: 768px) { .v-mypage-layout { grid-template-columns: 1fr; } }
 
-/* Sidebar */
 .v-mypage-sidebar { position: sticky; top: 100px; }
 
 .v-mypage-avatar-wrap {
@@ -400,7 +489,6 @@ onMounted(() => {
 }
 .v-mypage-avatar-name { font-size: 0.85rem; font-weight: 500; color: #111; margin-bottom: 4px; }
 
-/* Grade badge */
 .v-grade-badge {
   font-size: 0.6rem;
   font-weight: 700;
@@ -413,7 +501,6 @@ onMounted(() => {
 .v-grade--gold    { background: rgba(184,156,110,0.15); color: #B89C6E; }
 .v-grade--vip     { background: rgba(27,58,45,0.1);   color: #1B3A2D; }
 
-/* Nav */
 .v-mypage-nav { display: flex; flex-direction: column; gap: 0; }
 .v-mypage-nav-btn {
   background: none;
@@ -433,7 +520,6 @@ onMounted(() => {
 .v-mypage-nav-btn--logout { color: #C9B89A; margin-top: 16px; }
 .v-mypage-nav-btn--logout:hover { color: #8B2020; }
 
-/* Main section */
 .v-mypage-section-title {
   font-family: var(--font-serif);
   font-size: 1.6rem;
@@ -445,7 +531,6 @@ onMounted(() => {
 }
 .v-mypage-empty { color: #C9B89A; padding: 40px 0; }
 
-/* Orders */
 .v-order-list { display: flex; flex-direction: column; gap: 12px; }
 .v-order-card { border: 1px solid #E8E2D9; }
 .v-order-summary {
@@ -472,12 +557,40 @@ onMounted(() => {
 
 .v-order-detail { border-top: 1px solid #E8E2D9; padding: 20px 24px; }
 .v-order-items { margin-bottom: 16px; border-bottom: 1px solid #E8E2D9; padding-bottom: 16px; }
-.v-order-item-row { display: flex; align-items: center; gap: 12px; padding: 6px 0; font-size: 0.82rem; }
+.v-order-item-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; font-size: 0.82rem; }
 .v-order-item-thumb { width: 48px; height: 48px; object-fit: cover; border: 1px solid #E8E2D9; flex-shrink: 0; }
 .v-order-item-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
 .v-order-item-name { font-weight: 500; color: #111; }
 .v-order-item-qty { color: #7A7269; font-size: 0.75rem; }
 .v-order-item-subtotal { font-weight: 600; color: #111; white-space: nowrap; }
+
+.v-btn-review {
+  background: #1B3A2D;
+  color: #F5F0E8;
+  border: none;
+  padding: 6px 14px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+.v-btn-review:hover { background: #4A6741; }
+
+.v-review-done-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #7A7269;
+  background: #F5F0E8;
+  border: 1px solid #E8E2D9;
+  padding: 5px 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .v-order-meta-rows { display: flex; flex-direction: column; gap: 8px; }
 .v-order-row { display: flex; justify-content: space-between; font-size: 0.82rem; color: #555; }
 .v-order-card-foot { margin-top: 16px; padding-top: 16px; border-top: 1px solid #E8E2D9; }
@@ -488,15 +601,32 @@ onMounted(() => {
 }
 .v-btn-cancel:hover { border-color: #8B2020; color: #8B2020; }
 
-/* Reviews */
+/* My Reviews */
 .v-review-list { display: flex; flex-direction: column; }
 .v-review-item { padding: 20px 0; border-bottom: 1px solid #E8E2D9; }
+.v-review-item-product {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.v-review-item-thumb {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border: 1px solid #E8E2D9;
+  flex-shrink: 0;
+}
+.v-review-item-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #111;
+}
 .v-review-meta { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
 .v-review-stars { color: #B89C6E; font-size: 0.85rem; }
 .v-review-date { color: #C9B89A; }
 .v-review-body { color: #555; font-size: 0.9rem; line-height: 1.7; }
 
-/* QnA */
 .v-qna-list { display: flex; flex-direction: column; }
 .v-qna-item { padding: 20px 0; border-bottom: 1px solid #E8E2D9; }
 .v-qna-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
@@ -527,7 +657,6 @@ onMounted(() => {
 }
 .v-btn-del:hover { color: #8B2020; }
 
-/* Profile form */
 .v-profile-form { display: flex; flex-direction: column; gap: 20px; max-width: 480px; }
 .v-field { display: flex; flex-direction: column; gap: 8px; }
 .v-field-label {
@@ -569,7 +698,6 @@ onMounted(() => {
 }
 .v-btn-save:hover { background: #4A6741; }
 
-/* Coupons */
 .v-coupon-list { display: flex; flex-direction: column; gap: 12px; }
 .v-coupon-card {
   display: flex; justify-content: space-between; align-items: flex-start;
@@ -588,7 +716,6 @@ onMounted(() => {
 .v-coupon-validity { color: #C9B89A; margin-bottom: 4px; }
 .v-coupon-min { color: #C9B89A; margin-bottom: 6px; }
 
-/* Withdraw */
 .v-withdraw-box { display: flex; flex-direction: column; gap: 20px; max-width: 480px; }
 .v-withdraw-warn {
   font-size: 0.85rem;
@@ -611,4 +738,84 @@ onMounted(() => {
   transition: background 0.25s;
 }
 .v-btn-withdraw:hover { background: #6b1818; }
+
+/* 리뷰 모달 */
+.v-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+.v-modal {
+  background: #fff;
+  padding: 36px;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.v-modal-title {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #111;
+  margin-bottom: 4px;
+}
+.v-modal-item-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #1B3A2D;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #E8E2D9;
+}
+.v-star-row { display: flex; gap: 4px; }
+.v-star-btn {
+  background: none; border: none; font-size: 1.6rem;
+  color: #E8E2D9; cursor: pointer; transition: color 0.15s; padding: 0;
+}
+.v-star-btn--on { color: #B89C6E; }
+.v-modal-textarea {
+  border: 1px solid #E8E2D9;
+  background: transparent;
+  padding: 12px 14px;
+  font-size: 0.85rem;
+  color: #111;
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.v-modal-textarea:focus { border-color: #1B3A2D; }
+.v-modal-error { font-size: 0.78rem; color: #8B2020; padding: 8px 12px; background: rgba(139,32,32,0.05); }
+.v-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+.v-btn-modal-cancel {
+  background: none;
+  border: 1px solid #E8E2D9;
+  padding: 10px 24px;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: #7A7269;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.v-btn-modal-cancel:hover { border-color: #7A7269; color: #111; }
+.v-btn-modal-submit {
+  background: #1B3A2D;
+  color: #F5F0E8;
+  border: none;
+  padding: 10px 28px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.25s;
+}
+.v-btn-modal-submit:hover { background: #4A6741; }
 </style>

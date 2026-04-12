@@ -1,7 +1,6 @@
 <template>
   <div class="inquiry-detail-page">
 
-    <!-- 비밀번호 입력 화면 -->
     <div v-if="needPassword" class="pw-gate">
       <div class="pw-gate-box">
         <div class="pw-gate-icon">🔒</div>
@@ -26,7 +25,6 @@
       </div>
     </div>
 
-    <!-- 상세 내용 화면 -->
     <template v-else-if="inquiry">
       <div class="detail-container">
       <div class="detail-header">
@@ -72,7 +70,6 @@
       </div>
     </template>
 
-    <!-- 로딩 -->
     <div v-else-if="loading" class="loading">로딩 중...</div>
   </div>
 </template>
@@ -170,7 +167,6 @@ onMounted(() => {
 .inquiry-detail-page { min-height: 60vh; }
 .detail-container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
 
-/* Password gate */
 .pw-gate {
   display: flex; justify-content: center; align-items: center;
   padding: 80px 16px;
@@ -193,7 +189,6 @@ onMounted(() => {
 .pw-error { color: #c0392b; font-size: 12px; margin-top: 6px; }
 .pw-actions { display: flex; gap: 10px; margin-top: 16px; }
 
-/* Detail */
 .detail-header {
   padding: 32px 0 24px; border-bottom: 1px solid #eee; margin-bottom: 28px;
 }

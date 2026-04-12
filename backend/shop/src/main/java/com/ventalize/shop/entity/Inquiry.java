@@ -7,9 +7,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
-/**
- * 1:1 문의 (관리자 답변 포함)
- */
 @Entity
 @Getter
 @Setter
@@ -26,7 +23,6 @@ public class Inquiry {
     @Column(nullable = false)
     private Integer memberId;
 
-    /** 카테고리: 주문/배송, 환불/교환, 회원, 상품, 기타 */
     @Column(nullable = false, length = 30)
     @Builder.Default
     private String category = "기타";

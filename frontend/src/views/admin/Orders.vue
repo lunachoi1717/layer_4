@@ -73,7 +73,7 @@
                 </div>
               </td>
             </tr>
-            <!-- 상품 상세 펼치기 행 -->
+
             <tr v-if="expandedId === o.id" class="order-detail-row">
               <td colspan="8">
                 <div class="order-items-detail">
@@ -197,7 +197,7 @@ async function changeStatus(id, currentStatus, newStatus) {
   } else {
     const msg = await res.text()
     showToast(msg || '상태 변경에 실패했습니다.')
-    loadOrders() // 드롭다운 원복
+    loadOrders()
   }
 }
 

@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 public class CartItemResponse {
 
-    private Integer id;       // cart row id
+    private Integer id;
     private Integer itemId;
     private Integer quantity;
     private ItemRead item;

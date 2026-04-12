@@ -8,7 +8,6 @@
         <button class="admin-btn admin-btn--primary" @click="openFaqForm()">FAQ 등록</button>
       </div>
 
-      <!-- 작성/수정 폼 -->
       <form v-if="faqForm.show" class="admin-form" @submit.prevent="saveFaq">
         <div class="admin-form-group">
           <label class="admin-form-label">카테고리</label>

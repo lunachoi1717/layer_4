@@ -41,7 +41,7 @@
                 </div>
               </td>
             </tr>
-            <!-- 펼쳐진 상세 행 -->
+
             <tr v-if="expandedId === q.id" class="expand-row">
               <td colspan="8">
                 <div class="qna-detail">
@@ -64,7 +64,6 @@
       </table>
     </div>
 
-    <!-- 답변 모달 -->
     <div v-if="showAnswerModal" class="admin-modal-overlay" @click.self="showAnswerModal = false">
       <div class="admin-modal">
         <h3 class="admin-modal-title">Q&A 답변 작성</h3>

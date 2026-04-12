@@ -29,7 +29,7 @@ public class Review {
     private Integer orderId;
 
     @Column(nullable = false)
-    private Integer rating;  // 1~5
+    private Integer rating;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;

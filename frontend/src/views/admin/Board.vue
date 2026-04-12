@@ -4,20 +4,17 @@
       <h1 class="page-title">게시판 관리</h1>
     </div>
 
-    <!-- 탭 -->
     <div class="tabs">
       <button class="tab" :class="{ 'tab--active': activeTab === 'faq' }" @click="activeTab = 'faq'">FAQ 관리</button>
       <button class="tab" :class="{ 'tab--active': activeTab === 'inquiry' }" @click="activeTab = 'inquiry'">1:1 문의 관리</button>
     </div>
 
-    <!-- FAQ 관리 -->
     <div v-if="activeTab === 'faq'">
       <div class="section-toolbar">
         <span class="count-label">총 {{ faqs.length }}건</span>
         <button class="btn-primary" @click="openFaqForm()">FAQ 등록</button>
       </div>
 
-      <!-- FAQ 작성/수정 폼 -->
       <form v-if="faqForm.show" class="admin-form" @submit.prevent="saveFaq">
         <div class="form-row">
           <label>카테고리</label>
@@ -69,7 +66,6 @@
       </table>
     </div>
 
-    <!-- 1:1 문의 관리 -->
     <div v-if="activeTab === 'inquiry'">
       <div class="section-toolbar">
         <span class="count-label">미답변 <strong>{{ unansweredCount }}</strong>건 / 전체 {{ inquiries.length }}건</span>
@@ -98,7 +94,6 @@
         </div>
         <div class="inquiry-content-text">{{ item.content }}</div>
 
-        <!-- 답변 -->
         <div v-if="item.isAnswered" class="answer-box">
           <strong>답변:</strong> {{ item.answerContent }}
         </div>
@@ -122,7 +117,6 @@ const inquiries = ref([])
 const filterUnanswered = ref(false)
 const answerTexts = ref({})
 
-// FAQ 정렬
 const faqSortField = ref('id')
 const faqSortAsc   = ref(false)
 
@@ -147,7 +141,6 @@ const sortedFaqs = computed(() => {
   })
 })
 
-// 문의 정렬
 const inqSortField = ref('id')
 const inqSortAsc   = ref(false)
 

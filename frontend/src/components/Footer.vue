@@ -2,13 +2,11 @@
   <footer class="v-footer">
     <div class="v-footer__top v-container">
 
-      <!-- Brand column -->
       <div class="v-footer__brand">
         <p class="v-footer__logo-en">VENTALIZE</p>
         <p class="v-footer__tagline">Crafted with intention,<br>worn with purpose.</p>
       </div>
 
-      <!-- Nav columns -->
       <div class="v-footer__col">
         <p class="v-footer__col-title">Collections</p>
         <RouterLink to="/category/SCARVES"       class="v-footer__link">Scarves</RouterLink>
@@ -41,7 +39,7 @@
         <p class="v-footer__legal">사업자등록번호 : 000-00-00000 · 대표 : Ventalize · 통신판매업신고 : 제0000-서울-0000호</p>
       </div>
       <div class="v-footer__sns">
-        <!-- Instagram -->
+
         <a href="#" class="v-footer__sns-btn" aria-label="Instagram">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
@@ -49,13 +47,13 @@
             <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
           </svg>
         </a>
-        <!-- KakaoTalk -->
+
         <a href="#" class="v-footer__sns-btn" aria-label="KakaoTalk Channel">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 3C6.48 3 2 6.69 2 11.25c0 2.89 1.77 5.44 4.44 7.01L5.3 22l4.07-2.54A12 12 0 0 0 12 19.5c5.52 0 10-3.69 10-8.25S17.52 3 12 3z"/>
           </svg>
         </a>
-        <!-- Twitter / X -->
+
         <a href="#" class="v-footer__sns-btn" aria-label="Twitter">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>

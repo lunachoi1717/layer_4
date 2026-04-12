@@ -30,7 +30,6 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
 
-    /** 재시작 시 이전 세션을 무효화하는 필터 (싱글턴으로 사용) */
     private final StartupSessionFilter startupSessionFilter = new StartupSessionFilter();
 
     @Bean
@@ -61,7 +60,7 @@ public class SecurityConfig {
             .addFilterBefore(startupSessionFilter, UsernamePasswordAuthenticationFilter.class)
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints
+
                 .requestMatchers("/v1/api/account/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/v1/api/items/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/v1/api/reviews/**").permitAll()
@@ -70,9 +69,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/v1/api/board/inquiry").permitAll()
                 .requestMatchers("/images/**").permitAll()
                 .requestMatchers("/v1/images/**").permitAll()
-                // Admin only
+
                 .requestMatchers("/v1/api/admin/**").hasAuthority("ROLE_ADMIN")
-                // Authenticated users
+
                 .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex

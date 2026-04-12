@@ -35,7 +35,6 @@ public class OrderService {
     private final MemberRepository memberRepository;
     private final CouponRepository couponRepository;
 
-    // 주문 목록 조회 (아이템 상세 포함, 회원별 순번 부여)
     public List<OrderRead> findAll(Integer memberId) {
         List<Order> orders = orderRepository.findAllByMemberIdOrderByIdDesc(memberId);
         int total = orders.size();
@@ -43,14 +42,13 @@ public class OrderService {
         for (int i = 0; i < orders.size(); i++) {
             Order o = orders.get(i);
             OrderRead read = o.toRead();
-            read.setOrderNumber(total - i); // 오래된 주문이 #1
+            read.setOrderNumber(total - i);
             read.setItems(buildDetails(o.getId()));
             result.add(read);
         }
         return result;
     }
 
-    // 주문 상세 조회 (아이템 상세 포함)
     public OrderRead find(Integer id, Integer memberId) {
         Optional<Order> orderOptional = orderRepository.findByIdAndMemberId(id, memberId);
         if (orderOptional.isPresent()) {
@@ -61,14 +59,12 @@ public class OrderService {
         return null;
     }
 
-    // 주문 내용 저장 (재고 검증 → 금액 계산 → 저장 → 재고 차감)
     @Transactional
     public void order(OrderRequest orderReq, Integer memberId) {
         List<Integer> itemIds = orderReq.getItemIds();
         Map<Integer, Integer> quantities = orderReq.getQuantities() != null
                 ? orderReq.getQuantities() : Map.of();
 
-        // 1. 재고 검증 (주문 전 모든 상품 재고 확인)
         for (Integer itemId : itemIds.stream().distinct().toList()) {
             int qty = quantities.getOrDefault(itemId, 1);
             Item item = itemRepository.findById(itemId)
@@ -79,7 +75,6 @@ public class OrderService {
             }
         }
 
-        // 2. 최종 결제 금액 계산 (수량 반영)
         List<ItemRead> itemReads = itemService.findAll(itemIds);
         Map<Integer, ItemRead> itemMap = itemReads.stream()
                 .collect(Collectors.toMap(ItemRead::getId, i -> i));
@@ -93,7 +88,6 @@ public class OrderService {
             }
         }
 
-        // 쿠폰 할인 적용
         if (orderReq.getCouponCode() != null && !orderReq.getCouponCode().isBlank()) {
             Coupon coupon = couponRepository.findByCode(orderReq.getCouponCode()).orElse(null);
             if (coupon != null && Boolean.TRUE.equals(coupon.getIsActive())) {
@@ -108,10 +102,8 @@ public class OrderService {
         }
         orderReq.setAmount(amount);
 
-        // 3. 주문 저장
         Order order = orderRepository.save(orderReq.toEntity(memberId));
 
-        // 4. 주문 상품 데이터 저장 (수량 포함)
         List<OrderItem> newOrderItems = new ArrayList<>();
         for (Integer itemId : itemIds.stream().distinct().toList()) {
             int qty = quantities.getOrDefault(itemId, 1);
@@ -119,7 +111,6 @@ public class OrderService {
         }
         orderItemService.saveAll(newOrderItems);
 
-        // 5. 재고 차감
         for (Integer itemId : itemIds.stream().distinct().toList()) {
             int qty = quantities.getOrDefault(itemId, 1);
             itemRepository.findById(itemId).ifPresent(item -> {
@@ -129,16 +120,13 @@ public class OrderService {
             });
         }
 
-        // 6. 주문한 상품만 장바구니에서 삭제
         for (Integer itemId : itemIds.stream().distinct().toList()) {
             cartService.remove(order.getMemberId(), itemId);
         }
 
-        // 7. 결제 시뮬레이션 (10초 후 PAID 전환)
         paymentSimulator.simulatePayment(order.getId());
     }
 
-    /** 주문 취소 시 재고 복구 */
     @Transactional
     public void restoreStock(Integer orderId) {
         List<OrderItem> orderItems = orderItemService.findAll(orderId);
@@ -151,7 +139,6 @@ public class OrderService {
         }
     }
 
-    /** 주문 ID로 OrderItemDetail 목록 생성 */
     public List<OrderItemDetail> buildDetails(Integer orderId) {
         List<OrderItem> orderItems = orderItemService.findAll(orderId);
         if (orderItems.isEmpty()) return List.of();
@@ -192,7 +179,6 @@ public class OrderService {
 
         validateStatusChange(order.getStatus(), newStatus);
 
-        // 취소 전환 시 재고 복구
         if ("CANCELLED".equals(newStatus)) {
             restoreStock(orderId);
         }

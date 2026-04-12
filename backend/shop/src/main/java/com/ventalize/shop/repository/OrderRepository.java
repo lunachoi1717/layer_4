@@ -19,7 +19,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
 
     long countByStatus(String status);
 
-    /** 특정 회원의 since 이후 취소되지 않은 주문 누적 금액 */
     @Query("SELECT COALESCE(SUM(o.amount), 0) FROM Order o " +
            "WHERE o.memberId = :memberId AND o.status != 'CANCELLED' AND o.createdAt >= :since")
     long sumAmountByMemberIdAndStatusNotCancelledSince(

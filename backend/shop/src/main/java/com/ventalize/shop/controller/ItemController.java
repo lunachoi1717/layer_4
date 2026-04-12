@@ -27,7 +27,6 @@ public class ItemController {
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    /** 상품 목록 (카테고리 필터, 정렬, 검색) */
     @GetMapping("/api/items")
     public ResponseEntity<?> readAll(
             @RequestParam(required = false) String category,
@@ -50,7 +49,6 @@ public class ItemController {
         return ResponseEntity.ok(items);
     }
 
-    /** 상품 상세 */
     @GetMapping("/api/items/{id}")
     public ResponseEntity<?> readOne(@PathVariable Integer id) {
         return itemService.findById(id)
@@ -58,7 +56,6 @@ public class ItemController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /** 관련 상품 */
     @GetMapping("/api/items/{id}/related")
     public ResponseEntity<?> related(@PathVariable Integer id) {
         return itemService.findById(id).map(item ->
@@ -66,7 +63,6 @@ public class ItemController {
         ).orElse(ResponseEntity.notFound().build());
     }
 
-    /** 업로드된 이미지 서빙 */
     @GetMapping("/images/{filename:.+}")
     public ResponseEntity<Resource> serveImage(@PathVariable String filename) {
         try {

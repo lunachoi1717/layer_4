@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * 관리자용 쿠폰 CRUD API
- */
 @RestController
 @RequestMapping("/v1/api/admin/coupons")
 @RequiredArgsConstructor
@@ -20,7 +17,6 @@ public class AdminCouponController {
 
     private final CouponRepository couponRepository;
 
-    /** 전체 쿠폰 목록 */
     @GetMapping
     public ResponseEntity<List<CouponRead>> list() {
         return ResponseEntity.ok(
@@ -29,7 +25,6 @@ public class AdminCouponController {
         );
     }
 
-    /** 쿠폰 생성 */
     @PostMapping
     public ResponseEntity<?> create(@RequestBody CouponCreateRequest req) {
         if (couponRepository.existsByCode(req.getCode())) {
@@ -48,7 +43,6 @@ public class AdminCouponController {
         return ResponseEntity.ok(CouponRead.from(couponRepository.save(coupon)));
     }
 
-    /** 쿠폰 수정 */
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody CouponCreateRequest req) {
         return couponRepository.findById(id)
@@ -65,7 +59,6 @@ public class AdminCouponController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /** 쿠폰 활성/비활성 토글 */
     @PatchMapping("/{id}/toggle")
     public ResponseEntity<?> toggle(@PathVariable Integer id) {
         return couponRepository.findById(id)
@@ -76,7 +69,6 @@ public class AdminCouponController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /** 쿠폰 삭제 */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         if (!couponRepository.existsById(id)) return ResponseEntity.notFound().build();

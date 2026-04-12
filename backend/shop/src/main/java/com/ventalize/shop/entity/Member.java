@@ -28,17 +28,14 @@ public class Member {
     @Column(nullable = false, length = 200)
     private String loginPw;
 
-    /** ROLE_USER / ROLE_ADMIN */
     @Column(nullable = false, length = 20)
     @Builder.Default
     private String role = "ROLE_USER";
 
-    /** SAPPHIRE / RUBY / EMERALD / GOLD / DIAMOND */
     @Column(nullable = false, length = 20)
     @Builder.Default
     private String grade = "SAPPHIRE";
 
-    /** ACTIVE / SUSPENDED */
     @Column(nullable = false, length = 20)
     @Builder.Default
     private String status = "ACTIVE";

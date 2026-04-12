@@ -13,7 +13,7 @@
       </div>
 
       <div v-else class="checkout-layout">
-        <!-- 주문 상품 요약 -->
+
         <div class="checkout-item-box">
           <h2 class="section-title">주문 상품</h2>
           <div class="checkout-item">
@@ -30,7 +30,6 @@
             </div>
           </div>
 
-          <!-- 결제 금액 요약 -->
           <div class="price-summary">
             <div class="summary-row">
               <span>상품 금액</span>
@@ -52,7 +51,6 @@
           </div>
         </div>
 
-        <!-- 주문 정보 입력 -->
         <div class="checkout-form-box">
           <h2 class="section-title">배송 / 결제 정보</h2>
           <form @submit.prevent="submitOrder">
@@ -89,7 +87,6 @@
               </div>
             </div>
 
-            <!-- 쿠폰 -->
             <div class="form-group">
               <label class="form-label">쿠폰 코드</label>
               <div class="coupon-row">

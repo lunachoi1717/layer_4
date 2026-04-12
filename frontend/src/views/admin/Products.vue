@@ -2,13 +2,11 @@
   <div class="admin-page">
     <h1 class="admin-page-title">상품 관리</h1>
 
-    <!-- ── 툴바 ── -->
     <div class="admin-toolbar products-toolbar">
-      <!-- 검색 -->
+
       <input v-model="keyword" class="admin-search-input" placeholder="상품명 검색"
         @keyup.enter="applyFilter" @input="applyFilter" />
 
-      <!-- 카테고리 필터 -->
       <select v-model="categoryFilter" class="admin-form-select filter-select" @change="applyFilter">
         <option value="">전체 카테고리</option>
         <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
@@ -20,7 +18,6 @@
       </div>
     </div>
 
-    <!-- ── 테이블 ── -->
     <div class="admin-card">
       <div v-if="loading" class="loading-box"><div class="spinner"></div></div>
       <table v-else class="admin-table">
@@ -39,7 +36,7 @@
         <tbody>
           <tr v-for="p in pagedProducts" :key="p.id">
             <td>#{{ p.id }}</td>
-            <td><img :src="p.imgPath" class="product-thumb" /></td>
+            <td><img :src="p.imgPath" class="product-thumb" @error="e => e.target.style.opacity='0.2'" /></td>
             <td style="font-weight:600">{{ p.name }}</td>
             <td><span class="grade-badge grade-sapphire">{{ p.category }}</span></td>
             <td>{{ p.price?.toLocaleString() }}원</td>
@@ -62,7 +59,6 @@
       </table>
     </div>
 
-    <!-- ── 페이지네이션 ── -->
     <div v-if="totalPages > 1" class="admin-pagination">
       <button class="pg-btn" :disabled="currentPage === 1" @click="currentPage = 1">«</button>
       <button class="pg-btn" :disabled="currentPage === 1" @click="currentPage--">‹</button>
@@ -78,9 +74,9 @@
       <span class="pg-info">{{ currentPage }} / {{ totalPages }}</span>
     </div>
 
-    <!-- ── 상품 등록/수정 모달 ── -->
+    <!-- 상품 등록/수정 모달 -->
     <div v-if="showModal" class="admin-modal-overlay" @click.self="showModal = false">
-      <div class="admin-modal" style="max-width:600px">
+      <div class="admin-modal" style="max-width:640px">
         <h3 class="admin-modal-title">{{ editTarget ? '상품 수정' : '상품 등록' }}</h3>
         <form @submit.prevent="submitProduct">
           <div class="admin-form-group">
@@ -111,23 +107,67 @@
               <input v-model.number="form.stockCount" class="admin-form-input" type="number" min="0" />
             </div>
           </div>
+
+          <!-- 이미지 선택 영역 -->
           <div class="admin-form-group">
             <label class="admin-form-label">이미지</label>
-            <div class="img-upload-row">
-              <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm"
-                @click="$refs.fileInput.click()" :disabled="uploading">
-                {{ uploading ? '업로드 중…' : '📎 사진 첨부' }}
-              </button>
-              <span class="img-upload-hint">또는 아래 목록에서 선택</span>
+
+            <!-- 현재 선택된 이미지 미리보기 -->
+            <div class="img-preview-row">
+              <img v-if="form.imgPath" :src="form.imgPath" class="img-preview-thumb"
+                @error="e => e.target.style.opacity='0.2'" />
+              <div class="img-preview-info">
+                <span class="img-preview-path">{{ form.imgPath || '선택된 이미지 없음' }}</span>
+                <div class="img-btn-row">
+                  <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm"
+                    @click="togglePicker">
+                    🖼 갤러리에서 선택
+                  </button>
+                  <button type="button" class="admin-btn admin-btn--ghost admin-btn--sm"
+                    @click="$refs.fileInput.click()" :disabled="uploading">
+                    {{ uploading ? '업로드 중…' : '📎 파일 업로드' }}
+                  </button>
+                </div>
+              </div>
             </div>
             <input ref="fileInput" type="file" accept="image/*" style="display:none" @change="handleFileUpload" />
-            <select v-model="form.imgPath" class="admin-form-select" style="margin-top:8px">
-              <option value="">이미지를 선택하세요</option>
-              <option v-for="img in imageList" :key="img" :value="'/images/' + img">{{ img }}</option>
-            </select>
-            <img v-if="form.imgPath" :src="form.imgPath"
-              style="width:100px;height:100px;object-fit:cover;border-radius:6px;margin-top:10px;border:1px solid #E5E7EB;display:block" />
+
+            <!-- 이미지 갤러리 피커 -->
+            <div v-if="showPicker" class="img-picker">
+              <!-- 카테고리 탭 -->
+              <div class="img-picker-tabs">
+                <button
+                  v-for="cat in pickerCategories"
+                  :key="cat"
+                  type="button"
+                  class="img-picker-tab"
+                  :class="{ 'img-picker-tab--active': pickerCategory === cat }"
+                  @click="pickerCategory = cat"
+                >{{ cat }}</button>
+              </div>
+              <!-- 검색 -->
+              <input v-model="pickerSearch" class="admin-form-input" placeholder="파일명 검색…"
+                style="margin-bottom:10px;font-size:0.78rem;padding:6px 10px" />
+              <!-- 썸네일 그리드 -->
+              <div class="img-picker-grid">
+                <div
+                  v-for="img in filteredPickerImages"
+                  :key="img.path"
+                  class="img-picker-item"
+                  :class="{ 'img-picker-item--selected': form.imgPath === img.path }"
+                  @click="selectImage(img.path)"
+                  :title="img.label"
+                >
+                  <img :src="img.path" loading="lazy" />
+                  <span class="img-picker-label">{{ img.filename }}</span>
+                </div>
+                <div v-if="filteredPickerImages.length === 0" class="img-picker-empty">
+                  검색 결과가 없습니다.
+                </div>
+              </div>
+            </div>
           </div>
+
           <div class="admin-modal-actions">
             <button type="button" class="admin-btn admin-btn--ghost" @click="showModal = false">취소</button>
             <button type="submit" class="admin-btn admin-btn--primary">{{ editTarget ? '수정' : '등록' }}</button>
@@ -145,7 +185,7 @@ import { ref, computed, onMounted } from 'vue'
 
 const ITEMS_PER_PAGE = 10
 
-const allProducts = ref([])   // 서버에서 받은 원본
+const allProducts = ref([])
 const loading     = ref(false)
 const showModal   = ref(false)
 const editTarget  = ref(null)
@@ -153,12 +193,16 @@ const toast       = ref('')
 const uploading   = ref(false)
 const fileInput   = ref(null)
 
-// 필터 / 정렬
 const keyword        = ref('')
 const categoryFilter = ref('')
 const sortField      = ref('id')
-const sortAsc        = ref(false)   // 기본 내림차순
+const sortAsc        = ref(false)
 const currentPage    = ref(1)
+
+// 이미지 피커 상태
+const showPicker     = ref(false)
+const pickerCategory = ref('SCARVES')
+const pickerSearch   = ref('')
 
 function toggleSort(field) {
   if (sortField.value === field) {
@@ -171,12 +215,59 @@ function toggleSort(field) {
 }
 
 const categories = ['SCARVES', 'READY_TO_WEAR', 'PERFUME', 'ACC', 'BAGS', 'SALE']
-const imageList  = ref([])
+
+// ─── 정적 이미지 목록 (frontend/public/images 기준) ───────────────────────
+function buildStaticImageList() {
+  const list = []
+
+  const add = (dir, prefix, ext, count) => {
+    for (let i = 1; i <= count; i++) {
+      const filename = `${prefix} (${i}).${ext}`
+      const path     = `/images/${dir}/${filename}`
+      list.push({ category: dir, label: `${dir}/${filename}`, filename, path })
+    }
+  }
+
+  add('ACCESSORIES', 'acc',       'jpg', 18)
+  add('BAGS',        'bags',      'jpg', 10)
+  add('PERFUME',     'perfume',   'png', 10)
+  add('READY_TO_WEAR', 'wear',    'jpg', 16)
+  add('SCARVES',     'scarves',   'jpg', 24)
+
+  // 루트 배너 이미지
+  const banners = [
+    'bags2_banner.png', 'bags_banner.png', 'perfume_banner.png',
+    'scarves2_banner.png', 'scarves3_banner.png', 'scarves_banner.png', 'test.jpg',
+  ]
+  banners.forEach(b => {
+    list.push({ category: 'BANNER', label: b, filename: b, path: `/images/${b}` })
+  })
+
+  return list
+}
+
+const allImages = buildStaticImageList()
+
+const pickerCategories = ref(['SCARVES', 'READY_TO_WEAR', 'PERFUME', 'ACCESSORIES', 'BAGS', 'BANNER'])
+
+// 업로드 완료된 이미지(동적)를 추가 목록으로 관리
+const uploadedImages = ref([])
+
+const combinedImages = computed(() => [
+  ...allImages,
+  ...uploadedImages.value,
+])
+
+const filteredPickerImages = computed(() => {
+  return combinedImages.value
+    .filter(img => img.category === pickerCategory.value)
+    .filter(img => !pickerSearch.value || img.filename.toLowerCase().includes(pickerSearch.value.toLowerCase()))
+})
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 const form = ref({ name: '', category: 'SCARVES', description: '', price: 0, discountPer: 0, stockCount: 0, imgPath: '' })
-// 카테고리: SCARVES, READY_TO_WEAR, PERFUME, ACC, BAGS, SALE
 
-/* ── 필터 → 정렬 → 페이지 ── */
 const filteredProducts = computed(() => {
   let list = allProducts.value
   if (categoryFilter.value) {
@@ -206,7 +297,6 @@ const pagedProducts = computed(() => {
   return sortedProducts.value.slice(start, start + ITEMS_PER_PAGE)
 })
 
-// 슬라이딩 윈도우 페이지 번호 (최대 5개)
 const pageNumbers = computed(() => {
   const total = totalPages.value
   const cur   = currentPage.value
@@ -218,23 +308,31 @@ const pageNumbers = computed(() => {
   return nums
 })
 
-// 필터 변경 시 페이지 초기화
 function applyFilter() { currentPage.value = 1 }
 
-/* ── API ── */
+function togglePicker() {
+  showPicker.value = !showPicker.value
+  pickerSearch.value = ''
+  // 현재 상품 카테고리와 맞는 탭으로 이동
+  if (showPicker.value) {
+    const cat = form.value.category
+    if (pickerCategories.includes(cat)) pickerCategory.value = cat
+    else if (cat === 'ACC') pickerCategory.value = 'ACCESSORIES'
+    else pickerCategory.value = 'SCARVES'
+  }
+}
+
+function selectImage(path) {
+  form.value.imgPath = path
+  showPicker.value = false
+}
+
 async function loadProducts() {
   loading.value = true
   try {
     const res = await fetch('/v1/api/admin/items', { credentials: 'include' })
     if (res.ok) allProducts.value = await res.json()
   } catch {} finally { loading.value = false }
-}
-
-async function loadImageList() {
-  try {
-    const r = await fetch('/v1/api/admin/items/images', { credentials: 'include' })
-    if (r.ok) imageList.value = await r.json()
-  } catch {}
 }
 
 async function handleFileUpload(e) {
@@ -245,8 +343,22 @@ async function handleFileUpload(e) {
     const fd = new FormData()
     fd.append('file', file)
     const res = await fetch('/v1/api/admin/items/upload', { method: 'POST', credentials: 'include', body: fd })
-    if (res.ok) { form.value.imgPath = (await res.json()).imgPath; showToast('이미지 업로드 완료') }
-    else showToast('업로드 실패')
+    if (res.ok) {
+      const data = await res.json()
+      form.value.imgPath = data.imgPath
+      // 업로드된 이미지를 동적 목록에 추가
+      const filename = data.imgPath.split('/').pop()
+      uploadedImages.value.push({
+        category: 'UPLOADED',
+        label: filename,
+        filename,
+        path: data.imgPath,
+      })
+      if (!pickerCategories.value.includes('UPLOADED')) pickerCategories.value.push('UPLOADED')
+      showToast('이미지 업로드 완료')
+    } else {
+      showToast('업로드 실패')
+    }
   } catch { showToast('업로드 중 오류 발생') }
   finally { uploading.value = false; e.target.value = '' }
 }
@@ -256,13 +368,22 @@ function showToast(msg) { toast.value = msg; setTimeout(() => { toast.value = ''
 function openAddModal() {
   editTarget.value = null
   form.value = { name: '', category: 'SCARVES', description: '', price: 0, discountPer: 0, stockCount: 0, imgPath: '' }
+  showPicker.value = false
   showModal.value = true
 }
 
 function openEditModal(p) {
   editTarget.value = p
-  form.value = { name: p.name, category: p.category, description: p.description || '',
-    price: p.price, discountPer: p.discountPer, stockCount: p.stockCount, imgPath: p.imgPath || '' }
+  form.value = {
+    name: p.name,
+    category: p.category,
+    description: p.description || '',
+    price: p.price,
+    discountPer: p.discountPer,
+    stockCount: p.stockCount,
+    imgPath: p.imgPath || '',
+  }
+  showPicker.value = false
   showModal.value = true
 }
 
@@ -270,11 +391,18 @@ async function submitProduct() {
   const url    = editTarget.value ? `/v1/api/admin/items/${editTarget.value.id}` : '/v1/api/admin/items'
   const method = editTarget.value ? 'PUT' : 'POST'
   const res = await fetch(url, {
-    method, headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-    body: JSON.stringify(form.value)
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(form.value),
   })
-  if (res.ok) { showModal.value = false; loadProducts(); showToast(editTarget.value ? '수정되었습니다.' : '등록되었습니다.') }
-  else showToast('처리 중 오류가 발생했습니다.')
+  if (res.ok) {
+    showModal.value = false
+    loadProducts()
+    showToast(editTarget.value ? '수정되었습니다.' : '등록되었습니다.')
+  } else {
+    showToast('처리 중 오류가 발생했습니다.')
+  }
 }
 
 async function deleteProduct(id) {
@@ -285,21 +413,21 @@ async function deleteProduct(id) {
 
 async function updateStock(id, stockCount) {
   await fetch(`/v1/api/admin/items/${id}/stock`, {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include',
-    body: JSON.stringify({ stockCount: Number(stockCount) })
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ stockCount: Number(stockCount) }),
   })
 }
 
-onMounted(() => { loadProducts(); loadImageList() })
+onMounted(() => { loadProducts() })
 </script>
 
 <style scoped>
-/* ── 헤더 정렬 ── */
 .sortable-th { cursor: pointer; user-select: none; white-space: nowrap; }
 .sortable-th:hover { background: #F3F4F6; }
 .sort-icon { font-size: 0.7rem; color: #9CA3AF; margin-left: 4px; }
 
-/* ── 툴바 ── */
 .products-toolbar {
   flex-wrap: wrap;
   gap: 8px;
@@ -322,7 +450,6 @@ onMounted(() => { loadProducts(); loadImageList() })
   white-space: nowrap;
 }
 
-/* ── 썸네일 / 재고 입력 ── */
 .product-thumb {
   width: 44px; height: 44px; object-fit: cover;
   border-radius: 6px; border: 1px solid #E5E7EB;
@@ -332,7 +459,6 @@ onMounted(() => { loadProducts(); loadImageList() })
   padding: 4px 6px; font-size: 0.8rem; text-align: center;
 }
 
-/* ── 페이지네이션 ── */
 .admin-pagination {
   display: flex;
   align-items: center;
@@ -360,9 +486,110 @@ onMounted(() => { loadProducts(); loadImageList() })
   margin-left: 8px;
 }
 
-/* ── 이미지 업로드 ── */
-.img-upload-row {
-  display: flex; align-items: center; gap: 12px; margin-bottom: 4px;
+/* ─── 이미지 영역 ─── */
+.img-preview-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 10px;
 }
-.img-upload-hint { font-size: 0.75rem; color: #9CA3AF; }
+.img-preview-thumb {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  flex-shrink: 0;
+  background: #F9FAFB;
+}
+.img-preview-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+.img-preview-path {
+  font-size: 0.72rem;
+  color: #6B7280;
+  word-break: break-all;
+  line-height: 1.4;
+}
+.img-btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ─── 갤러리 피커 ─── */
+.img-picker {
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  padding: 14px;
+  background: #FAFAFA;
+  margin-top: 8px;
+}
+.img-picker-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.img-picker-tab {
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 3px;
+  cursor: pointer;
+  color: #6B7280;
+  transition: all 0.15s;
+}
+.img-picker-tab:hover { border-color: #1B3A2D; color: #1B3A2D; }
+.img-picker-tab--active { background: #1B3A2D; border-color: #1B3A2D; color: #fff; }
+
+.img-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.img-picker-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  padding: 4px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  transition: border-color 0.15s;
+}
+.img-picker-item:hover { border-color: #9CA3AF; }
+.img-picker-item--selected { border-color: #1B3A2D; background: rgba(27,58,45,0.05); }
+.img-picker-item img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 3px;
+  border: 1px solid #E5E7EB;
+}
+.img-picker-label {
+  font-size: 0.6rem;
+  color: #9CA3AF;
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.2;
+}
+.img-picker-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #9CA3AF;
+  font-size: 0.8rem;
+  padding: 24px 0;
+}
 </style>

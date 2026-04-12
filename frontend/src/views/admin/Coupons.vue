@@ -2,12 +2,10 @@
   <div class="admin-page">
     <h1 class="admin-page-title">쿠폰 관리</h1>
 
-    <!-- Toolbar -->
     <div class="admin-toolbar">
       <button class="admin-btn admin-btn--primary" @click="openCreate">+ 쿠폰 생성</button>
     </div>
 
-    <!-- Table -->
     <div class="admin-card">
       <div v-if="loading" class="loading-box"><div class="spinner"></div></div>
       <table v-else class="admin-table">
@@ -61,7 +59,6 @@
       </table>
     </div>
 
-    <!-- Create / Edit Modal -->
     <div v-if="showModal" class="admin-modal-overlay" @click.self="closeModal">
       <div class="admin-modal">
         <h2 class="admin-modal-title">{{ editTarget ? '쿠폰 수정' : '쿠폰 생성' }}</h2>

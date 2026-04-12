@@ -33,7 +33,6 @@ public class AdminItemController {
     @Value("${file.images-dir}")
     private String imagesDir;
 
-    /** 이미지 업로드 */
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) return ResponseEntity.badRequest().body("파일이 비어 있습니다.");
@@ -53,7 +52,6 @@ public class AdminItemController {
         }
     }
 
-    /** public/images 디렉토리 파일 목록 */
     @GetMapping("/images")
     public ResponseEntity<?> listImages() {
         try {
@@ -71,7 +69,6 @@ public class AdminItemController {
         }
     }
 
-    /** 전체 상품 목록 */
     @GetMapping
     public ResponseEntity<?> list(@RequestParam(required = false) String keyword) {
         List<Item> items;
@@ -83,7 +80,6 @@ public class AdminItemController {
         return ResponseEntity.ok(items.stream().map(Item::toRead).toList());
     }
 
-    /** 상품 등록 */
     @PostMapping
     public ResponseEntity<?> add(@RequestBody ItemCreateRequest req) {
         String imgPath = StringUtils.hasLength(req.getImgPath())
@@ -104,7 +100,6 @@ public class AdminItemController {
         return ResponseEntity.ok(itemRepository.save(item).toRead());
     }
 
-    /** 상품 수정 */
     @PutMapping("/{id}")
     public ResponseEntity<?> update(
             @PathVariable Integer id,
@@ -121,7 +116,6 @@ public class AdminItemController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    /** 상품 삭제 */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
         return itemRepository.findById(id).map(item -> {
@@ -130,7 +124,6 @@ public class AdminItemController {
         }).orElse(ResponseEntity.notFound().build());
     }
 
-    /** 재고 수정 */
     @PatchMapping("/{id}/stock")
     public ResponseEntity<?> updateStock(@PathVariable Integer id, @RequestBody Map<String, Integer> body) {
         Integer stock = body.get("stockCount");

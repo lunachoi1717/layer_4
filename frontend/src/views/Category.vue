@@ -1,7 +1,6 @@
 <template>
   <div class="v-cat-page">
 
-    <!-- ── Page Header ── -->
     <div class="v-cat-page__header">
       <div class="v-container">
         <nav class="v-breadcrumb">
@@ -15,7 +14,7 @@
     </div>
 
     <div class="v-container">
-      <!-- ── Sort Bar ── -->
+
       <div class="v-sort-bar">
         <div class="v-sort-bar__options">
           <button
@@ -31,10 +30,8 @@
         <p class="v-sort-bar__count t-caption">{{ pagedItems.length }} / {{ sortedItems.length }}</p>
       </div>
 
-      <!-- ── Loading ── -->
       <div v-if="loading" class="v-spinner"></div>
 
-      <!-- ── Product Grid (3 columns, large images) ── -->
       <div v-else-if="pagedItems.length" class="v-cat-grid">
         <RouterLink
           v-for="item in pagedItems"
@@ -46,7 +43,7 @@
             <img :src="item.imgPath" :alt="item.name" loading="lazy" />
             <span v-if="item.discountPer > 0" class="v-product-card__badge v-product-card__badge--sale">{{ item.discountPer }}%</span>
             <span v-else-if="item.id % 7 === 0" class="v-product-card__badge">New</span>
-            <!-- Quick add button -->
+
             <button
               class="v-cat-grid__quick-add"
               @click.prevent="addToCart(item)"
@@ -67,13 +64,11 @@
         </RouterLink>
       </div>
 
-      <!-- ── Empty ── -->
       <div v-else class="v-cat-empty">
         <p class="t-heading" style="color:#C9B89A; font-weight:300">No items found</p>
         <p class="t-caption" style="margin-top:8px">검색 조건을 변경해보세요.</p>
       </div>
 
-      <!-- ── Pagination ── -->
       <div v-if="totalPages > 1" class="v-pagination">
         <button class="v-pagination__btn" :disabled="currentPage === 1" @click="currentPage--">←</button>
         <button
@@ -87,7 +82,6 @@
       </div>
     </div>
 
-    <!-- Toast -->
     <div v-if="toastMsg" class="v-toast">{{ toastMsg }}</div>
   </div>
 </template>
@@ -193,7 +187,6 @@ watch(currentPage, () => window.scrollTo({ top: 0, behavior: 'smooth' }))
 <style scoped>
 .v-cat-page { min-height: 70vh; padding-bottom: 80px; }
 
-/* Header */
 .v-cat-page__header {
   background: #F5F0E8;
   padding: 56px 0 40px;
@@ -208,7 +201,6 @@ watch(currentPage, () => window.scrollTo({ top: 0, behavior: 'smooth' }))
 .v-cat-page__title { margin-bottom: 8px; font-size: clamp(1.4rem, 3vw, 2rem); }
 .v-cat-page__count { color: #7A7269; }
 
-/* Sort bar */
 .v-sort-bar {
   display: flex;
   align-items: center;
@@ -234,7 +226,6 @@ watch(currentPage, () => window.scrollTo({ top: 0, behavior: 'smooth' }))
 .v-sort-btn:hover { color: #111; }
 .v-sort-btn--active { color: #1B3A2D; border-bottom-color: #1B3A2D; }
 
-/* Product grid — 4 columns */
 .v-cat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -244,7 +235,7 @@ watch(currentPage, () => window.scrollTo({ top: 0, behavior: 'smooth' }))
   aspect-ratio: 2 / 3;
   position: relative;
 }
-/* Quick-add button */
+
 .v-cat-grid__quick-add {
   position: absolute;
   bottom: 0; left: 0; right: 0;
@@ -263,10 +254,8 @@ watch(currentPage, () => window.scrollTo({ top: 0, behavior: 'smooth' }))
 .v-cat-grid__img:hover .v-cat-grid__quick-add { transform: translateY(0); }
 .v-cat-grid__quick-add:disabled { background: rgba(100,100,100,0.8); cursor: not-allowed; }
 
-/* Empty */
 .v-cat-empty { text-align: center; padding: 100px 0; }
 
-/* Pagination */
 .v-pagination {
   display: flex;
   justify-content: center;
