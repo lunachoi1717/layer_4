@@ -235,7 +235,7 @@ const qnaForm    = ref({ title: '', content: '', isSecret: false })
 
 const categoryLabels = {
   SCARVES: 'Scarves', READY_TO_WEAR: 'Ready to Wear',
-  PERFUME: 'Perfume', ACC: 'Accessories', BAG: 'Bags', SHOES: 'Shoes',
+  PERFUME: 'Perfume', ACC: 'Accessories', BAGS: 'Bags',
 }
 const categoryLabel = computed(() => categoryLabels[item.value?.category] || item.value?.category || '')
 

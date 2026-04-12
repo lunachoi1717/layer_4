@@ -7,11 +7,15 @@
       <table v-else class="admin-table">
         <thead>
           <tr>
-            <th>ID</th><th>상품</th><th>작성자</th><th>제목</th><th>비밀글</th><th>상태</th><th>작성일</th><th>관리</th>
+            <th @click="toggleSort('id')" class="sortable-th">ID <span class="sort-icon">{{ sortField==='id'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th>상품</th><th>작성자</th><th>제목</th><th>비밀글</th>
+            <th @click="toggleSort('isAnswered')" class="sortable-th">상태 <span class="sort-icon">{{ sortField==='isAnswered'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th @click="toggleSort('createdAt')" class="sortable-th">작성일 <span class="sort-icon">{{ sortField==='createdAt'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th>관리</th>
           </tr>
         </thead>
         <tbody>
-          <template v-for="q in questions" :key="q.id">
+          <template v-for="q in sortedQuestions" :key="q.id">
             <tr :class="{ 'row-expanded': expandedId === q.id }">
               <td>#{{ q.id }}</td>
               <td style="color:#9CA3AF">{{ q.itemId ? `#${q.itemId}` : '-' }}</td>
@@ -84,11 +88,35 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const questions = ref([])
 const loading = ref(false)
 const expandedId = ref(null)
+
+const sortField = ref('id')
+const sortAsc   = ref(false)
+
+function toggleSort(field) {
+  if (sortField.value === field) {
+    sortAsc.value = !sortAsc.value
+  } else {
+    sortField.value = field
+    sortAsc.value = false
+  }
+}
+
+const sortedQuestions = computed(() => {
+  const list = [...questions.value]
+  const f = sortField.value
+  return list.sort((a, b) => {
+    let va = a[f], vb = b[f]
+    if (f === 'createdAt') { va = new Date(va); vb = new Date(vb) }
+    if (va < vb) return sortAsc.value ? -1 : 1
+    if (va > vb) return sortAsc.value ? 1 : -1
+    return 0
+  })
+})
 const showAnswerModal = ref(false)
 const answerTarget = ref(null)
 const answerContent = ref('')
@@ -145,6 +173,9 @@ onMounted(loadQna)
 </script>
 
 <style scoped>
+.sortable-th { cursor: pointer; user-select: none; white-space: nowrap; }
+.sortable-th:hover { background: #F3F4F6; }
+.sort-icon { font-size: 0.7rem; color: #9CA3AF; margin-left: 4px; }
 .link-btn {
   background: none; border: none; color: #111827; font-size: 0.82rem;
   font-weight: 500; cursor: pointer; text-align: left; padding: 0;

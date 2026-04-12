@@ -15,7 +15,7 @@
         <RouterLink to="/category/READY_TO_WEAR" class="v-footer__link">Ready to Wear</RouterLink>
         <RouterLink to="/category/PERFUME"       class="v-footer__link">Perfume</RouterLink>
         <RouterLink to="/category/ACC"           class="v-footer__link">Accessories</RouterLink>
-        <RouterLink to="/category/BAG"           class="v-footer__link">Bags</RouterLink>
+        <RouterLink to="/category/BAGS"          class="v-footer__link">Bags</RouterLink>
         <RouterLink to="/category/SALE"          class="v-footer__link v-footer__link--sale">Sale</RouterLink>
       </div>
 

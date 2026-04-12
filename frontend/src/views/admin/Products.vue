@@ -14,18 +14,6 @@
         <option v-for="c in categories" :key="c" :value="c">{{ c }}</option>
       </select>
 
-      <!-- 정렬 -->
-      <select v-model="sortBy" class="admin-form-select filter-select">
-        <option value="id_asc">ID ↑</option>
-        <option value="id_desc">ID ↓</option>
-        <option value="price_asc">가격 ↑</option>
-        <option value="price_desc">가격 ↓</option>
-        <option value="discount_asc">할인율 ↑</option>
-        <option value="discount_desc">할인율 ↓</option>
-        <option value="stock_asc">재고 ↑</option>
-        <option value="stock_desc">재고 ↓</option>
-      </select>
-
       <div class="toolbar-right">
         <span class="result-count">총 {{ filteredProducts.length }}개</span>
         <button class="admin-btn admin-btn--primary" @click="openAddModal">+ 상품 등록</button>
@@ -38,8 +26,14 @@
       <table v-else class="admin-table">
         <thead>
           <tr>
-            <th>ID</th><th>이미지</th><th>상품명</th><th>카테고리</th>
-            <th>가격</th><th>할인</th><th>재고</th><th>관리</th>
+            <th @click="toggleSort('id')" class="sortable-th">ID <span class="sort-icon">{{ sortField==='id'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th>이미지</th>
+            <th @click="toggleSort('name')" class="sortable-th">상품명 <span class="sort-icon">{{ sortField==='name'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th>카테고리</th>
+            <th @click="toggleSort('price')" class="sortable-th">가격 <span class="sort-icon">{{ sortField==='price'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th @click="toggleSort('discountPer')" class="sortable-th">할인 <span class="sort-icon">{{ sortField==='discountPer'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th @click="toggleSort('stockCount')" class="sortable-th">재고 <span class="sort-icon">{{ sortField==='stockCount'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th>관리</th>
           </tr>
         </thead>
         <tbody>
@@ -147,7 +141,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const ITEMS_PER_PAGE = 10
 
@@ -162,13 +156,25 @@ const fileInput   = ref(null)
 // 필터 / 정렬
 const keyword        = ref('')
 const categoryFilter = ref('')
-const sortBy         = ref('id_asc')
+const sortField      = ref('id')
+const sortAsc        = ref(false)   // 기본 내림차순
 const currentPage    = ref(1)
+
+function toggleSort(field) {
+  if (sortField.value === field) {
+    sortAsc.value = !sortAsc.value
+  } else {
+    sortField.value = field
+    sortAsc.value = false
+  }
+  currentPage.value = 1
+}
 
 const categories = ['SCARVES', 'READY_TO_WEAR', 'PERFUME', 'ACC', 'BAGS', 'SALE']
 const imageList  = ref([])
 
 const form = ref({ name: '', category: 'SCARVES', description: '', price: 0, discountPer: 0, stockCount: 0, imgPath: '' })
+// 카테고리: SCARVES, READY_TO_WEAR, PERFUME, ACC, BAGS, SALE
 
 /* ── 필터 → 정렬 → 페이지 ── */
 const filteredProducts = computed(() => {
@@ -185,10 +191,12 @@ const filteredProducts = computed(() => {
 
 const sortedProducts = computed(() => {
   const list = [...filteredProducts.value]
-  const [field, dir] = sortBy.value.split('_')
-  const asc = dir === 'asc'
-  const key = { id: 'id', price: 'price', discount: 'discountPer', stock: 'stockCount' }[field] || 'id'
-  return list.sort((a, b) => asc ? (a[key] ?? 0) - (b[key] ?? 0) : (b[key] ?? 0) - (a[key] ?? 0))
+  const f = sortField.value
+  return list.sort((a, b) => {
+    let va = a[f], vb = b[f]
+    if (typeof va === 'string') return sortAsc.value ? va.localeCompare(vb) : vb.localeCompare(va)
+    return sortAsc.value ? (va ?? 0) - (vb ?? 0) : (vb ?? 0) - (va ?? 0)
+  })
 })
 
 const totalPages = computed(() => Math.max(1, Math.ceil(sortedProducts.value.length / ITEMS_PER_PAGE)))
@@ -212,7 +220,6 @@ const pageNumbers = computed(() => {
 
 // 필터 변경 시 페이지 초기화
 function applyFilter() { currentPage.value = 1 }
-watch(sortBy, () => { currentPage.value = 1 })
 
 /* ── API ── */
 async function loadProducts() {
@@ -287,6 +294,11 @@ onMounted(() => { loadProducts(); loadImageList() })
 </script>
 
 <style scoped>
+/* ── 헤더 정렬 ── */
+.sortable-th { cursor: pointer; user-select: none; white-space: nowrap; }
+.sortable-th:hover { background: #F3F4F6; }
+.sort-icon { font-size: 0.7rem; color: #9CA3AF; margin-left: 4px; }
+
 /* ── 툴바 ── */
 .products-toolbar {
   flex-wrap: wrap;

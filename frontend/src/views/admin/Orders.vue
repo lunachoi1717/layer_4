@@ -27,12 +27,16 @@
       <table v-else class="admin-table">
         <thead>
           <tr>
-            <th>주문번호</th><th>주문자</th><th>수령인</th><th>결제금액</th>
-            <th>결제수단</th><th>상태</th><th>주문일</th><th>관리</th>
+            <th @click="toggleSort('id')" class="sortable-th">주문번호 <span class="sort-icon">{{ sortField==='id'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th>주문자</th><th>수령인</th>
+            <th @click="toggleSort('amount')" class="sortable-th">결제금액 <span class="sort-icon">{{ sortField==='amount'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th>결제수단</th><th>상태</th>
+            <th @click="toggleSort('createdAt')" class="sortable-th">주문일 <span class="sort-icon">{{ sortField==='createdAt'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th>관리</th>
           </tr>
         </thead>
         <tbody>
-          <template v-for="o in orders" :key="o.id">
+          <template v-for="o in sortedOrders" :key="o.id">
             <tr>
               <td>#{{ o.id }}</td>
               <td>{{ o.memberName }}</td>
@@ -106,6 +110,30 @@ const loading = ref(false)
 const toast = ref('')
 const expandedId = ref(null)
 
+const sortField = ref('id')
+const sortAsc   = ref(false)
+
+function toggleSort(field) {
+  if (sortField.value === field) {
+    sortAsc.value = !sortAsc.value
+  } else {
+    sortField.value = field
+    sortAsc.value = false
+  }
+}
+
+const sortedOrders = computed(() => {
+  const list = [...orders.value]
+  const f = sortField.value
+  return list.sort((a, b) => {
+    let va = a[f], vb = b[f]
+    if (f === 'createdAt') { va = new Date(va); vb = new Date(vb) }
+    if (va < vb) return sortAsc.value ? -1 : 1
+    if (va > vb) return sortAsc.value ? 1 : -1
+    return 0
+  })
+})
+
 function toggleDetail(id) {
   expandedId.value = expandedId.value === id ? null : id
 }
@@ -177,6 +205,9 @@ onMounted(loadOrders)
 </script>
 
 <style scoped>
+.sortable-th { cursor: pointer; user-select: none; white-space: nowrap; }
+.sortable-th:hover { background: #F3F4F6; }
+.sort-icon { font-size: 0.7rem; color: #9CA3AF; margin-left: 4px; }
 .stats-mini { display: flex; align-items: center; font-size: 0.82rem; color: #6B7280; }
 .stats-mini strong { color: #111827; }
 .order-status-badge {

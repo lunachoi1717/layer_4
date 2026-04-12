@@ -4,8 +4,8 @@
 
     <div v-if="loading" class="loading-box"><div class="spinner"></div></div>
     <template v-else>
-      <!-- 통계 카드 -->
-      <div class="stats-grid">
+      <!-- 통계 카드 - 상단 6개 -->
+      <div class="stats-grid stats-grid--6">
         <div class="stat-card">
           <div class="stat-icon">👥</div>
           <div class="stat-body">
@@ -31,7 +31,7 @@
           <div class="stat-icon">💰</div>
           <div class="stat-body">
             <p class="stat-label">총 매출</p>
-            <p class="stat-value stat-value--nowrap">{{ stats.totalSales?.toLocaleString() }}원</p>
+            <p class="stat-value stat-value--sales">{{ stats.totalSales?.toLocaleString() }}원</p>
           </div>
         </div>
         <div class="stat-card">
@@ -48,6 +48,9 @@
             <p class="stat-value">{{ stats.paidOrders?.toLocaleString() }}</p>
           </div>
         </div>
+      </div>
+      <!-- 통계 카드 - 하단 5개 -->
+      <div class="stats-grid stats-grid--5">
         <div class="stat-card">
           <div class="stat-icon">🚚</div>
           <div class="stat-body">
@@ -154,7 +157,9 @@ onMounted(loadStats)
 </script>
 
 <style scoped>
-.stat-value--nowrap { white-space: nowrap; font-size: clamp(0.85rem, 1.5vw, 1.1rem); }
+.stats-grid--6 { grid-template-columns: repeat(6, 1fr) !important; margin-bottom: 12px; }
+.stats-grid--5 { grid-template-columns: repeat(5, 1fr) !important; margin-bottom: 20px; }
+.stat-value--sales { white-space: nowrap; font-size: clamp(0.75rem, 1.2vw, 1rem); }
 .low-stock { color: #c62828; font-weight: 700; }
 .status-pending_payment { color: #e65100; }
 .status-paid { color: #1565c0; }

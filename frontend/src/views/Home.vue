@@ -87,11 +87,11 @@
     ══════════════════════════════════════ -->
     <section class="v-promo-full">
       <div class="v-promo-full__img-wrap">
-        <img src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=1400&q=80" alt="Perfume Collection" />
+        <img src="/images/perfume_banner.png" alt="Perfume Collection" />
         <div class="v-promo-full__overlay"></div>
       </div>
       <div class="v-promo-full__body">
-        <p class="t-sub" style="color:#C9B89A; margin-bottom:16px">Fragrance · 2025 Collection</p>
+        <p class="t-sub" style="color:#C9B89A; margin-bottom:16px">Fragrance · 2026 Collection</p>
         <h2 class="t-display" style="color:#F5F0E8; margin-bottom:20px">The Art of<br>Invisible Luxury</h2>
         <p style="color:rgba(245,240,232,0.7); font-size:0.9rem; margin-bottom:32px; max-width:400px; line-height:1.8">
           향수는 가장 보이지 않는 럭셔리입니다.<br>벙딸리제의 향수 컬렉션을 만나보세요.
@@ -139,7 +139,7 @@
       <!-- Scarves -->
       <div class="v-split__panel">
         <div class="v-split__img-wrap">
-          <img src="https://images.unsplash.com/photo-1590736704728-f4730bb30770?w=800&q=80" alt="Scarves" />
+          <img src="/images/scarves3_banner.png" alt="Scarves" />
         </div>
         <div class="v-split__body">
           <p class="t-sub" style="color:#7A7269; margin-bottom:10px">Scarves</p>
@@ -151,13 +151,13 @@
       <!-- Bags -->
       <div class="v-split__panel v-split__panel--reverse">
         <div class="v-split__img-wrap">
-          <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=800&q=80" alt="Bags" />
+          <img src= "/images/bags2_banner.png" alt="Bags" />
         </div>
         <div class="v-split__body">
           <p class="t-sub" style="color:#7A7269; margin-bottom:10px">Bags</p>
           <h2 class="t-heading" style="margin-bottom:12px">Carry With<br>Intention</h2>
           <p class="t-body" style="color:#7A7269; margin-bottom:24px">이탈리안 레더부터 캔버스까지, 당신의 스타일을 완성하는 가방.</p>
-          <RouterLink to="/category/BAG" class="btn btn-primary">Shop Bags</RouterLink>
+          <RouterLink to="/category/BAGS" class="btn btn-primary">Shop Bags</RouterLink>
         </div>
       </div>
     </section>
@@ -234,9 +234,9 @@ let timer   = null
 
 const banners = [
   {
-    img: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=1600&q=80',
+    img: './images/scarves_banner.png',
     overlay: 'linear-gradient(90deg, rgba(27,58,45,0.72) 0%, rgba(27,58,45,0.1) 100%)',
-    eyebrow: '2025 S/S Collection',
+    eyebrow: '2026 S/S Collection',
     title: 'The Art\nof Draping',
     desc: '실크 스카프 하나로 완성되는 우아함',
     cta: 'Explore Scarves',
@@ -254,13 +254,13 @@ const banners = [
     align: 'right',
   },
   {
-    img: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=1600&q=80',
+    img: './images/bags_banner.png',
     overlay: 'linear-gradient(90deg, rgba(17,17,17,0.6) 0%, rgba(0,0,0,0.05) 100%)',
     eyebrow: 'Bags · New Season',
     title: 'Carry\nStories',
     desc: '이탈리안 가죽으로 완성한 이번 시즌의 주인공',
     cta: 'Discover Bags',
-    link: '/category/BAG',
+    link: '/category/BAGS',
     align: 'left',
   },
 ]
@@ -274,7 +274,7 @@ const quickCats = [
   { name: 'READY_TO_WEAR', label: 'Ready to Wear' },
   { name: 'PERFUME',       label: 'Perfume'       },
   { name: 'ACC',           label: 'Accessories'   },
-  { name: 'BAG',           label: 'Bags'          },
+  { name: 'BAGS',          label: 'Bags'          },
   { name: 'SALE',          label: 'Sale'          },
 ]
 

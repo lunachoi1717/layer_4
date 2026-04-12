@@ -78,7 +78,7 @@ public class AdminItemController {
         if (StringUtils.hasLength(keyword)) {
             items = itemRepository.findByNameContaining(keyword);
         } else {
-            items = itemRepository.findAll();
+            items = itemRepository.findAllByOrderByIdDesc();
         }
         return ResponseEntity.ok(items.stream().map(Item::toRead).toList());
     }

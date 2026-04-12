@@ -8,6 +8,8 @@ import java.util.Optional;
 
 public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
+    List<Review> findAllByOrderByCreatedAtDesc();
+
     List<Review> findAllByItemIdOrderByCreatedAtDesc(Integer itemId);
 
     List<Review> findAllByMemberIdOrderByCreatedAtDesc(Integer memberId);

@@ -71,7 +71,7 @@ public class ReviewService {
     }
 
     public List<ReviewRead> findAll() {
-        return reviewRepository.findAll().stream().map(this::toRead).toList();
+        return reviewRepository.findAllByOrderByCreatedAtDesc().stream().map(this::toRead).toList();
     }
 
     public boolean adminDelete(Integer id) {

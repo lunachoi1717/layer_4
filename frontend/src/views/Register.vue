@@ -228,7 +228,7 @@ async function handleRegister() {
 /* Right aside */
 .v-auth-aside {
   position: relative;
-  background: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&auto=format&fit=crop') center/cover no-repeat;
+  background: url("/images/perfume_banner.png") center/cover no-repeat;
   overflow: hidden;
 }
 .v-auth-aside-overlay {

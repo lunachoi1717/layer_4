@@ -12,6 +12,8 @@ public interface ItemRepository extends JpaRepository<Item, Integer> {
 
     List<Item> findAllByOrderByIdAsc();
 
+    List<Item> findAllByOrderByIdDesc();
+
     List<Item> findAllByCategoryInOrderByIdAsc(List<String> cts);
 
     List<Item> findByNameContainingOrderByIdAsc(String name);

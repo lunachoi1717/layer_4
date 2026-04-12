@@ -186,7 +186,7 @@ const categories = [
   { name: 'READY_TO_WEAR', label: 'Ready to Wear', to: '/category/READY_TO_WEAR' },
   { name: 'PERFUME',       label: 'Perfume',       to: '/category/PERFUME' },
   { name: 'ACC',           label: 'Accessories',   to: '/category/ACC' },
-  { name: 'BAG',           label: 'Bags',          to: '/category/BAG' },
+  { name: 'BAGS',          label: 'Bags',          to: '/category/BAGS' },
   { name: 'SALE',          label: 'Sale',          to: '/category/SALE' },
   { name: 'BOARD',         label: 'Board',         to: '/board' },
 ]

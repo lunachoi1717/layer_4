@@ -13,19 +13,19 @@
       <table v-else class="admin-table">
         <thead>
           <tr>
-            <th>ID</th>
-            <th>쿠폰명</th>
+            <th @click="toggleSort('id')" class="sortable-th">ID <span class="sort-icon">{{ sortField==='id'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th @click="toggleSort('name')" class="sortable-th">쿠폰명 <span class="sort-icon">{{ sortField==='name'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
             <th>코드</th>
-            <th>할인</th>
+            <th @click="toggleSort('discountValue')" class="sortable-th">할인 <span class="sort-icon">{{ sortField==='discountValue'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
             <th>대상 등급</th>
             <th>최소금액</th>
-            <th>유효기간</th>
-            <th>상태</th>
+            <th @click="toggleSort('validTo')" class="sortable-th">유효기간 <span class="sort-icon">{{ sortField==='validTo'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th @click="toggleSort('isActive')" class="sortable-th">상태 <span class="sort-icon">{{ sortField==='isActive'?(sortAsc?'↑':'↓'):'↕' }}</span></th>
             <th>관리</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="c in coupons" :key="c.id">
+          <tr v-for="c in sortedCoupons" :key="c.id">
             <td>#{{ c.id }}</td>
             <td style="font-weight:600">{{ c.name }}</td>
             <td><code class="coupon-code">{{ c.code }}</code></td>
@@ -121,10 +121,36 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const coupons = ref([])
 const loading = ref(false)
+
+const sortField = ref('id')
+const sortAsc   = ref(false)
+
+function toggleSort(field) {
+  if (sortField.value === field) {
+    sortAsc.value = !sortAsc.value
+  } else {
+    sortField.value = field
+    sortAsc.value = false
+  }
+}
+
+const sortedCoupons = computed(() => {
+  const list = [...coupons.value]
+  const f = sortField.value
+  return list.sort((a, b) => {
+    let va = a[f], vb = b[f]
+    if (typeof va === 'string' && typeof vb === 'string') {
+      return sortAsc.value ? va.localeCompare(vb) : vb.localeCompare(va)
+    }
+    if (va < vb) return sortAsc.value ? -1 : 1
+    if (va > vb) return sortAsc.value ? 1 : -1
+    return 0
+  })
+})
 const showModal = ref(false)
 const editTarget = ref(null)
 const saving = ref(false)
@@ -204,6 +230,9 @@ onMounted(loadCoupons)
 </script>
 
 <style scoped>
+.sortable-th { cursor: pointer; user-select: none; white-space: nowrap; }
+.sortable-th:hover { background: #F3F4F6; }
+.sort-icon { font-size: 0.7rem; color: #9CA3AF; margin-left: 4px; }
 .coupon-code {
   background: #F3F4F6;
   border: 1px solid #E5E7EB;

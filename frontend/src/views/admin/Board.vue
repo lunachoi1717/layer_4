@@ -44,10 +44,17 @@
 
       <table class="data-table">
         <thead>
-          <tr><th>ID</th><th>카테고리</th><th>질문</th><th>공개</th><th>등록일</th><th>관리</th></tr>
+          <tr>
+            <th @click="toggleFaqSort('id')" class="sortable-th">ID <span class="sort-icon">{{ faqSortField==='id'?(faqSortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th>카테고리</th>
+            <th>질문</th>
+            <th @click="toggleFaqSort('isPublished')" class="sortable-th">공개 <span class="sort-icon">{{ faqSortField==='isPublished'?(faqSortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th @click="toggleFaqSort('createdAt')" class="sortable-th">등록일 <span class="sort-icon">{{ faqSortField==='createdAt'?(faqSortAsc?'↑':'↓'):'↕' }}</span></th>
+            <th>관리</th>
+          </tr>
         </thead>
         <tbody>
-          <tr v-for="faq in faqs" :key="faq.id">
+          <tr v-for="faq in sortedFaqs" :key="faq.id">
             <td>{{ faq.id }}</td>
             <td><span class="cat-badge">{{ faq.category }}</span></td>
             <td class="td-left">{{ faq.question }}</td>
@@ -66,12 +73,22 @@
     <div v-if="activeTab === 'inquiry'">
       <div class="section-toolbar">
         <span class="count-label">미답변 <strong>{{ unansweredCount }}</strong>건 / 전체 {{ inquiries.length }}건</span>
-        <label class="filter-check">
-          <input type="checkbox" v-model="filterUnanswered" @change="fetchInquiries" /> 미답변만 보기
-        </label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <label class="filter-check">
+            <input type="checkbox" v-model="filterUnanswered" @change="fetchInquiries" /> 미답변만 보기
+          </label>
+          <select class="sort-select" v-model="inqSortField" @change="inqSortAsc = false">
+            <option value="id">최신순(ID)</option>
+            <option value="createdAt">등록일순</option>
+            <option value="isAnswered">답변상태</option>
+          </select>
+          <button class="sort-dir-btn" @click="inqSortAsc = !inqSortAsc">
+            {{ inqSortAsc ? '↑ 오름차순' : '↓ 내림차순' }}
+          </button>
+        </div>
       </div>
 
-      <div v-for="item in inquiries" :key="item.id" class="inquiry-card">
+      <div v-for="item in sortedInquiries" :key="item.id" class="inquiry-card">
         <div class="inquiry-card-header">
           <span class="cat-badge">{{ item.category }}</span>
           <span class="inquiry-member">{{ item.memberName }}</span>
@@ -104,6 +121,47 @@ const faqs = ref([])
 const inquiries = ref([])
 const filterUnanswered = ref(false)
 const answerTexts = ref({})
+
+// FAQ 정렬
+const faqSortField = ref('id')
+const faqSortAsc   = ref(false)
+
+function toggleFaqSort(field) {
+  if (faqSortField.value === field) {
+    faqSortAsc.value = !faqSortAsc.value
+  } else {
+    faqSortField.value = field
+    faqSortAsc.value = false
+  }
+}
+
+const sortedFaqs = computed(() => {
+  const list = [...faqs.value]
+  const f = faqSortField.value
+  return list.sort((a, b) => {
+    let va = a[f], vb = b[f]
+    if (f === 'createdAt') { va = new Date(va); vb = new Date(vb) }
+    if (va < vb) return faqSortAsc.value ? -1 : 1
+    if (va > vb) return faqSortAsc.value ? 1 : -1
+    return 0
+  })
+})
+
+// 문의 정렬
+const inqSortField = ref('id')
+const inqSortAsc   = ref(false)
+
+const sortedInquiries = computed(() => {
+  const list = [...inquiries.value]
+  const f = inqSortField.value
+  return list.sort((a, b) => {
+    let va = a[f], vb = b[f]
+    if (f === 'createdAt') { va = new Date(va); vb = new Date(vb) }
+    if (va < vb) return inqSortAsc.value ? -1 : 1
+    if (va > vb) return inqSortAsc.value ? 1 : -1
+    return 0
+  })
+})
 
 const unansweredCount = computed(() => inquiries.value.filter(i => !i.isAnswered).length)
 
@@ -226,6 +284,18 @@ onMounted(() => { fetchFaqs(); fetchInquiries() })
 .btn-edit { color: #1565c0; border-color: #1565c0; }
 .btn-delete { color: #c62828; border-color: #c62828; }
 .filter-check { font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+.sortable-th { cursor: pointer; user-select: none; white-space: nowrap; }
+.sortable-th:hover { background: #ebebeb; }
+.sort-icon { font-size: 0.7rem; color: #9CA3AF; margin-left: 4px; }
+.sort-select {
+  border: 1px solid #ddd; border-radius: 5px; padding: 5px 10px;
+  font-size: 12px; outline: none;
+}
+.sort-dir-btn {
+  padding: 5px 12px; background: #fff; border: 1px solid #ddd;
+  border-radius: 5px; cursor: pointer; font-size: 12px; color: #374151;
+}
+.sort-dir-btn:hover { background: #F3F4F6; }
 .inquiry-card {
   border: 1px solid #eee; border-radius: 8px; padding: 16px;
   margin-bottom: 12px; background: #fafafa;
